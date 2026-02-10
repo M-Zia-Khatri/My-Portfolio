@@ -1,0 +1,81 @@
+services:
+  # Database Service
+  db:
+    image: mariadb:11
+    container_name: portfolio-db
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASSWORD:-rootpassword}
+      MYSQL_DATABASE: ${DATABASE_NAME:-portfolio}
+      MYSQL_USER: ${DATABASE_USER:-portfolio_user}
+      MYSQL_PASSWORD: ${DATABASE_PASSWORD:-portfolio_pass}
+    ports:
+      - "${DATABASE_PORT:-3306}:3306"
+    volumes:
+      - db-data:/var/lib/mysql
+    networks:
+      - portfolio-network
+    healthcheck:
+      test: ["CMD", "healthcheck.sh", "--connect", "--innodb_initialized"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+
+  # Backend Service
+  server:
+    build:
+      context: ./server
+      dockerfile: Dockerfile
+    container_name: portfolio-server
+    restart: unless-stopped
+    environment:
+      NODE_ENV: ${NODE_ENV:-production}
+      PORT: ${PORT:-5000}
+      DATABASE_URL: ${DATABASE_URL}
+      DATABASE_HOST: ${DATABASE_HOST:-db}
+      DATABASE_PORT: ${DATABASE_PORT:-3306}
+      DATABASE_USER: ${DATABASE_USER:-portfolio_user}
+      DATABASE_PASSWORD: ${DATABASE_PASSWORD:-portfolio_pass}
+      DATABASE_NAME: ${DATABASE_NAME:-portfolio}
+    ports:
+      - "${PORT:-5000}:5000"
+    depends_on:
+      db:
+        condition: service_healthy
+    networks:
+      - portfolio-network
+    volumes:
+      - ./server/src:/app/src:ro
+      - ./server/prisma:/app/prisma:ro
+
+  # Frontend Service
+  client:
+    build:
+      context: ./client
+      dockerfile: Dockerfile
+      args:
+        VITE_API_URL: ${VITE_API_URL:-http://localhost:5000}
+    container_name: portfolio-client
+    restart: unless-stopped
+    ports:
+      - "${CLIENT_PORT:-80}:80"
+    depends_on:
+      - server
+    networks:
+      - portfolio-network
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+volumes:
+  db-data:
+    name: portfolio-db-data
+
+networks:
+  portfolio-network:
+    name: portfolio-network
+    driver: bridge

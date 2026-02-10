@@ -10,6 +10,8 @@ app.use(express.urlencoded({ extended: true }));
 import routes from "./routes/index.js";
 app.use("/api", routes);
 
+
+
 app.get("/", (req, res) => {
   res.json({ status: "OK", message: "Server running" });
 });
