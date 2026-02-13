@@ -1,5 +1,5 @@
-
-
 export const AppNavigation = {
-    HOME: '/'
+  HOME: '/',
+  WORK: '#work',
+  ABOUT: '#about',
 } as const;
