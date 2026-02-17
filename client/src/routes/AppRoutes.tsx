@@ -3,18 +3,17 @@ import { AppNavigation } from '../constants/navigation.constants';
 import AppLayout from '@/components/layout/AppLayout';
 import Home from '@/pages/Home/Home';
 
-
 const AppRoutes: RouteObject[] = [
   {
     path: AppNavigation.HOME,
-    Component: AppLayout ,
-    children:[
+    Component: AppLayout,
+    children: [
       {
         index: true,
-        Component: Home
-      }
-    ]
-  }
+        Component: Home,
+      },
+    ],
+  },
 ];
 
 export default AppRoutes;
