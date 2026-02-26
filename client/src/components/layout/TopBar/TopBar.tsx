@@ -3,11 +3,11 @@ import { AppNavigation } from "@/constants/navigation.constants";
 
 const navItems = [
   { label: "Home", href: AppNavigation.HOME },
-  { label: "Skills", href: AppNavigation.SKILLS },
+  // { label: "Skills", href: AppNavigation.SKILLS },
   { label: "About", href: AppNavigation.ABOUT },
   { label: "Portfolio", href: AppNavigation.PORTFOLIO },
   { label: "Experience", href: AppNavigation.EXPERIENCE },
-  { label: "Testimonials", href: AppNavigation.TESTIMONIALS },
+  // { label: "Testimonials", href: AppNavigation.TESTIMONIALS },
   { label: "Contact", href: AppNavigation.CONTACT },
 ] as const;
 

@@ -119,10 +119,8 @@
   }
   body {
     @apply bg-background text-foreground;
-    scroll-snap-type: y mandatory;
   }
 }
 html {
   scroll-behavior: smooth;
 }
-
