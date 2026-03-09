@@ -2,6 +2,7 @@ import { NavLink } from 'react-router';
 import { useEffect } from 'react';
 import { themeChange } from 'theme-change';
 import { AppNavigation } from '@/constants/navigation.constants';
+import { motion } from 'framer-motion';
 
 const navItems = [
   { label: 'Home', href: AppNavigation.HOME },
@@ -22,12 +23,42 @@ export default function TopBar() {
     themeChange(false);
   }, []);
 
+  const itemVariants = {
+    initial: {
+      color: 'var(--color-base-content)',
+      y: 0,
+      fontWeight: 400,
+      scale: 1.1,
+    },
+    hover: {
+      color: 'var(--color-primary)',
+      y: '-20%',
+      fontWeight: 600,
+      transition: {
+        // y: { duration: 0.2, ease: "easeOut" },
+        // delay: 0.1,
+        duration: 0.3,
+        ease: 'easeOut',
+      },
+    },
+  };
+
+  const underlineVariants = {
+    initial: { scaleX: 0, opacity: 0 },
+    hover: {
+      scaleX: 1,
+      opacity: 1,
+      transition: { delay: 0.1, duration: 0.3, ease: 'easeIn' },
+    },
+  };
+
   return (
-    <header className=''>
-      <div
-        className={
-          'bg-base-200 mx-auto mt-2 flex h-20 w-full max-w-6xl items-center justify-between gap-4 rounded-full px-16'
-        }
+    <header className='fixed top-4 z-50 w-full'>
+      <motion.div
+        initial={{ y: -100, opacity: 0 }}
+        animate={{ y: 0, opacity: 1 }}
+        transition={{ duration: 0.8, ease: 'easeOut' }}
+        className='bg-base-200/55 supports-backdrop-filter:bg-background/80 relative mx-auto flex h-15 w-full max-w-6xl items-center justify-between gap-6 rounded-full border border-(--color-border) border-t-(--color-highlight) px-10 shadow-[0_1px_5px_var(--color-shadow)] backdrop-blur'
       >
         <NavLink
           to={AppNavigation.HOME}
@@ -38,55 +69,51 @@ export default function TopBar() {
         </NavLink>
 
         <nav aria-label='Main navigation' className='flex-1 overflow-x-auto'>
-          <ul className='flex min-w-max items-center justify-center gap-1 text-sm font-medium'>
+          <ul className='flex min-w-max items-center justify-center gap-6 text-sm font-medium'>
             {navItems.map((item) => (
-              <li key={item.label}>
-                <NavLink
-                  to={item.href}
-                  className={({ isActive }) =>
-                    `group relative block px-4 py-3 font-semibold transition-transform duration-300 ease-out hover:-translate-y-0.5 ${
-                      isActive ? 'text-primary' : 'text-base-content'
-                    }`
-                  }
+              <motion.li
+                key={item.label}
+                initial='initial'
+                whileHover='hover'
+                className='relative list-none'
+              >
+                <motion.a
+                  href={item.href}
+                  variants={itemVariants}
+                  className='relative inline-block pb-1'
                 >
-                  {({ isActive }) => (
-                    <>
-                      <span className='relative block h-6 overflow-hidden leading-6'>
-                        <span
-                          className={`block transform transition-transform duration-300 ease-out group-hover:-translate-y-6 ${
-                            isActive ? '-translate-y-6' : 'translate-y-0'
-                          }`}
-                        >
-                          <span className='block h-6'>{item.label}</span>
-                          <span className='text-primary block h-6'>
-                            {item.label}
-                          </span>
-                        </span>
-                      </span>
-                      <span
-                        className={`bg-primary absolute bottom-1 left-4 h-px origin-left transition-transform duration-300 ease-out ${
-                          isActive
-                            ? 'right-4 scale-x-100'
-                            : 'right-4 scale-x-0 group-hover:scale-x-100'
-                        }`}
-                      />
-                    </>
-                  )}
-                </NavLink>
-              </li>
+                  {item.label}
+                  {/* This replaces the CSS ::after */}
+                  <motion.span
+                    variants={underlineVariants}
+                    className='bg-primary absolute right-0 bottom-0 left-0 h-0.5 origin-left'
+                    transition={{ type: 'spring', stiffness: 300, damping: 20 }}
+                  />
+                </motion.a>
+              </motion.li>
             ))}
           </ul>
         </nav>
 
-        <div className='flex shrink-0 items-center gap-2'>
-          <a
-            href='mailto:hello@example.com'
-            className='d-btn d-btn-sm d-btn-primary hidden sm:inline-flex'
-          >
-            Let&apos;s Talk
-          </a>
-        </div>
-      </div>
+        <motion.a
+          href='mailto:hello@example.com'
+          className='d-btn d-btn-secondary relative overflow-hidden rounded-full text-base font-semibold'
+        >
+          Let's Talk
+          <motion.span
+            initial={{ skewX: '-20deg' }}
+            animate={{ x: [-20, 120, -20] }}
+            transition={{
+              delay: 2,
+              repeatDelay: 2,
+              duration: 0.5,
+              repeat: Infinity,
+              repeatType: 'reverse',
+            }}
+            className='absolute top-0 left-0 h-full w-[10%] bg-(--color-highlight) blur-xs'
+          />
+        </motion.a>
+      </motion.div>
     </header>
   );
 }

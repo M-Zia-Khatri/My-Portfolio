@@ -1,4 +1,4 @@
-import { animate, motion } from "framer-motion";
+import { animate, motion } from 'framer-motion';
 import {
   useCallback,
   useEffect,
@@ -6,7 +6,7 @@ import {
   useState,
   type ComponentType,
   type TouchEvent,
-} from "react";
+} from 'react';
 import {
   AboutSection,
   ContactSection,
@@ -14,10 +14,9 @@ import {
   HomeSection,
   PortfolioSection,
   SkillsSection,
-  TestimonialsSection,
-} from "./sections";
+} from './sections';
 
-const TOP_BAR_HEIGHT = 80;
+const TOP_BAR_HEIGHT = 92;
 const SCROLL_DURATION_SECONDS = 0.7;
 const WHEEL_TRIGGER_THRESHOLD = 16;
 const SWIPE_TRIGGER_THRESHOLD = 56;
@@ -29,23 +28,23 @@ type SectionConfig = {
 
 const sections: SectionConfig[] = [
   {
-    id: "home",
+    id: 'home',
     Component: HomeSection,
   },
   {
-    id: "skills",
+    id: 'skills',
     Component: SkillsSection,
   },
   {
-    id: "about",
+    id: 'about',
     Component: AboutSection,
   },
   {
-    id: "portfolio",
+    id: 'portfolio',
     Component: PortfolioSection,
   },
   {
-    id: "experience",
+    id: 'experience',
     Component: ExperienceSection,
   },
   // {
@@ -53,19 +52,20 @@ const sections: SectionConfig[] = [
   //   Component: TestimonialsSection,
   // },
   {
-    id: "contact",
+    id: 'contact',
     Component: ContactSection,
   },
 ];
 
-const sectionClassName = "scroll-mt-24 border-t h-[calc(100dvh-5rem)] flex flex-col justify-center";
+const sectionClassName =
+  'scroll-mt-24 border-t h-[calc(100dvh-5rem)] flex flex-col justify-center';
 
 function clampIndex(index: number) {
   return Math.min(Math.max(index, 0), sections.length - 1);
 }
 
 function getSectionIndexFromHash(hash: string) {
-  const normalizedHash = hash.replace("#", "");
+  const normalizedHash = hash.replace('#', '');
   return sections.findIndex((section) => section.id === normalizedHash);
 }
 
@@ -80,7 +80,7 @@ export default function Home() {
   const updateHash = useCallback((nextIndex: number) => {
     const nextHash = `#${sections[nextIndex].id}`;
     if (window.location.hash !== nextHash) {
-      window.history.replaceState(null, "", nextHash);
+      window.history.replaceState(null, '', nextHash);
     }
   }, []);
 
@@ -88,10 +88,13 @@ export default function Home() {
     if (unlockTimerRef.current !== null) {
       window.clearTimeout(unlockTimerRef.current);
     }
-    unlockTimerRef.current = window.setTimeout(() => {
-      isAnimatingRef.current = false;
-      unlockTimerRef.current = null;
-    }, Math.ceil(SCROLL_DURATION_SECONDS * 1000) + 80);
+    unlockTimerRef.current = window.setTimeout(
+      () => {
+        isAnimatingRef.current = false;
+        unlockTimerRef.current = null;
+      },
+      Math.ceil(SCROLL_DURATION_SECONDS * 1000) + 80,
+    );
   }, []);
 
   const scrollToSection = useCallback(
@@ -104,7 +107,10 @@ export default function Home() {
       }
 
       const targetTop = Math.max(targetSection.offsetTop - TOP_BAR_HEIGHT, 0);
-      if (nextIndex === activeIndexRef.current && Math.abs(window.scrollY - targetTop) < 2) {
+      if (
+        nextIndex === activeIndexRef.current &&
+        Math.abs(window.scrollY - targetTop) < 2
+      ) {
         return;
       }
 
@@ -117,7 +123,7 @@ export default function Home() {
         duration: SCROLL_DURATION_SECONDS,
         ease: [0.22, 1, 0.36, 1],
         onUpdate: (latest) => {
-          window.scrollTo({ top: latest, behavior: "auto" });
+          window.scrollTo({ top: latest, behavior: 'auto' });
         },
       });
 
@@ -132,7 +138,10 @@ export default function Home() {
 
   useEffect(() => {
     const handleWheel = (event: WheelEvent) => {
-      if (Math.abs(event.deltaY) < WHEEL_TRIGGER_THRESHOLD || isAnimatingRef.current) {
+      if (
+        Math.abs(event.deltaY) < WHEEL_TRIGGER_THRESHOLD ||
+        isAnimatingRef.current
+      ) {
         return;
       }
 
@@ -147,9 +156,9 @@ export default function Home() {
       scrollToSection(nextIndex);
     };
 
-    window.addEventListener("wheel", handleWheel, { passive: false });
+    window.addEventListener('wheel', handleWheel, { passive: false });
     return () => {
-      window.removeEventListener("wheel", handleWheel);
+      window.removeEventListener('wheel', handleWheel);
     };
   }, [scrollToSection]);
 
@@ -159,20 +168,20 @@ export default function Home() {
         return;
       }
 
-      if (event.key === "ArrowDown" || event.key === "PageDown") {
+      if (event.key === 'ArrowDown' || event.key === 'PageDown') {
         event.preventDefault();
         scrollToSection(activeIndexRef.current + 1);
       }
 
-      if (event.key === "ArrowUp" || event.key === "PageUp") {
+      if (event.key === 'ArrowUp' || event.key === 'PageUp') {
         event.preventDefault();
         scrollToSection(activeIndexRef.current - 1);
       }
     };
 
-    window.addEventListener("keydown", handleKeyDown);
+    window.addEventListener('keydown', handleKeyDown);
     return () => {
-      window.removeEventListener("keydown", handleKeyDown);
+      window.removeEventListener('keydown', handleKeyDown);
     };
   }, [scrollToSection]);
 
@@ -184,7 +193,7 @@ export default function Home() {
       }
 
       const anchor = target.closest<HTMLAnchorElement>('a[href^="#"]');
-      const href = anchor?.getAttribute("href");
+      const href = anchor?.getAttribute('href');
       if (!href) {
         return;
       }
@@ -198,9 +207,9 @@ export default function Home() {
       scrollToSection(nextIndex);
     };
 
-    document.addEventListener("click", handleAnchorClick);
+    document.addEventListener('click', handleAnchorClick);
     return () => {
-      document.removeEventListener("click", handleAnchorClick);
+      document.removeEventListener('click', handleAnchorClick);
     };
   }, [scrollToSection]);
 
@@ -214,11 +223,11 @@ export default function Home() {
       scrollToSection(nextIndex);
     };
 
-    window.addEventListener("hashchange", handleHashChange);
+    window.addEventListener('hashchange', handleHashChange);
     handleHashChange();
 
     return () => {
-      window.removeEventListener("hashchange", handleHashChange);
+      window.removeEventListener('hashchange', handleHashChange);
     };
   }, [scrollToSection]);
 
@@ -241,7 +250,7 @@ export default function Home() {
     }
 
     const endY = event.changedTouches[0]?.clientY;
-    if (typeof endY !== "number") {
+    if (typeof endY !== 'number') {
       touchStartYRef.current = null;
       return;
     }
@@ -256,7 +265,11 @@ export default function Home() {
     scrollToSection(activeIndexRef.current + (deltaY > 0 ? 1 : -1));
   };
   return (
-    <div className="mx-auto max-w-6xl px-4" onTouchEnd={handleTouchEnd} onTouchStart={handleTouchStart}>
+    <div
+      className='mx-auto max-w-6xl px-4'
+      onTouchEnd={handleTouchEnd}
+      onTouchStart={handleTouchStart}
+    >
       {sections.map((section, index) => {
         const SectionComponent = section.Component;
 
@@ -267,7 +280,11 @@ export default function Home() {
             ref={(element) => {
               sectionRefs.current[index] = element;
             }}
-            className={index === 0 ? "scroll-mt-24 h-[calc(100dvh-5rem)] flex flex-col justify-center" : sectionClassName}
+            className={
+              index === 0
+                ? 'flex h-[calc(100dvh-5rem)] scroll-mt-24 flex-col justify-center'
+                : sectionClassName
+            }
             initial={{ opacity: 0, y: 36 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ amount: 0.55 }}

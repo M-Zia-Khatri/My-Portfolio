@@ -59,10 +59,12 @@
   --color-base-100: hsl(206 100% 1%);
   --color-base-200: hsl(199 88% 4%);
   --color-base-300: hsl(197 57% 8%);
-  --color-base-content: hsl(198 100% 93%);
 
+  --color-base-content: hsl(198 100% 93%);
+  --color-base-content-muted: hsl(197 35% 68%);
+  
   --color-primary: hsl(196 68% 64%);
-  --color-primary-content: hsl(196, 68%, 44%);
+  --color-primary-content: hsl(200, 70%, 44%);
 
   --color-secondary: hsl(19 69% 69%);
   --color-secondary-content: hsl(19 69% 49%);
@@ -72,6 +74,15 @@
 
   --color-neutral: hsl(206 100% 1%);
   --color-neutral-content: hsl(206, 100%, 99%);
+
+  --color-highlight:hsl(197 29% 37%);
+  --color-border: hsl(197 40% 26%);
+  --color-border-muted: hsl(195 74% 15%);
+
+  --gradient: linear-gradient(0deg, hsl(199 88% 4%) 97%,  hsl(197 57% 8%));
+  --gradient-hover: linear-gradient(0deg, hsl(199 88% 4%), hsl(197 57% 8%));
+
+  --color-shadow: hsl(196 72% 6%);
 
   --color-info: hsl(217 28% 65%);
   --color-info-content: hsl(217, 28%, 45%);
@@ -92,8 +103,8 @@
   --size-selector: 0.25rem;
   --size-field: 0.25rem;
   --border: 1px;
-  --depth: 1px;
-  --noise: 0;
+  --depth: 2px;
+  --noise: 1px;
 
   --font-base: 400 1rem/1.5 "Inter", sans-serif;
 }
@@ -104,4 +115,19 @@
     @apply bg-base-100 text-base-content;
     font: var(--font-base);
   }
+}
+
+/* Hide scrollbar */
+::-webkit-scrollbar {
+  display: none;
+}
+
+html {
+  scroll-behavior: smooth;
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+body {
+  scroll-snap-type: y mandatory;
 }
