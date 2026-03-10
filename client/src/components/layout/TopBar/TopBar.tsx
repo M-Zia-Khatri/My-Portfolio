@@ -1,8 +1,16 @@
 import { NavLink } from 'react-router';
-import { useEffect } from 'react';
-import { themeChange } from 'theme-change';
 import { AppNavigation } from '@/constants/navigation.constants';
 import { motion } from 'framer-motion';
+import {
+  Box,
+  Button,
+  Card,
+  Container,
+  Flex,
+  Link,
+  Text,
+} from '@radix-ui/themes';
+import { cn } from '@/lib/utils/utils';
 
 const navItems = [
   { label: 'Home', href: AppNavigation.HOME },
@@ -15,29 +23,19 @@ const navItems = [
 ] as const;
 
 export default function TopBar() {
-  useEffect(() => {
-    const savedTheme = localStorage.getItem('theme');
-    if (!savedTheme) {
-      document.documentElement.setAttribute('data-theme', 'portfolio-dark');
-    }
-    themeChange(false);
-  }, []);
-
   const itemVariants = {
     initial: {
-      color: 'var(--color-base-content)',
       y: 0,
+      opacity: 0.9,
       fontWeight: 400,
-      scale: 1.1,
     },
     hover: {
-      color: 'var(--color-primary)',
-      y: '-20%',
-      fontWeight: 600,
+      y: -5,
+      opacity: 1,
+      fontWeight: 500,
+      scale: 1.02,
       transition: {
-        // y: { duration: 0.2, ease: "easeOut" },
-        // delay: 0.1,
-        duration: 0.3,
+        duration: 0.25,
         ease: 'easeOut',
       },
     },
@@ -53,67 +51,98 @@ export default function TopBar() {
   };
 
   return (
-    <header className='fixed top-4 z-50 w-full'>
-      <motion.div
-        initial={{ y: -100, opacity: 0 }}
-        animate={{ y: 0, opacity: 1 }}
-        transition={{ duration: 0.8, ease: 'easeOut' }}
-        className='bg-base-200/55 supports-backdrop-filter:bg-background/80 relative mx-auto flex h-15 w-full max-w-6xl items-center justify-between gap-6 rounded-full border border-(--color-border) border-t-(--color-highlight) px-10 shadow-[0_1px_5px_var(--color-shadow)] backdrop-blur'
-      >
-        <NavLink
-          to={AppNavigation.HOME}
-          className='flex shrink-0 items-center gap-2'
-        >
-          <img src='/vite.svg' alt='Brand logo' className='h-8 w-8' />
-          <span className='text-lg font-semibold'>My Portfolio</span>
-        </NavLink>
-
-        <nav aria-label='Main navigation' className='flex-1 overflow-x-auto'>
-          <ul className='flex min-w-max items-center justify-center gap-6 text-sm font-medium'>
-            {navItems.map((item) => (
-              <motion.li
-                key={item.label}
-                initial='initial'
-                whileHover='hover'
-                className='relative list-none'
-              >
-                <motion.a
-                  href={item.href}
-                  variants={itemVariants}
-                  className='relative inline-block pb-1'
+    <Box asChild className='fixed top-4 z-50 w-full px-4'>
+      <header>
+        <Container>
+          <Card
+            asChild
+            size='2'
+            variant='surface'
+            className={cn(
+              `mx-auto flex w-full items-center rounded-full shadow-[0_2px_10px_color-mix(in_srgb,var(--gray-3),transparent_50%)] outline-2 -outline-offset-2 backdrop-blur-lg`,
+              'h-15',
+              'gap-4',
+              'px-8',
+            )}
+            style={{ outlineColor: 'var(--gray-6)' }}
+          >
+            <motion.div
+              initial={{ y: -80, opacity: 0 }}
+              animate={{ y: 0, opacity: 1 }}
+              transition={{ duration: 0.65, ease: 'easeOut' }}
+            >
+              <Link asChild underline='none' className='shrink-0'>
+                <NavLink
+                  to={AppNavigation.HOME}
+                  className='flex items-center gap-2'
                 >
-                  {item.label}
-                  {/* This replaces the CSS ::after */}
+                  <img src='/vite.svg' alt='Brand logo' className='h-8 w-8' />
+                  <Text size='3' weight='bold'>
+                    My Portfolio
+                  </Text>
+                </NavLink>
+              </Link>
+
+              <Box asChild className='flex-1 overflow-x-auto'>
+                <nav aria-label='Main navigation'>
+                  <Flex asChild align='center' justify='center' gap='5'>
+                    <ul className='min-w-max'>
+                      {navItems.map((item) => (
+                        <motion.li
+                          key={item.label}
+                          initial='initial'
+                          whileHover='hover'
+                          className='relative list-none'
+                          variants={itemVariants}
+                        >
+                          <Link asChild underline='none'>
+                            <NavLink
+                              to={item.href}
+                              className={`relative inline-flex items-center pb-1`}
+                            >
+                              <Text size='2' >
+                                {item.label}
+                              </Text>
+                              <motion.span
+                                variants={underlineVariants}
+                                className='absolute right-0 -bottom-0.5 left-0 h-0.5 origin-left rounded-full'
+                                style={{ backgroundColor: 'var(--blue-9)' }}
+                              />
+                            </NavLink>
+                          </Link>
+                        </motion.li>
+                      ))}
+                    </ul>
+                  </Flex>
+                </nav>
+              </Box>
+
+              <Button asChild radius='full' size='2' className='shrink-0'>
+                <motion.a
+                  href='mailto:hello@example.com'
+                  className='relative overflow-hidden'
+                >
+                  <Text >
+                  Let's Talk
+                  </Text>
                   <motion.span
-                    variants={underlineVariants}
-                    className='bg-primary absolute right-0 bottom-0 left-0 h-0.5 origin-left'
-                    transition={{ type: 'spring', stiffness: 300, damping: 20 }}
+                    initial={{ skewX: '-18deg' }}
+                    animate={{ x: [-24, 140, -24] }}
+                    transition={{
+                      delay: 1.5,
+                      repeatDelay: 2.5,
+                      duration: 0.65,
+                      repeat: Infinity,
+                      repeatType: 'reverse',
+                    }}
+                    className='bg-(--gray-10) pointer-events-none absolute top-0 left-0 h-full w-4 blur-sm'
                   />
                 </motion.a>
-              </motion.li>
-            ))}
-          </ul>
-        </nav>
-
-        <motion.a
-          href='mailto:hello@example.com'
-          className='d-btn d-btn-secondary relative overflow-hidden rounded-full text-base font-semibold'
-        >
-          Let's Talk
-          <motion.span
-            initial={{ skewX: '-20deg' }}
-            animate={{ x: [-20, 120, -20] }}
-            transition={{
-              delay: 2,
-              repeatDelay: 2,
-              duration: 0.5,
-              repeat: Infinity,
-              repeatType: 'reverse',
-            }}
-            className='absolute top-0 left-0 h-full w-[10%] bg-(--color-highlight) blur-xs'
-          />
-        </motion.a>
-      </motion.div>
-    </header>
+              </Button>
+            </motion.div>
+          </Card>
+        </Container>
+      </header>
+    </Box>
   );
 }
