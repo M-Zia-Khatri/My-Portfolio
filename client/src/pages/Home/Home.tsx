@@ -11,7 +11,7 @@ import {
   AboutSection,
   ContactSection,
   ExperienceSection,
-  HomeSection,
+  HeroSection,
   PortfolioSection,
   SkillsSection,
 } from './sections';
@@ -29,7 +29,7 @@ type SectionConfig = {
 const sections: SectionConfig[] = [
   {
     id: 'home',
-    Component: HomeSection,
+    Component: HeroSection,
   },
   {
     id: 'skills',
@@ -282,8 +282,8 @@ export default function Home() {
             }}
             className={
               index === 0
-                ? 'flex h-[calc(100dvh-5rem)] scroll-mt-24 flex-col justify-center'
-                : sectionClassName
+                ? 'relative flex h-[calc(100dvh-5rem)] scroll-mt-24 flex-col justify-center'
+                : `${sectionClassName} relative`
             }
             initial={{ opacity: 0, y: 36 }}
             whileInView={{ opacity: 1, y: 0 }}
