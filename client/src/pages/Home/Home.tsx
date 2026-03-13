@@ -15,6 +15,7 @@ import {
   PortfolioSection,
   SkillsSection,
 } from './sections';
+import { useNavigationStore } from '@/lib/store/navigation.store';
 
 const TOP_BAR_HEIGHT = 92;
 const SCROLL_DURATION_SECONDS = 0.7;
@@ -76,11 +77,14 @@ export default function Home() {
   const isAnimatingRef = useRef(false);
   const unlockTimerRef = useRef<number | null>(null);
   const touchStartYRef = useRef<number | null>(null);
+  const setActiveHash = useNavigationStore((s) => s.setActiveHash); // ← add
 
+  // eslint-disable-next-line react-hooks/preserve-manual-memoization
   const updateHash = useCallback((nextIndex: number) => {
     const nextHash = `#${sections[nextIndex].id}`;
     if (window.location.hash !== nextHash) {
       window.history.replaceState(null, '', nextHash);
+      setActiveHash(nextHash);  // ← sync store
     }
   }, []);
 
@@ -266,7 +270,7 @@ export default function Home() {
   };
   return (
     <div
-      className='mx-auto max-w-6xl px-4'
+      className='mx-auto px-4'
       onTouchEnd={handleTouchEnd}
       onTouchStart={handleTouchStart}
     >
@@ -282,8 +286,8 @@ export default function Home() {
             }}
             className={
               index === 0
-                ? 'relative flex h-[calc(100dvh-5rem)] scroll-mt-24 flex-col justify-center'
-                : `${sectionClassName} relative`
+                ? 'flex h-[calc(100dvh-5rem)] scroll-mt-24 flex-col justify-center'
+                : `${sectionClassName} `
             }
             initial={{ opacity: 0, y: 36 }}
             whileInView={{ opacity: 1, y: 0 }}

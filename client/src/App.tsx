@@ -10,7 +10,7 @@ export default function App() {
       grayColor='gray'
       radius='small'
       scaling='100%'
-      className='bg-(--color-background)'
+      className='bg-(--color-background) overflow-hidden'
     >
       <RouterProvider router={AppRouter} />
     </Theme>
