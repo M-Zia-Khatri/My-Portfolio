@@ -33,12 +33,12 @@ const sections: SectionConfig[] = [
     Component: HeroSection,
   },
   {
-    id: 'skills',
-    Component: SkillsSection,
-  },
-  {
     id: 'about',
     Component: AboutSection,
+  },
+  {
+    id: 'skills',
+    Component: SkillsSection,
   },
   {
     id: 'portfolio',
