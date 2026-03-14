@@ -15,7 +15,7 @@ const navItems = [
 ] as const;
 
 export default function TopBar() {
-  const {activeHash , setActiveHash} = useNavigationStore(); // ← single source of truth
+  const { activeHash, setActiveHash } = useNavigationStore(); // ← single source of truth
   console.log(activeHash)
 
   const itemVariants = {
@@ -29,7 +29,7 @@ export default function TopBar() {
   const underlineVariants = {
     initial: { scaleX: 0, opacity: 0 },
     active: { scaleX: 1, opacity: 1, transition: { duration: 0.3, ease: 'easeIn' } },
-    hover:  { scaleX: 1, opacity: 1, transition: { delay: 0.1, duration: 0.3, ease: 'easeIn' } },
+    hover: { scaleX: 1, opacity: 1, transition: { delay: 0.1, duration: 0.3, ease: 'easeIn' } },
   };
 
   return (
@@ -40,10 +40,10 @@ export default function TopBar() {
             asChild size='2' variant='surface'
             className={cn(
               'mx-auto flex w-full items-center rounded-full outline-2 -outline-offset-2 backdrop-blur-lg',
-              'h-15', 'gap-4', 'px-8',
+              'h-15', 'gap-4', 'px-8 shadow-[0_2px_15px_color-mix(in_srgb,var(--blue-3),transparent_5%)]',
               activeHash === AppNavigation.HOME
-                ? 'bg-none'
-                : 'shadow-[0_2px_15px_color-mix(in_srgb,var(--blue-3),transparent_10%)]',
+                ? 'bg-(--blue-4)/10'
+                : 'bg-(--blue-4)/20 ',
             )}
             style={{ outlineColor: 'var(--gray-6)' }}
           >
@@ -77,7 +77,7 @@ export default function TopBar() {
                             whileHover='hover'
                             className='relative list-none'
                             variants={itemVariants}
-                            onClick={()=>{setActiveHash(item.href)}}
+                            onClick={() => { setActiveHash(item.href) }}
                           >
                             <Link asChild underline='none'>
                               {isRoute ? (
@@ -111,15 +111,15 @@ export default function TopBar() {
               </Box>
 
               {/* let's talk btn */}
-              <Button asChild radius='full' size='2' color='gray' className='shrink-0'>
+              <Button asChild radius='full' color='gray' className='shrink-0'>
                 <motion.a href='mailto:hello@example.com' className='relative overflow-hidden'>
                   <motion.span
                     initial={{ skewX: '-18deg' }}
                     animate={{ x: [-24, 140, -24] }}
                     transition={{ delay: 1.5, repeatDelay: 2.5, duration: 1, repeat: Infinity, repeatType: 'reverse' }}
-                    className='pointer-events-none absolute top-0 left-0 h-full w-4 bg-(--blue-10) blur-sm'
+                    className='pointer-events-none absolute top-0 left-0 h-full bg-(--blue-10) blur-sm'
                   />
-                  <Text weight='bold'>Let's Talk</Text>
+                  <Text size={"3"} weight='bold' >Let's Talk</Text>
                 </motion.a>
               </Button>
             </motion.div>
