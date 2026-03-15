@@ -1,9 +1,10 @@
-import { NavLink } from 'react-router';                          // ← remove useLocation
-import { useNavigationStore } from '@/lib/store/navigation.store'; // ← add
+import { NavLink } from 'react-router';
+import { useNavigationStore } from '@/lib/store/navigation.store';
 import { AppNavigation } from '@/constants/navigation.constants';
 import { motion } from 'framer-motion';
 import { Box, Button, Card, Container, Flex, Link, Text } from '@radix-ui/themes';
 import { cn } from '@/lib/utils';
+import { useEffect, useRef, useState } from 'react';
 
 const navItems = [
   { label: 'Home', href: AppNavigation.HOME },
@@ -14,14 +15,54 @@ const navItems = [
   { label: 'Contact', href: AppNavigation.CONTACT },
 ] as const;
 
+/** How long (ms) the user must keep scrolling DOWN before the bar hides */
+const HIDE_DELAY_MS = 4000;
+
 export default function TopBar() {
-  const { activeHash, setActiveHash } = useNavigationStore(); // ← single source of truth
-  console.log(activeHash)
+  const { activeHash, setActiveHash } = useNavigationStore();
+
+  // ── scroll-hide logic ─────────────────────────────────────────────────────
+  const [hidden, setHidden] = useState(false);
+  const lastScrollY = useRef(0);
+  const hideTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  useEffect(() => {
+    const onScroll = () => {
+      const currentY = window.scrollY;
+      const scrollingDown = currentY > lastScrollY.current;
+
+      if (scrollingDown) {
+        // Only schedule a hide when one isn't already pending
+        if (!hideTimer.current) {
+          hideTimer.current = setTimeout(() => {
+            setHidden(true);
+            hideTimer.current = null;
+          }, HIDE_DELAY_MS);
+        }
+      } else {
+        // Cancel any pending hide and immediately reveal the bar
+        if (hideTimer.current) {
+          clearTimeout(hideTimer.current);
+          hideTimer.current = null;
+        }
+        setHidden(false);
+      }
+
+      lastScrollY.current = currentY;
+    };
+
+    window.addEventListener('scroll', onScroll, { passive: true });
+    return () => {
+      window.removeEventListener('scroll', onScroll);
+      if (hideTimer.current) clearTimeout(hideTimer.current);
+    };
+  }, []);
+  // ─────────────────────────────────────────────────────────────────────────
 
   const itemVariants = {
     initial: { y: 0, opacity: 0.9, fontWeight: 400 },
     hover: {
-      y: -5, opacity: 1, fontWeight: 500, scale: 1.02,
+      y: -5, opacity: 1, fontWeight: 500, scale: 1.02, margin: '0 1%',
       transition: { duration: 0.25, ease: 'easeOut' },
     },
   };
@@ -34,24 +75,39 @@ export default function TopBar() {
 
   return (
     <Box asChild className='fixed top-4 z-50 w-full px-4'>
-      <header>
+      <motion.header
+        // Mount: slide in from above
+        initial={{ y: -80, opacity: 0 }}
+        // Scroll state drives hide/show after mount
+        animate={{
+          y: hidden ? '-120%' : '0%',
+          opacity: hidden ? 0 : 1,
+        }}
+        transition={{
+          // Slower, easeIn feels heavier/purposeful when hiding
+          // Faster, easeOut snaps back confidently when showing
+          duration: hidden ? 0.45 : 0.35,
+          ease: hidden ? 'easeIn' : 'easeOut',
+        }}
+        style={{ willChange: 'transform, opacity' }}
+      >
         <Container size={{ initial: '3' }}>
           <Card
             asChild size='2' variant='surface'
             className={cn(
               'mx-auto flex w-full items-center rounded-full outline-2 -outline-offset-2 backdrop-blur-lg',
-              'h-15', 'gap-4', 'px-8 shadow-[0_2px_15px_color-mix(in_srgb,var(--blue-3),transparent_5%)]',
+              'h-15', 'gap-4', 'px-8 shadow-[0_2px_15px_color-mix(in_srgb,var(--blue-3),transparent_10%)]',
               activeHash === AppNavigation.HOME
-                ? 'bg-(--blue-4)/10'
-                : 'bg-(--blue-4)/20 ',
+                ? 'bg-(--blue-4)/15'
+                : 'bg-(--blue-4)/20',
             )}
             style={{ outlineColor: 'var(--gray-6)' }}
           >
             <motion.div
               className='flex w-full items-center justify-between gap-4'
-              initial={{ y: -80, opacity: 0 }}
-              animate={{ y: 0, opacity: 1 }}
-              transition={{ duration: 0.65, ease: 'easeOut' }}
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 0.15, duration: 0.5, ease: 'easeOut' }}
             >
               {/* brand logo */}
               <Link asChild underline='none' className='shrink-0'>
@@ -77,7 +133,7 @@ export default function TopBar() {
                             whileHover='hover'
                             className='relative list-none'
                             variants={itemVariants}
-                            onClick={() => { setActiveHash(item.href) }}
+                            onClick={() => setActiveHash(item.href)}
                           >
                             <Link asChild underline='none'>
                               {isRoute ? (
@@ -119,13 +175,13 @@ export default function TopBar() {
                     transition={{ delay: 1.5, repeatDelay: 2.5, duration: 1, repeat: Infinity, repeatType: 'reverse' }}
                     className='pointer-events-none absolute top-0 left-0 h-full bg-(--blue-10) blur-sm'
                   />
-                  <Text size={"3"} weight='bold' >Let's Talk</Text>
+                  <Text size={'3'} weight='bold'>Let's Talk</Text>
                 </motion.a>
               </Button>
             </motion.div>
           </Card>
         </Container>
-      </header>
+      </motion.header>
     </Box>
   );
 }
