@@ -5,6 +5,7 @@ import { motion } from 'framer-motion';
 import { Box, Button, Card, Container, Flex, Link, Text } from '@radix-ui/themes';
 import { cn } from '@/lib/utils';
 import { useEffect, useRef, useState } from 'react';
+import { TEXT } from '@/constants/style.constants';
 
 const navItems = [
   { label: 'Home', href: AppNavigation.HOME },
@@ -113,7 +114,7 @@ export default function TopBar() {
               <Link asChild underline='none' className='shrink-0'>
                 <NavLink to={AppNavigation.HOME} className='flex items-center gap-2'>
                   <img src='/vite.svg' alt='Brand logo' className='h-8 w-8' />
-                  <Text size='3' weight='bold' className='text-white'>My Portfolio</Text>
+                  <Text size={TEXT.lg.size} weight='bold' className='text-white'>My Portfolio</Text>
                 </NavLink>
               </Link>
 
@@ -138,7 +139,7 @@ export default function TopBar() {
                             <Link asChild underline='none'>
                               {isRoute ? (
                                 <NavLink to={item.href} className='relative inline-flex items-center pb-1'>
-                                  <Text size='2' className='text-white'>{item.label}</Text>
+                                  <Text size={TEXT.base.size} className='text-white'>{item.label}</Text>
                                   <motion.span
                                     variants={underlineVariants}
                                     animate={isActive ? 'active' : 'initial'}
@@ -148,7 +149,7 @@ export default function TopBar() {
                                 </NavLink>
                               ) : (
                                 <a href={item.href} className='relative inline-flex items-center pb-1'>
-                                  <Text size='2' className='text-white'>{item.label}</Text>
+                                  <Text size={TEXT.base.size} className='text-white'>{item.label}</Text>
                                   <motion.span
                                     variants={underlineVariants}
                                     animate={isActive ? 'active' : 'initial'}
@@ -175,7 +176,7 @@ export default function TopBar() {
                     transition={{ delay: 1.5, repeatDelay: 2.5, duration: 1, repeat: Infinity, repeatType: 'reverse' }}
                     className='pointer-events-none absolute top-0 left-0 h-full bg-(--blue-10) blur-sm'
                   />
-                  <Text size={'3'} weight='bold'>Let's Talk</Text>
+                  <Text size={TEXT.lg.size} weight='bold'>Let's Talk</Text>
                 </motion.a>
               </Button>
             </motion.div>

@@ -8,7 +8,7 @@ export default function HeroSection() {
 
   return (
     <div className='z-10 flex h-full w-full flex-col items-center justify-center text-center mt-23'>
-      <div className='absolute inset-0 left-0 -z-100 h-screen w-screen bg-linear-to-t from-transparent to-(--blue-4)/50' />
+      <div className='absolute inset-0 left-0 -z-100 h-dvh w-screen bg-linear-to-t from-transparent to-(--blue-4)/50' />
       <BgScene />
 
       <div className={cn('relative z-20 w-full','space-y-6')}>

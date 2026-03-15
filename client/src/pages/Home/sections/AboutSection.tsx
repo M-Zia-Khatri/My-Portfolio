@@ -1,4 +1,5 @@
 import SecComponent from "@/components/SecContainer";
+import { HEADING } from "@/constants/style.constants";
 import { AspectRatio, Box, Grid, Heading, Strong, Text } from "@radix-ui/themes";
 import { motion } from "framer-motion";
 
@@ -43,6 +44,7 @@ export default function AboutSection() {
         >
           <MotionHeading
             as="h2"
+            size={HEADING.h2.size}
             initial={{ opacity: 0, y: 10 }}
             whileInView={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.4 }}

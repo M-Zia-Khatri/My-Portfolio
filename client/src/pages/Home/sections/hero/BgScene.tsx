@@ -155,7 +155,7 @@ export default function BgScene() {
   }, [])
 
   return (
-    <div className="w-[101svw] h-screen fixed left-1/2 -translate-1/2 inset-0 top-1/2 z-0">
+    <div className="w-[101svw] h-dvh fixed left-1/2 -translate-1/2 inset-0 top-1/2 z-0">
       <svg ref={svgRef} className="w-full h-full" />
     </div>
   )

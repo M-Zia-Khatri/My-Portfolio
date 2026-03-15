@@ -264,8 +264,10 @@ export default function Home() {
   return (
     <div
       id='home-scroll-container'  // referenced by the touch useEffect above
-      className='mx-auto px-4'
+      className='mx-auto px-4 '
     >
+      <div className='bg-[url(/images/bg-noise.png)] opacity-2.5 -z-100 absolute top-0 w-full h-full left-0 ' />
+      <div className=' -z-90 absolute top-0 w-full h-full left-0 bg-(--blue-3)/15' />
       {sections.map((section, index) => {
         const SectionComponent = section.Component;
 
