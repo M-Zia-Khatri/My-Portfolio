@@ -9,6 +9,14 @@
 /* -------------------------------------------------------
    CUSTOM THEME VARIABLES
 ------------------------------------------------------- */
+
+:root {
+  --container-1: 28rem;
+  --container-2: 43rem;
+  --container-3: 55rem;
+  --container-4: 71rem;
+}
+
 .dark,
 .dark-theme {
   --blue-1: #00060b;
@@ -106,7 +114,7 @@
       --gray-11: oklch(76.7% 0.0364 222.1);
       --gray-12: oklch(94.8% 0.0097 222.1);
 
-      --color-background: hsl(0, 1%, 1%);
+      --color-background: hsl(0, 0%, 0.5%)
     }
   }
 }

@@ -1,4 +1,4 @@
-import { animate, motion } from 'framer-motion';
+import { animate, motion, type AnimationPlaybackControls } from 'framer-motion';
 import {
   useCallback,
   useEffect,
@@ -18,7 +18,7 @@ import {
 import { useNavigationStore } from '@/lib/store/navigation.store';
 
 const TOP_BAR_HEIGHT = 92;
-const SCROLL_DURATION_SECONDS = 0.7;
+const SCROLL_DURATION_SECONDS = 0.75;
 const WHEEL_TRIGGER_THRESHOLD = 16;
 const SWIPE_TRIGGER_THRESHOLD = 56;
 
@@ -28,38 +28,16 @@ type SectionConfig = {
 };
 
 const sections: SectionConfig[] = [
-  {
-    id: 'home',
-    Component: HeroSection,
-  },
-  {
-    id: 'about',
-    Component: AboutSection,
-  },
-  {
-    id: 'skills',
-    Component: SkillsSection,
-  },
-  {
-    id: 'portfolio',
-    Component: PortfolioSection,
-  },
-  {
-    id: 'experience',
-    Component: ExperienceSection,
-  },
-  // {
-  //   id: "testimonials",
-  //   Component: TestimonialsSection,
-  // },
-  {
-    id: 'contact',
-    Component: ContactSection,
-  },
+  { id: 'home', Component: HeroSection },
+  { id: 'about', Component: AboutSection },
+  { id: 'skills', Component: SkillsSection },
+  { id: 'portfolio', Component: PortfolioSection },
+  { id: 'experience', Component: ExperienceSection },
+  { id: 'contact', Component: ContactSection },
 ];
 
 const sectionClassName =
-  'scroll-mt-24 border-t h-[calc(100dvh-5rem)] flex flex-col justify-center';
+  'scroll-mt-24 h-[calc(100dvh-5rem)] flex flex-col justify-center items-center';
 
 function clampIndex(index: number) {
   return Math.min(Math.max(index, 0), sections.length - 1);
@@ -75,174 +53,146 @@ export default function Home() {
   const sectionRefs = useRef<Array<HTMLElement | null>>([]);
   const activeIndexRef = useRef(0);
   const isAnimatingRef = useRef(false);
-  const unlockTimerRef = useRef<number | null>(null);
+  const animationRef = useRef<AnimationPlaybackControls | null>(null);
   const touchStartYRef = useRef<number | null>(null);
-  const setActiveHash = useNavigationStore((s) => s.setActiveHash); // ← add
+  const setActiveHash = useNavigationStore((s) => s.setActiveHash);
 
-  // eslint-disable-next-line react-hooks/preserve-manual-memoization
-  const updateHash = useCallback((nextIndex: number) => {
-    const nextHash = `#${sections[nextIndex].id}`;
-    if (window.location.hash !== nextHash) {
-      window.history.replaceState(null, '', nextHash);
-      setActiveHash(nextHash);  // ← sync store
-    }
-  }, []);
-
-  const unlockScroll = useCallback(() => {
-    if (unlockTimerRef.current !== null) {
-      window.clearTimeout(unlockTimerRef.current);
-    }
-    unlockTimerRef.current = window.setTimeout(
-      () => {
-        isAnimatingRef.current = false;
-        unlockTimerRef.current = null;
-      },
-      Math.ceil(SCROLL_DURATION_SECONDS * 1000) + 80,
-    );
-  }, []);
+  const updateHash = useCallback(
+    (nextIndex: number) => {
+      const nextHash = `#${sections[nextIndex].id}`;
+      if (window.location.hash !== nextHash) {
+        window.history.replaceState(null, '', nextHash);
+        setActiveHash(nextHash);
+      }
+    },
+    [setActiveHash],
+  );
 
   const scrollToSection = useCallback(
     (targetIndex: number) => {
       const nextIndex = clampIndex(targetIndex);
       const targetSection = sectionRefs.current[nextIndex];
 
-      if (!targetSection) {
-        return;
-      }
+      if (!targetSection) return;
 
       const targetTop = Math.max(targetSection.offsetTop - TOP_BAR_HEIGHT, 0);
+
+      // Already there — nothing to do
       if (
         nextIndex === activeIndexRef.current &&
         Math.abs(window.scrollY - targetTop) < 2
-      ) {
-        return;
-      }
+      ) return;
+
+      // Cancel any in-flight animation before starting a new one
+      animationRef.current?.stop();
+      animationRef.current = null;
 
       isAnimatingRef.current = true;
       activeIndexRef.current = nextIndex;
       setActiveIndex(nextIndex);
       updateHash(nextIndex);
 
-      animate(window.scrollY, targetTop, {
+      const startY = window.scrollY;
+
+      animationRef.current = animate(startY, targetTop, {
         duration: SCROLL_DURATION_SECONDS,
-        ease: [0.22, 1, 0.36, 1],
+        ease: [0.25, 0.46, 0.45, 0.94], // smooth ease-out-quart
         onUpdate: (latest) => {
-          window.scrollTo({ top: latest, behavior: 'auto' });
+          window.scrollTo(0, latest);
+        },
+        onComplete: () => {
+          isAnimatingRef.current = false;
+          animationRef.current = null;
         },
       });
-
-      unlockScroll();
     },
-    [unlockScroll, updateHash],
+    [updateHash],
   );
 
+  // Keep ref in sync with state
   useEffect(() => {
     activeIndexRef.current = activeIndex;
   }, [activeIndex]);
 
+  // Wheel
   useEffect(() => {
     const handleWheel = (event: WheelEvent) => {
-      if (
-        Math.abs(event.deltaY) < WHEEL_TRIGGER_THRESHOLD ||
-        isAnimatingRef.current
-      ) {
-        return;
-      }
+      if (Math.abs(event.deltaY) < WHEEL_TRIGGER_THRESHOLD || isAnimatingRef.current) return;
 
       const direction = event.deltaY > 0 ? 1 : -1;
       const nextIndex = clampIndex(activeIndexRef.current + direction);
 
-      if (nextIndex === activeIndexRef.current) {
-        return;
-      }
+      if (nextIndex === activeIndexRef.current) return;
 
       event.preventDefault();
       scrollToSection(nextIndex);
     };
 
     window.addEventListener('wheel', handleWheel, { passive: false });
-    return () => {
-      window.removeEventListener('wheel', handleWheel);
-    };
+    return () => window.removeEventListener('wheel', handleWheel);
   }, [scrollToSection]);
 
+  // Keyboard
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
-      if (isAnimatingRef.current) {
-        return;
-      }
+      if (isAnimatingRef.current) return;
 
       if (event.key === 'ArrowDown' || event.key === 'PageDown') {
         event.preventDefault();
         scrollToSection(activeIndexRef.current + 1);
-      }
-
-      if (event.key === 'ArrowUp' || event.key === 'PageUp') {
+      } else if (event.key === 'ArrowUp' || event.key === 'PageUp') {
         event.preventDefault();
         scrollToSection(activeIndexRef.current - 1);
       }
     };
 
     window.addEventListener('keydown', handleKeyDown);
-    return () => {
-      window.removeEventListener('keydown', handleKeyDown);
-    };
+    return () => window.removeEventListener('keydown', handleKeyDown);
   }, [scrollToSection]);
 
+  // Anchor clicks
   useEffect(() => {
     const handleAnchorClick = (event: MouseEvent) => {
       const target = event.target;
-      if (!(target instanceof Element)) {
-        return;
-      }
+      if (!(target instanceof Element)) return;
 
       const anchor = target.closest<HTMLAnchorElement>('a[href^="#"]');
       const href = anchor?.getAttribute('href');
-      if (!href) {
-        return;
-      }
+      if (!href) return;
 
       const nextIndex = getSectionIndexFromHash(href);
-      if (nextIndex === -1) {
-        return;
-      }
+      if (nextIndex === -1) return;
 
       event.preventDefault();
       scrollToSection(nextIndex);
     };
 
     document.addEventListener('click', handleAnchorClick);
-    return () => {
-      document.removeEventListener('click', handleAnchorClick);
-    };
+    return () => document.removeEventListener('click', handleAnchorClick);
   }, [scrollToSection]);
 
+  // Hash change (back/forward nav)
   useEffect(() => {
     const handleHashChange = () => {
       const nextIndex = getSectionIndexFromHash(window.location.hash);
-      if (nextIndex === -1) {
-        return;
-      }
-
+      if (nextIndex === -1) return;
       scrollToSection(nextIndex);
     };
 
     window.addEventListener('hashchange', handleHashChange);
     handleHashChange();
 
-    return () => {
-      window.removeEventListener('hashchange', handleHashChange);
-    };
+    return () => window.removeEventListener('hashchange', handleHashChange);
   }, [scrollToSection]);
 
+  // Cleanup on unmount
   useEffect(() => {
     return () => {
-      if (unlockTimerRef.current !== null) {
-        window.clearTimeout(unlockTimerRef.current);
-      }
+      animationRef.current?.stop();
     };
   }, []);
 
+  // Touch
   const handleTouchStart = (event: TouchEvent<HTMLDivElement>) => {
     touchStartYRef.current = event.touches[0]?.clientY ?? null;
   };
@@ -262,12 +212,11 @@ export default function Home() {
     const deltaY = touchStartYRef.current - endY;
     touchStartYRef.current = null;
 
-    if (Math.abs(deltaY) < SWIPE_TRIGGER_THRESHOLD) {
-      return;
-    }
+    if (Math.abs(deltaY) < SWIPE_TRIGGER_THRESHOLD) return;
 
     scrollToSection(activeIndexRef.current + (deltaY > 0 ? 1 : -1));
   };
+
   return (
     <div
       className='mx-auto px-4'
@@ -286,13 +235,15 @@ export default function Home() {
             }}
             className={
               index === 0
-                ? 'flex h-[calc(100dvh-5rem)] scroll-mt-24 flex-col justify-center'
-                : `${sectionClassName} `
+                ? 'flex h-[calc(100dvh-5rem)] scroll-mt-24 flex-col justify-center mb-5'
+                : sectionClassName
             }
-            initial={{ opacity: 0, y: 36 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ amount: 0.55 }}
-            transition={{ duration: 0.55, ease: [0.22, 1, 0.36, 1] }}
+            // Animate based on active index — no whileInView so scroll never triggers re-animation
+            animate={{
+              opacity: activeIndex === index ? 1 : 0.35,
+              y: activeIndex === index ? 0 : 16,
+            }}
+            transition={{ duration: 0.45, ease: [0.25, 0.46, 0.45, 0.94] }}
           >
             <SectionComponent />
           </motion.section>
