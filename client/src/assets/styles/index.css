@@ -84,8 +84,13 @@
   --color-background: #050505;
 }
 
+.radix-themes {
+  --heading-font-size-adjust: 1.1
+}
+
 @supports (color: color(display-p3 1 1 1)) {
   @media (color-gamut: p3) {
+
     .dark,
     .dark-theme {
       --blue-1: oklch(11.5% 0.0215 228.6);
@@ -124,6 +129,7 @@
 ------------------------------------------------------- */
 
 @layer base {
+
   *,
   ::after,
   ::before,
