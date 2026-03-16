@@ -12,7 +12,7 @@ const navItems = [
   { label: 'About', href: AppNavigation.ABOUT },
   { label: 'Skills', href: AppNavigation.SKILLS },
   { label: 'Portfolio', href: AppNavigation.PORTFOLIO },
-  { label: 'Experience', href: AppNavigation.EXPERIENCE },
+  // { label: 'Experience', href: AppNavigation.EXPERIENCE },
   { label: 'Contact', href: AppNavigation.CONTACT },
 ] as const;
 
