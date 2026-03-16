@@ -20,9 +20,6 @@ const TOP_BAR_HEIGHT = 0;
 const SCROLL_DURATION_SECONDS = 0.75;
 const WHEEL_TRIGGER_THRESHOLD = 16;
 const SWIPE_TRIGGER_THRESHOLD = 56;
-
-// Accumulate trackpad deltas over this window (ms) before triggering a section
-// change. Without this, fast trackpad swipes accumulate and skip sections.
 const WHEEL_ACCUMULATE_WINDOW_MS = 80;
 
 type SectionConfig = {
@@ -54,17 +51,22 @@ function getSectionIndexFromHash(hash: string) {
 export default function Home() {
   const [activeIndex, setActiveIndex] = useState(0);
   const sectionRefs = useRef<Array<HTMLElement | null>>([]);
-  const activeIndexRef = useRef(0);                                       // always in sync — only set in scrollToSection
+  const activeIndexRef = useRef(0);
   const animationRef = useRef<AnimationPlaybackControls | null>(null);
   const touchStartYRef = useRef<number | null>(null);
 
-  // Trackpad accumulation: sum deltas within a short window then fire once
   const wheelAccumRef = useRef(0);
   const wheelTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const setActiveHash = useNavigationStore((s) => s.setActiveHash);
 
-  // ── helpers ───────────────────────────────────────────────────────────────
+  // 1. DISABLE BROWSER SCROLL RESTORATION
+  // This prevents the browser from trying to "jump" back to a scroll position on reload.
+  useEffect(() => {
+    if (typeof window !== 'undefined' && 'scrollRestoration' in window.history) {
+      window.history.scrollRestoration = 'manual';
+    }
+  }, []);
 
   const updateHash = useCallback(
     (nextIndex: number) => {
@@ -77,33 +79,28 @@ export default function Home() {
     [setActiveHash],
   );
 
-  /**
-   * Navigate to a section by index.
-   * - Clamps to valid range.
-   * - INTERRUPTS any in-flight animation rather than blocking the new one.
-   *   This lets users chain sections quickly without getting locked out.
-   */
   const scrollToSection = useCallback(
     (targetIndex: number) => {
       const nextIndex = clampIndex(targetIndex);
       const targetSection = sectionRefs.current[nextIndex];
-      if (!targetSection) return;
+
+      // SAFETY: If the ref isn't attached yet (common on hard reload), retry in the next frame
+      if (!targetSection) {
+        requestAnimationFrame(() => scrollToSection(targetIndex));
+        return;
+      }
 
       const targetTop = Math.max(targetSection.offsetTop - TOP_BAR_HEIGHT, 0);
 
-      // Already there — nothing to do
       if (
         nextIndex === activeIndexRef.current &&
         Math.abs(window.scrollY - targetTop) < 2
       ) return;
 
-      // ── Interrupt any in-flight animation ───────────────────────────────
-      // Calling .stop() leaves window.scrollY wherever it currently is, so
-      // the new animation will pick up from that mid-point seamlessly.
       animationRef.current?.stop();
       animationRef.current = null;
 
-      activeIndexRef.current = nextIndex;  // keep ref authoritative
+      activeIndexRef.current = nextIndex;
       setActiveIndex(nextIndex);
       updateHash(nextIndex);
 
@@ -111,7 +108,7 @@ export default function Home() {
 
       animationRef.current = animate(startY, targetTop, {
         duration: SCROLL_DURATION_SECONDS,
-        ease: [0.25, 0.46, 0.45, 0.94], // ease-out-quart
+        ease: [0.25, 0.46, 0.45, 0.94],
         onUpdate: (latest) => {
           window.scrollTo(0, latest);
         },
@@ -123,8 +120,7 @@ export default function Home() {
     [updateHash],
   );
 
-  // ── cleanup on unmount ────────────────────────────────────────────────────
-
+  // Cleanup
   useEffect(() => {
     return () => {
       animationRef.current?.stop();
@@ -132,28 +128,17 @@ export default function Home() {
     };
   }, []);
 
-  // ── wheel ─────────────────────────────────────────────────────────────────
-  //
-  // Strategy: accumulate deltaY values arriving within WHEEL_ACCUMULATE_WINDOW_MS.
-  // After the window closes fire a single direction based on the total.
-  // This makes trackpad swipes (many small events) behave like mouse wheels
-  // (one large event) without requiring isAnimatingRef to gate input.
+  // Wheel handling
   useEffect(() => {
     const handleWheel = (e: WheelEvent) => {
-      // Always prevent default so the browser doesn't native-scroll the page
       e.preventDefault();
-
-      // Accumulate delta
       wheelAccumRef.current += e.deltaY;
-
-      // Reset the debounce window on every event
       if (wheelTimerRef.current) clearTimeout(wheelTimerRef.current);
 
       wheelTimerRef.current = setTimeout(() => {
         const accum = wheelAccumRef.current;
         wheelAccumRef.current = 0;
         wheelTimerRef.current = null;
-
         if (Math.abs(accum) < WHEEL_TRIGGER_THRESHOLD) return;
 
         const direction = accum > 0 ? 1 : -1;
@@ -165,8 +150,7 @@ export default function Home() {
     return () => window.removeEventListener('wheel', handleWheel);
   }, [scrollToSection]);
 
-  // ── keyboard ──────────────────────────────────────────────────────────────
-
+  // Keyboard
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === 'ArrowDown' || e.key === 'PageDown') {
@@ -177,100 +161,87 @@ export default function Home() {
         scrollToSection(activeIndexRef.current - 1);
       }
     };
-
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [scrollToSection]);
 
-  // ── anchor clicks ─────────────────────────────────────────────────────────
-
+  // Anchor clicks
   useEffect(() => {
     const handleAnchorClick = (e: MouseEvent) => {
       const target = e.target;
       if (!(target instanceof Element)) return;
-
       const anchor = target.closest<HTMLAnchorElement>('a[href^="#"]');
       const href = anchor?.getAttribute('href');
       if (!href) return;
-
       const nextIndex = getSectionIndexFromHash(href);
       if (nextIndex === -1) return;
-
       e.preventDefault();
       scrollToSection(nextIndex);
     };
-
     document.addEventListener('click', handleAnchorClick);
     return () => document.removeEventListener('click', handleAnchorClick);
   }, [scrollToSection]);
 
-  // ── hash change (back/forward nav) ───────────────────────────────────────
-
+  // 2. INITIAL HASH LOAD FIX
   useEffect(() => {
     const handleHashChange = () => {
       const nextIndex = getSectionIndexFromHash(window.location.hash);
       if (nextIndex === -1) return;
-      scrollToSection(nextIndex);
+      
+      // Delay allows 100ms for browser to finish calculating section heights (100dvh)
+      setTimeout(() => {
+        scrollToSection(nextIndex);
+      }, 100);
     };
 
     window.addEventListener('hashchange', handleHashChange);
-    handleHashChange(); // handle hash present on initial load
+    
+    if (window.location.hash) {
+      handleHashChange();
+    } else {
+        // Force top on load if no hash
+        window.scrollTo(0, 0);
+    }
 
     return () => window.removeEventListener('hashchange', handleHashChange);
   }, [scrollToSection]);
 
-  // ── touch ─────────────────────────────────────────────────────────────────
-  //
-  // MUST use addEventListener with { passive: false } so that we can call
-  // preventDefault and suppress the browser's native momentum scroll.
-  // React's onTouchStart / onTouchEnd props attach passive listeners in
-  // React 17+ — calling preventDefault() on them throws a console warning
-  // and is silently ignored, so native scroll fires in parallel with ours.
+  // Touch handling
   useEffect(() => {
     const container = document.getElementById('home-scroll-container');
     if (!container) return;
-
     const handleTouchStart = (e: TouchEvent) => {
       touchStartYRef.current = e.touches[0]?.clientY ?? null;
     };
-
     const handleTouchEnd = (e: TouchEvent) => {
       if (touchStartYRef.current === null) return;
-
       const endY = e.changedTouches[0]?.clientY;
       const start = touchStartYRef.current;
       touchStartYRef.current = null;
-
       if (typeof endY !== 'number') return;
-
       const deltaY = start - endY;
       if (Math.abs(deltaY) < SWIPE_TRIGGER_THRESHOLD) return;
-
-      e.preventDefault(); // suppress native scroll — works because listener is non-passive
+      e.preventDefault();
       scrollToSection(activeIndexRef.current + (deltaY > 0 ? 1 : -1));
     };
-
     container.addEventListener('touchstart', handleTouchStart, { passive: true });
     container.addEventListener('touchend', handleTouchEnd, { passive: false });
-
     return () => {
       container.removeEventListener('touchstart', handleTouchStart);
       container.removeEventListener('touchend', handleTouchEnd);
     };
   }, [scrollToSection]);
 
-  // ── render ────────────────────────────────────────────────────────────────
-
   return (
     <div
-      id='home-scroll-container'  // referenced by the touch useEffect above
-      className='mx-auto px-4 '
+      id='home-scroll-container'
+      className='mx-auto px-4'
+      style={{ overscrollBehavior: 'none' }} // Stops browser "elastic" bounce
     >
-      <div className='bg-[url(/images/bg-noise.png)] opacity-2.5 -z-100 absolute top-0 w-full h-full left-0 ' />
+      <div className='bg-[url(@/assets/images/bg-noise.png)] opacity-2.5 -z-100 absolute top-0 w-full h-full left-0 ' />
       <div className=' -z-90 absolute top-0 w-full h-full left-0 bg-(--blue-3)/15' />
       {sections.map((section, index) => {
         const SectionComponent = section.Component;
-
         return (
           <motion.section
             key={section.id}

@@ -27,7 +27,7 @@ export default function AboutSection() {
               transition={{ duration: 0.6 }}
 
               className="w-full h-full  drop-shadow-[0_0_15px_color-mix(in_srgb,var(--blue-3),transparent_10%)]"
-              src="/images/zia.png"
+              src={"src/assets/images/zia.png"}
               title="My picture"
               alt="my image"
             />
