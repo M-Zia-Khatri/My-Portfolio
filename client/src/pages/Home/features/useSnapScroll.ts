@@ -123,7 +123,14 @@ export function useSnapScroll() {
         return; // browser scrolls naturally otherwise
       }
 
-      // Short section — accumulate then snap
+      // Short section — accumulate then snap.
+      // At the outer edges, skip preventDefault so the browser can naturally
+      // scroll to the footer (last→down) or beyond the top (first→up).
+      const goingDownShort = e.deltaY > 0;
+      const atFirstSection = activeIndexRef.current === 0;
+      const atLastSection = activeIndexRef.current === sections.length - 1;
+      if ((goingDownShort && atLastSection) || (!goingDownShort && atFirstSection)) return;
+
       e.preventDefault();
       wheelAccumRef.current += e.deltaY;
       if (wheelTimerRef.current) clearTimeout(wheelTimerRef.current);
@@ -161,6 +168,11 @@ export function useSnapScroll() {
         return;
       }
 
+      // At outer edges let the browser handle it (reaches footer / page top).
+      const atFirst = activeIndexRef.current === 0;
+      const atLast = activeIndexRef.current === sections.length - 1;
+      if ((isDown && atLast) || (isUp && atFirst)) return;
+
       e.preventDefault();
       snapToSection(activeIndexRef.current + (isDown ? 1 : -1));
     };
@@ -186,16 +198,7 @@ export function useSnapScroll() {
     return () => document.removeEventListener('click', handleAnchorClick);
   }, [scrollToSection]);
 
-  // ─── Force scroll to top on mount ─────────────────────────────────────────
-  // Bug: main.tsx clears '#contact' from the URL before React renders, but Chrome
-  // queues a "scroll to element id=contact" *before* JS runs.  Once React creates
-  // <section id="contact"> the browser fires that queued scroll — AFTER our
-  // main.tsx scrollTo(0,0) has already run.  handleScroll then silently updates
-  // activeIndexRef to 4 (contact), so every subsequent snap navigates from there.
-  //
-  // Fix: run TWO nested rAFs (≈2 frames) so this reset fires after the browser's
-  // deferred scroll-to-hash, guaranteeing the page is truly at the top before the
-  // user can interact.  Empty deps ensures this only ever runs once on mount.
+  // ─── Force scroll to top on mount (beats browser's deferred hash-scroll) ──
   useEffect(() => {
     let raf2: ReturnType<typeof requestAnimationFrame>;
     const raf1 = requestAnimationFrame(() => {
@@ -205,16 +208,10 @@ export function useSnapScroll() {
         activeIndexRef.current = 0;
       });
     });
-    return () => {
-      cancelAnimationFrame(raf1);
-      cancelAnimationFrame(raf2);
-    };
-  }, []); // ← empty deps: run ONCE on mount, never re-run
+    return () => { cancelAnimationFrame(raf1); cancelAnimationFrame(raf2); };
+  }, []);
 
-  // ─── Hash change listener (and initial hash navigation) ───────────────────
-  // Kept separate from the scroll-reset above so the two concerns don't
-  // interfere.  The initial hash check here handles intentional deep-links
-  // (e.g. user pastes "/#about" in the address bar after the reset has run).
+  // ─── Hash change listener + intentional deep-link navigation ───────────────
   useEffect(() => {
     const handleHashChange = () => {
       const nextIndex = getSectionIndexFromHash(window.location.hash);
@@ -223,11 +220,7 @@ export function useSnapScroll() {
     };
 
     window.addEventListener('hashchange', handleHashChange);
-
-    // If a hash is present after the reset (intentional deep-link), honour it.
-    if (window.location.hash) {
-      handleHashChange();
-    }
+    if (window.location.hash) handleHashChange();
 
     return () => window.removeEventListener('hashchange', handleHashChange);
   }, [scrollToSection]);
@@ -264,6 +257,11 @@ export function useSnapScroll() {
         }
         return;
       }
+
+      // At outer edges, skip preventDefault so footer is reachable by swipe.
+      const atFirstTouch = activeIndexRef.current === 0;
+      const atLastTouch = activeIndexRef.current === sections.length - 1;
+      if ((goingDown && atLastTouch) || (!goingDown && atFirstTouch)) return;
 
       e.preventDefault();
       snapToSection(activeIndexRef.current + (goingDown ? 1 : -1));
