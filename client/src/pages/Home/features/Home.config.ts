@@ -2,6 +2,7 @@ import type { ComponentType } from 'react';
 import {
   AboutSection,
   ContactSection,
+  GameSection,
   // ExperienceSection,
   HeroSection,
   PortfolioSection,
@@ -34,6 +35,7 @@ export const sections: SectionConfig[] = [
   { id: 'about', Component: AboutSection },
   { id: 'skills', Component: SkillsSection },
   { id: 'portfolio', Component: PortfolioSection },
+  { id: 'game', Component: GameSection },
   // { id: 'experience', Component: ExperienceSection },
   { id: 'contact', Component: ContactSection },
 ];
