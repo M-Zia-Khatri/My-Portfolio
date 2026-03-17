@@ -7,6 +7,6 @@ type NavigationStore = {
 };
 
 export const useNavigationStore = create<NavigationStore>((set) => ({
-  activeHash: window.location.hash || AppNavigation.HOME,
+  activeHash: AppNavigation.HOME,
   setActiveHash: (hash) => set({ activeHash: hash }),
 }));

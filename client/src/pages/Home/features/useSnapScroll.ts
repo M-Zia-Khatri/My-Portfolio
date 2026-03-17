@@ -32,11 +32,11 @@ export function useSnapScroll() {
   const setActiveHash = useNavigationStore((s) => s.setActiveHash);
 
   // ─── Disable browser scroll restoration ───────────────────────────────────
-  useEffect(() => {
-    if ('scrollRestoration' in window.history) {
-      window.history.scrollRestoration = 'manual';
-    }
-  }, []);
+  // useEffect(() => {
+  //   if ('scrollRestoration' in window.history) {
+  //     window.history.scrollRestoration = 'manual';
+  //   }
+  // }, []);
 
   // ─── Update URL hash ───────────────────────────────────────────────────────
   const updateHash = useCallback(
@@ -186,7 +186,35 @@ export function useSnapScroll() {
     return () => document.removeEventListener('click', handleAnchorClick);
   }, [scrollToSection]);
 
-  // ─── Initial hash load ─────────────────────────────────────────────────────
+  // ─── Force scroll to top on mount ─────────────────────────────────────────
+  // Bug: main.tsx clears '#contact' from the URL before React renders, but Chrome
+  // queues a "scroll to element id=contact" *before* JS runs.  Once React creates
+  // <section id="contact"> the browser fires that queued scroll — AFTER our
+  // main.tsx scrollTo(0,0) has already run.  handleScroll then silently updates
+  // activeIndexRef to 4 (contact), so every subsequent snap navigates from there.
+  //
+  // Fix: run TWO nested rAFs (≈2 frames) so this reset fires after the browser's
+  // deferred scroll-to-hash, guaranteeing the page is truly at the top before the
+  // user can interact.  Empty deps ensures this only ever runs once on mount.
+  useEffect(() => {
+    let raf2: ReturnType<typeof requestAnimationFrame>;
+    const raf1 = requestAnimationFrame(() => {
+      window.scrollTo(0, 0);
+      raf2 = requestAnimationFrame(() => {
+        window.scrollTo(0, 0);
+        activeIndexRef.current = 0;
+      });
+    });
+    return () => {
+      cancelAnimationFrame(raf1);
+      cancelAnimationFrame(raf2);
+    };
+  }, []); // ← empty deps: run ONCE on mount, never re-run
+
+  // ─── Hash change listener (and initial hash navigation) ───────────────────
+  // Kept separate from the scroll-reset above so the two concerns don't
+  // interfere.  The initial hash check here handles intentional deep-links
+  // (e.g. user pastes "/#about" in the address bar after the reset has run).
   useEffect(() => {
     const handleHashChange = () => {
       const nextIndex = getSectionIndexFromHash(window.location.hash);
@@ -196,10 +224,9 @@ export function useSnapScroll() {
 
     window.addEventListener('hashchange', handleHashChange);
 
+    // If a hash is present after the reset (intentional deep-link), honour it.
     if (window.location.hash) {
       handleHashChange();
-    } else {
-      window.scrollTo(0, 0);
     }
 
     return () => window.removeEventListener('hashchange', handleHashChange);
