@@ -1,4 +1,4 @@
-import { memo, useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { memo, useCallback, useEffect, useImperativeHandle, useMemo, useRef, useState, forwardRef } from "react";
 import { motion, AnimatePresence, useSpring, useTransform } from "motion/react";
 import gsap from "gsap";
 import type { Skill } from "./types";
@@ -24,19 +24,30 @@ const ContentScrollbarStyle = memo(function ContentScrollbarStyle({ color }: { c
   );
 });
 
+export interface CodeCardHandle {
+  pause: () => void;
+  resume: () => void;
+}
+
 export interface CodeCardProps {
   skill: Skill;
   openTabs: Skill[];
   onTabClick: (skill: Skill) => void;
   onTabClose: (skill: Skill) => void;
+  /** Called once when the code-mode typewriter finishes the last line */
+  onTypingComplete?: () => void;
+  /** When false the typewriter will not start (used for viewport-gated cards) */
+  started?: boolean;
 }
 
-export default function CodeCard({
+const CodeCard = forwardRef<CodeCardHandle, CodeCardProps>(function CodeCard({
   skill,
   openTabs,
   onTabClick,
   onTabClose,
-}: CodeCardProps) {
+  onTypingComplete,
+  started = true,
+}: CodeCardProps, ref) {
   // Split animation state — only used in "code" mode
   const [completedLines, setCompletedLines] = useState<string[]>([]);
   const [currentLine,    setCurrentLine   ] = useState("");
@@ -46,6 +57,11 @@ export default function CodeCard({
   const tlRef      = useRef<gsap.core.Timeline | null>(null);
   const cardRef    = useRef<HTMLDivElement>(null);
   const contentRef = useRef<HTMLDivElement>(null);
+
+  useImperativeHandle(ref, () => ({
+    pause:  () => tlRef.current?.pause(),
+    resume: () => tlRef.current?.resume(),
+  }));
 
   // Auto-scroll code area to bottom as new lines appear
   useEffect(() => {
@@ -92,6 +108,7 @@ export default function CodeCard({
   // Character-by-character GSAP typewriter (code mode only)
   useEffect(() => {
     if (skill.mode !== "code") return;
+    if (!started) return;
 
     tlRef.current?.kill();
     setCompletedLines([]);
@@ -128,12 +145,13 @@ export default function CodeCard({
         setCompletedLines(codeLines);
         setCurrentLine("");
         setIsTyping(false);
+        onTypingComplete?.();
       },
     });
 
     tlRef.current = gsap.timeline().add(tween);
     return () => { tlRef.current?.kill(); };
-  }, [skill]);
+  }, [skill, started]);
 
   // All lines to render (code mode)
   const allLines    = useMemo(
@@ -241,4 +259,6 @@ export default function CodeCard({
       </motion.div>
     </>
   );
-}
+});
+
+export default CodeCard;
