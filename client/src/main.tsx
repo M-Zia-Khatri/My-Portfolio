@@ -1,6 +1,6 @@
 import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
-import App from './App.tsx'
+import App from './app/App.tsx'
 import './assets/styles/index.css'
 
 // ── Prevent browser scroll restoration on every page entry ──────────────────
