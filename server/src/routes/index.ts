@@ -1,9 +1,8 @@
 import { Router } from "express";
+import authRouter from "./auth.route";
 
 const router = Router();
 
-router.get("/test", (req, res) => {
-  res.json({ message: "API working" });
-});
+router.use("/auth", authRouter)
 
 export default router;
