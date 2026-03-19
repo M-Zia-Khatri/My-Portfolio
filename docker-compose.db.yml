@@ -19,7 +19,17 @@ services:
       timeout: 5s
       retries: 5
       start_period: 30s
+    redis:
+    image: redis:7-alpine
+    container_name: portfolio-redis-local
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis-data-local:/data
 
 volumes:
   db-data-local:
     name: portfolio-db-local
+  redis-data-local:
+    name: portfolio-redis-local

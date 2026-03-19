@@ -21,7 +21,7 @@ ENV DATABASE_URL="mysql://dummy:dummy@localhost:3306/dummy"
 # Generate Prisma Client
 RUN pnpm exec prisma generate
 
-# Compile TypeScript             ← ADD THIS
+# Compile TypeScript
 RUN pnpm build
 
 # Production stage
