@@ -34,5 +34,8 @@ export const TEXT = {
     },
     lg: {
         size: { initial: '1', xs: '1', sm: '1', md: '2', lg: '3', xl: '4' }
+    },
+    xl:{
+        size: { initial: '1', xs: '1', sm: '2', md: '3', lg: '4', xl: '5' }
     }
 } as const;

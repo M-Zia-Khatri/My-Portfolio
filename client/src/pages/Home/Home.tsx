@@ -6,14 +6,16 @@ export default function Home() {
   const { activeIndex, sectionRefs } = useSnapScroll();
 
   return (
+  <>
+    {/* Background layers */}
+    <div className='bg-[url(@/assets/images/bg-noise.png)] opacity-2.5 -z-100 absolute top-0 w-full h-full left-0' />
+    <div className='-z-90 absolute top-0 w-full h-full left-0 bg-(--blue-3)/15' />
+
     <div
       id='home-scroll-container'
-      className='mx-auto px-4'
+      className='mx-auto space-y-6'
       style={{ overscrollBehavior: 'none' }}
     >
-      {/* Background layers */}
-      <div className='bg-[url(@/assets/images/bg-noise.png)] opacity-2.5 -z-100 absolute top-0 w-full h-full left-0' />
-      <div className='-z-90 absolute top-0 w-full h-full left-0 bg-(--blue-3)/15' />
 
       {sections.map((section, index) => {
         const SectionComponent = section.Component;
@@ -38,5 +40,6 @@ export default function Home() {
         );
       })}
     </div>
+  </>
   );
 }
