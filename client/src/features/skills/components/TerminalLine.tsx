@@ -18,7 +18,6 @@ const TerminalLine = memo(function TerminalLine({
   isActive,
   cursor,
   color,
-  index,
 }: TerminalLineProps) {
   return (
     <motion.div
@@ -65,7 +64,7 @@ const TerminalLine = memo(function TerminalLine({
           {/* Blinking block cursor on the active command */}
           {isActive && (
             <span
-              className="inline-block w-[2px] h-[13px] align-middle ml-[1px]"
+              className="inline-block w-0.5 h-3.25 align-middle ml-0.5"
               style={{
                 background: color,
                 opacity: cursor ? 1 : 0,

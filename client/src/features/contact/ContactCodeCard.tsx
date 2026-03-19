@@ -193,7 +193,7 @@ export default function ContactCodeCard() {
   const pauseTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const countdownRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
-  const isLast = autoIndex === CONTACT_SKILLS.length - 1;
+  // const isLast = autoIndex === CONTACT_SKILLS.length - 1;
   const nextName = CONTACT_SKILLS[(autoIndex + 1) % CONTACT_SKILLS.length].name;
 
   // ── advance to next, or stop if this was the last skill ───────────────────

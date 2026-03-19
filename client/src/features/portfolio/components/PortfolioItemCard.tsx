@@ -1,5 +1,5 @@
 import { Badge, Flex, Text, AspectRatio, Heading } from "@radix-ui/themes";
-import { motion, useMotionValue, useTransform, animate } from "motion/react";
+import { motion, useMotionValue, useTransform, animate, type Variants } from "motion/react";
 import { useRef, useState, useEffect, useCallback } from "react";
 import type { PortfolioItem } from "../types";
 import { BorderTrail } from "@/shared/components/motion-primitives/border-trail";
@@ -12,7 +12,7 @@ interface PortfolioItemCardProps {
   item: PortfolioItem;
 }
 
-const backItemVariants = {
+const backItemVariants: Variants = {
   hidden: { opacity: 0, y: 10, filter: "blur(4px)" },
   visible: (i: number) => ({
     opacity: 1,
