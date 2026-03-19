@@ -169,7 +169,7 @@ export default function TopBar() {
 
               {/* let's talk btn */}
               <Button asChild radius='full' color='gray' className='shrink-0'>
-                <motion.a href='mailto:hello@example.com' className='relative overflow-hidden'>
+                <motion.a href='mailto:muhammadziakhatri@gmail.com' className='relative overflow-hidden'>
                   <motion.span
                     initial={{ skewX: '-18deg' }}
                     animate={{ x: [-24, 140, -24] }}

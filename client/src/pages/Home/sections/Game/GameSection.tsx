@@ -11,8 +11,7 @@ import SecComponent from "@/components/SecContainer";
 
 export default function GameSection() {
   return (
-
-    <SecComponent className="w-full h-dvh" height={{ lg: '100%' }} >
+    <SecComponent className="w-full h-dvh" height={{ lg: '100%' }} py={"8"} >
       <GuessNumProvider>
         <div className="w-full h-full flex flex-col lg:flex-row gap-6">
           {/* Left: Results Summary (desktop only) */}

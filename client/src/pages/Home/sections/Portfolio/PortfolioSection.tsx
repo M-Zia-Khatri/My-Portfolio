@@ -29,7 +29,7 @@ const VIEWPORT_ONCE = { once: true, margin: "-60px" } as const;
 const VIEWPORT_GRID = { once: true, margin: "-80px" } as const;
 
 // Static mock — move to props or a data file in production
-const MOCK_ITEM:PortfolioItem = {
+const MOCK_ITEM: PortfolioItem = {
   siteName: "xyz",
   siteRole: "xyz role",
   siteUrl: "https://www.google.com",
@@ -42,7 +42,7 @@ const ITEMS = [1, 2, 3, 4, 5, 6];
 
 export default function PortfolioSection() {
   return (
-    <SecComponent className="w-full">
+    <SecComponent className="w-full" py={'8'}>
       <Box className="flex flex-col items-center gap-10">
 
         <motion.div
