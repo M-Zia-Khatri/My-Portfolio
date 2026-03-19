@@ -21,6 +21,9 @@ ENV DATABASE_URL="mysql://dummy:dummy@localhost:3306/dummy"
 # Generate Prisma Client
 RUN pnpm exec prisma generate
 
+# Compile TypeScript             ← ADD THIS
+RUN pnpm build
+
 # Production stage
 FROM node:20-alpine
 
@@ -42,14 +45,13 @@ COPY --from=builder /app/generated ./generated
 COPY --from=builder /app/prisma ./prisma
 
 # Copy application code
-COPY --from=builder /app/src ./src
-COPY --from=builder /app/prisma.config.ts ./
+COPY --from=builder /app/dist ./dist
 
 # Create a startup script
 RUN echo '#!/bin/sh' > /app/start.sh && \
     echo 'set -e' >> /app/start.sh && \
     echo 'echo "Running database migrations..."' >> /app/start.sh && \
-    echo 'pnpm prisma migrate deploy || echo "Warning: Migration failed or no migrations to run"' >> /app/start.sh && \
+    echo 'exec node dist/server.js' >> /app/start.sh && \
     echo 'echo "Starting application..."' >> /app/start.sh && \
     echo 'exec node src/server.js' >> /app/start.sh && \
     chmod +x /app/start.sh
