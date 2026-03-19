@@ -9,7 +9,7 @@ echo -e "${YELLOW}Starting Docker database...${NC}"
 docker compose -f docker-compose.db.yml up -d
 
 echo -e "${YELLOW}Waiting for database...${NC}"
-sleep 10
+sleep 5
 
 echo -e "${GREEN}Database ready!${NC}"
 echo ""

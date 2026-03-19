@@ -19,7 +19,8 @@ services:
       timeout: 5s
       retries: 5
       start_period: 30s
-    redis:
+
+  redis:
     image: redis:7-alpine
     container_name: portfolio-redis-local
     restart: unless-stopped
