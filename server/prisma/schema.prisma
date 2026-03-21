@@ -78,3 +78,17 @@ model Skill {
   created_at DateTime  @default(now())
   updated_at DateTime  @updatedAt
 }
+
+model Portfolio_item {
+  id             String   @id @default(uuid())
+  site_name      String
+  site_role      String
+  site_url       String
+  site_image_url String
+  use_tech       Json
+  description    String
+  created_at     DateTime @default(now())
+  updated_at     DateTime @updatedAt
+ 
+  @@map("portfolio_items")
+}
