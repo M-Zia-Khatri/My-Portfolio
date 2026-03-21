@@ -28,18 +28,6 @@ export interface RefreshTokenPayload {
   type: "refresh"
 }
 
-// ─── API RESPONSE ─────────────────────────────────────────────────────────────
-// Follows roles.txt structure
-
-export interface ApiResponse<T = unknown> {
-  success: boolean
-  status: number
-  message: string
-  data?: T
-  error?: unknown
-  meta?: Record<string, unknown>
-}
-
 // ─── EXTENDED REQUEST ────────────────────────────────────────────────────────
 
 import type { Request } from "express"

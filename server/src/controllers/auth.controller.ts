@@ -2,7 +2,7 @@
 import type { Request, Response } from "express"
 import bcrypt from "bcrypt"
 import { sendOtpEmail } from "../lib/mailer"
-import { ApiResponse, AuthRequest, LoginBody, RefreshBody, VerifyOtpBody } from "@/lib/types/auth.types"
+import { AuthRequest, LoginBody, RefreshBody, VerifyOtpBody } from "@/lib/types/auth.types"
 import prisma from "@/lib/prisma"
 import { generateOtp, verifyOtp } from "@/lib/services/otp.service"
 import { catchError } from "@/lib/utills/catch-error"
