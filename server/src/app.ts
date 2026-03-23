@@ -1,6 +1,6 @@
 import express from "express";
 import cors from "cors";
-import "./lib/redis.ts";
+import "./lib/utills/redis.ts";
 import routes from "./routes/index.ts";
 
 const app = express();

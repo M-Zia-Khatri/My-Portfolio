@@ -1,7 +1,7 @@
 // src/controllers/auth.controller.ts
 import type { Request, Response } from "express"
 import bcrypt from "bcrypt"
-import { sendOtpEmail } from "../lib/mailer"
+import { sendOtpEmail } from "../lib/utills/mailer"
 import { AuthRequest, LoginBody, RefreshBody, VerifyOtpBody } from "@/lib/types/auth.types"
 import prisma from "@/lib/prisma"
 import { generateOtp, verifyOtp } from "@/lib/services/otp.service"

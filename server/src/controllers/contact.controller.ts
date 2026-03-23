@@ -1,5 +1,5 @@
 import type { Request, Response } from "express"
-import { sendContactEmail } from "../lib/mailer"
+import { sendContactEmail } from "../lib/utills/mailer"
 import { send } from "../lib/utills/send"
 import { catchError } from "../lib/utills/catch-error"
 import prisma from "@/lib/prisma"
