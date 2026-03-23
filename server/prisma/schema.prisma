@@ -92,3 +92,14 @@ model Portfolio_item {
  
   @@map("portfolio_items")
 }
+
+model ContactMessage {
+  id         String   @id @default(cuid())
+  full_name  String
+  email      String
+  message    String
+  is_read    Boolean  @default(false)
+  created_at DateTime @default(now())
+ 
+  @@map("contact_messages")
+}
