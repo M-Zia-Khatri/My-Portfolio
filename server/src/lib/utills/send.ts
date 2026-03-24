@@ -1,4 +1,3 @@
-// src/utils/send.ts
 import type { Response } from "express"
 import { ApiResponse } from "../types/globle.types"
 
