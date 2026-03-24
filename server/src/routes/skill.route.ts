@@ -53,7 +53,7 @@ router
         },
       ],
       message: "Too many get attempts. Try again later.",
-    })
+    }),
   )
   .post("/", skill.create)
   .patch("/:id", skill.update)

@@ -21,45 +21,31 @@
 //                 used upstream to compute RateLimit-Reset
 
 export const SLIDING_WINDOW_SCRIPT = `
-local key       = KEYS[1]
-local interval  = tonumber(ARGV[1])
-local limit     = tonumber(ARGV[2])
-local requestId = ARGV[3]
-local weight    = tonumber(ARGV[4])
+local key = KEYS[1]
+local now = tonumber(ARGV[1])
+local interval = tonumber(ARGV[2])
+local limit = tonumber(ARGV[3])
+local weight = tonumber(ARGV[4])
+local requestId = ARGV[5]
 
--- [2] Redis server clock (seconds + microseconds) — no app-server drift
-local t           = redis.call('TIME')
-local now         = tonumber(t[1]) + tonumber(t[2]) / 1000000
-local windowStart = now - interval
+-- Remove old entries
+redis.call('ZREMRANGEBYSCORE', key, 0, now - interval)
 
--- Evict members that have fallen outside the current window
-redis.call('ZREMRANGEBYSCORE', key, '-inf', windowStart)
-
+-- Count current requests
 local count = redis.call('ZCARD', key)
 
--- [3] Insert 'weight' synthetic members.
---     Each score is micro-offset so ZADD never silently deduplicates them.
-if count + weight <= limit then
-  for i = 1, weight do
-    redis.call('ZADD', key, now + (i * 0.000001), requestId .. ':' .. i)
-  end
-  redis.call('EXPIRE', key, interval)
+-- Always insert current request(s)
+for i = 1, weight do
+  redis.call('ZADD', key, now + (i * 0.000001), requestId .. ':' .. i)
 end
 
+redis.call('EXPIRE', key, interval)
+
+-- Get updated count
 local newCount = redis.call('ZCARD', key)
 
--- [1] Derive oldest score without ZRANGE...WITHSCORES (requires Redis 6.2+).
---     ZRANGE returns just the member name; ZSCORE then fetches its score.
---     Both calls are inside the same Lua execution — still fully atomic.
-local oldestScore = now
-local members     = redis.call('ZRANGE', key, 0, 0)
+-- Oldest timestamp
+local oldest = redis.call('ZRANGE', key, 0, 0, 'WITHSCORES')
 
-if members[1] then
-  local raw = redis.call('ZSCORE', key, members[1])
-  if raw then
-    oldestScore = tonumber(raw)
-  end
-end
-
-return { newCount, oldestScore }
-`
+return { newCount, limit, oldest[2] }
+`;
