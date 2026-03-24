@@ -67,7 +67,7 @@ shell-server:
 	$(DOCKER_COMPOSE) exec server sh
 
 shell-db:
-	$(DOCKER_COMPOSE) exec db mysql -u root -p
+	$(DOCKER_COMPOSE) exec db mariadb -u root -p
 
 # Run migrations
 migrate:
