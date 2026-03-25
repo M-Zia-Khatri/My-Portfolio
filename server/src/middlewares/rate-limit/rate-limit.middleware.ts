@@ -55,14 +55,17 @@ export function rateLimit(config: RateLimitConfig) {
 
         // ioredis eval: (script, numkeys, ...keys, ...args)
         // Returns [newCount, oldestScore] from the Lua script
+        const now = Date.now() / 1000;
+
         const raw = (await redis.eval(
           SLIDING_WINDOW_SCRIPT,
-          1, // numkeys
-          redisKey, // KEYS[1]
-          String(interval), // ARGV[1]
-          String(limit), // ARGV[2]
-          requestId, // ARGV[3]
+          1,
+          redisKey,
+          String(now), // ARGV[1]
+          String(interval), // ARGV[2]
+          String(limit), // ARGV[3]
           String(weight), // ARGV[4]
+          requestId, // ARGV[5]
         )) as [number, number];
 
         const count = raw[0];

@@ -47,5 +47,5 @@ local newCount = redis.call('ZCARD', key)
 -- Oldest timestamp
 local oldest = redis.call('ZRANGE', key, 0, 0, 'WITHSCORES')
 
-return { newCount, limit, oldest[2] }
+return { newCount, oldest[2] }
 `;
