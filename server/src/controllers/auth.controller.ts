@@ -1,20 +1,54 @@
 // src/controllers/auth.controller.ts
-import type { Request, Response } from "express"
-import bcrypt from "bcrypt"
-import { sendOtpEmail } from "../lib/utills/mailer"
-import { AuthRequest, LoginBody, RefreshBody, VerifyOtpBody } from "@/lib/types/auth.types"
-import prisma from "@/lib/prisma"
-import { generateOtp, verifyOtp } from "@/lib/services/otp.service"
-import { catchError } from "@/lib/utills/catch-error"
-import { revokeAllRefreshTokens, revokeRefreshToken, rotateRefreshToken, signAccessToken, signRefreshToken } from "@/lib/services/jwt.service"
-import { send } from "@/lib/utills/send"
+import type { Request, Response } from "express";
+import bcrypt from "bcrypt";
+import { sendOtpEmail } from "../lib/utills/mailer";
+import type {
+  AuthRequest,
+  LoginBody,
+  VerifyOtpBody,
+} from "@/lib/types/auth.types";
+import prisma from "@/lib/prisma";
+import { generateOtp, verifyOtp } from "@/lib/services/otp.service";
+import { catchError } from "@/lib/utills/catch-error";
+import {
+  revokeAllRefreshTokens,
+  revokeRefreshToken,
+  rotateRefreshToken,
+  signAccessToken,
+  signRefreshToken,
+} from "@/lib/services/jwt.service";
+import { send } from "@/lib/utills/send";
+
+// ─── Constants ────────────────────────────────────────────────────────────────
+
+const REFRESH_TOKEN_COOKIE = "refreshToken";
+const REFRESH_TOKEN_MAX_AGE = 7 * 24 * 60 * 60 * 1_000; // 7 days in ms
+const ACCESS_TOKEN_EXPIRES_IN = 15 * 60; // 15 min in seconds
+
+const COOKIE_OPTIONS = {
+  httpOnly: true,
+  secure: process.env.NODE_ENV === "production",
+  sameSite: "strict" as const,
+  maxAge: REFRESH_TOKEN_MAX_AGE,
+  path: "/",
+};
+
+// ─── Helpers ──────────────────────────────────────────────────────────────────
+
+function setRefreshCookie(res: Response, token: string): void {
+  res.cookie(REFRESH_TOKEN_COOKIE, token, COOKIE_OPTIONS);
+}
+
+function clearRefreshCookie(res: Response): void {
+  res.clearCookie(REFRESH_TOKEN_COOKIE, { path: "/" });
+}
 
 // ─── POST /auth/login ─────────────────────────────────────────────────────────
 // Step 1 of 2: verify credentials → issue OTP
 
 export async function login(req: Request, res: Response): Promise<void> {
   try {
-    const { email, password } = (req.body ?? {}) as LoginBody
+    const { email, password } = (req.body ?? {}) as LoginBody;
 
     if (!email || !password) {
       send(res, {
@@ -22,49 +56,61 @@ export async function login(req: Request, res: Response): Promise<void> {
         status: 400,
         message: "Validation error",
         error: { fields: { email: !email, password: !password } },
-      })
-      return
+      });
+      return;
     }
 
     const admin = await prisma.admin.findUnique({
       where: { email: email.toLowerCase().trim() },
-      select: { id: true, email: true, fullName: true, passwordHash: true, isActive: true },
-    })
+      select: {
+        id: true,
+        email: true,
+        fullName: true,
+        passwordHash: true,
+        isActive: true,
+      },
+    });
 
-    // Constant-time response to prevent user enumeration
-    const dummyHash = "$2b$10$invalidhashfortimingprotection0zia00khatri000000000"
-    const hashToCompare = admin?.passwordHash ?? dummyHash
-    const passwordMatch = await bcrypt.compare(password, hashToCompare)
+    // Constant-time response — prevents user enumeration via timing attack
+    const dummyHash =
+      "$2b$10$invalidhashfortimingprotection0zia00khatri000000000";
+    const hashToCompare = admin?.passwordHash ?? dummyHash;
+    const passwordMatch = await bcrypt.compare(password, hashToCompare);
 
     if (!admin || !passwordMatch || !admin.isActive) {
       send(res, {
         success: false,
         status: 401,
         message: "Invalid credentials",
-      })
-      return
+      });
+      return;
     }
 
-    const otpCode = await generateOtp(admin.id)
-    await sendOtpEmail(admin.email, admin.fullName, otpCode)
+    const otpCode = await generateOtp(admin.id);
+    await sendOtpEmail(admin.email, admin.fullName, otpCode);
 
     send(res, {
       success: true,
       status: 200,
       message: "OTP sent to your registered email",
       data: { email: admin.email },
-    })
+    });
   } catch (err) {
-    catchError(res, err)
+    catchError(res, err);
   }
 }
 
 // ─── POST /auth/verify-otp ────────────────────────────────────────────────────
 // Step 2 of 2: verify OTP → issue JWT pair
+// accessToken  → JSON body (short-lived, held in memory by client)
+// refreshToken → HttpOnly cookie (long-lived, never exposed to JS)
 
-export async function verifyOtpHandler(req: Request, res: Response): Promise<void> {
+export async function verifyOtpHandler(
+  req: Request,
+  res: Response,
+): Promise<void> {
   try {
-    const { email, otp } = req.body as VerifyOtpBody
+    const { email, otp } = req.body as VerifyOtpBody;
 
     if (!email || !otp) {
       send(res, {
@@ -72,33 +118,36 @@ export async function verifyOtpHandler(req: Request, res: Response): Promise<voi
         status: 400,
         message: "Validation error",
         error: { fields: { email: !email, otp: !otp } },
-      })
-      return
+      });
+      return;
     }
 
     const admin = await prisma.admin.findUnique({
       where: { email: email.toLowerCase().trim() },
       select: { id: true, email: true, isActive: true },
-    })
+    });
 
     if (!admin || !admin.isActive) {
-      send(res, { success: false, status: 401, message: "Invalid request" })
-      return
+      send(res, { success: false, status: 401, message: "Invalid request" });
+      return;
     }
 
-    const isValid = await verifyOtp(admin.id, otp.trim())
+    const isValid = await verifyOtp(admin.id, otp.trim());
 
     if (!isValid) {
       send(res, {
         success: false,
         status: 401,
         message: "Invalid or expired OTP",
-      })
-      return
+      });
+      return;
     }
 
-    const accessToken = signAccessToken(admin.id, admin.email)
-    const refreshToken = await signRefreshToken(admin.id)
+    const accessToken = signAccessToken(admin.id, admin.email);
+    const refreshToken = await signRefreshToken(admin.id);
+
+    // refreshToken goes into an HttpOnly cookie — never into the response body
+    setRefreshCookie(res, refreshToken);
 
     send(res, {
       success: true,
@@ -106,34 +155,42 @@ export async function verifyOtpHandler(req: Request, res: Response): Promise<voi
       message: "Login successful",
       data: {
         accessToken,
-        refreshToken,
         tokenType: "Bearer",
-        expiresIn: 15 * 60,   // seconds
+        expiresIn: ACCESS_TOKEN_EXPIRES_IN,
       },
-    })
+    });
   } catch (err) {
-    catchError(res, err)
+    catchError(res, err);
   }
 }
 
 // ─── POST /auth/refresh ───────────────────────────────────────────────────────
-// Rotate refresh token → issue new JWT pair
+// Reads the HttpOnly cookie — client sends no body
 
 export async function refresh(req: Request, res: Response): Promise<void> {
   try {
-    const { refreshToken } = req.body as RefreshBody
+    const refreshToken: string | undefined =
+      req.cookies?.[REFRESH_TOKEN_COOKIE];
 
     if (!refreshToken) {
-      send(res, { success: false, status: 400, message: "refreshToken is required" })
-      return
+      send(res, { success: false, status: 401, message: "No refresh token" });
+      return;
     }
 
-    const tokens = await rotateRefreshToken(refreshToken)
+    const tokens = await rotateRefreshToken(refreshToken);
 
     if (!tokens) {
-      send(res, { success: false, status: 401, message: "Invalid or expired refresh token" })
-      return
+      clearRefreshCookie(res);
+      send(res, {
+        success: false,
+        status: 401,
+        message: "Invalid or expired refresh token",
+      });
+      return;
     }
+
+    // Rotate: old cookie out, new cookie in
+    setRefreshCookie(res, tokens.refreshToken);
 
     send(res, {
       success: true,
@@ -141,47 +198,52 @@ export async function refresh(req: Request, res: Response): Promise<void> {
       message: "Token refreshed",
       data: {
         accessToken: tokens.accessToken,
-        refreshToken: tokens.refreshToken,
         tokenType: "Bearer",
-        expiresIn: 15 * 60,
+        expiresIn: ACCESS_TOKEN_EXPIRES_IN,
       },
-    })
+    });
   } catch (err) {
-    catchError(res, err)
+    catchError(res, err);
   }
 }
 
 // ─── POST /auth/logout ────────────────────────────────────────────────────────
-// Revoke the current refresh token
+// Revoke the current session and clear the cookie
 
 export async function logout(req: Request, res: Response): Promise<void> {
   try {
-    const { refreshToken } = req.body as RefreshBody
+    const refreshToken: string | undefined =
+      req.cookies?.[REFRESH_TOKEN_COOKIE];
 
     if (refreshToken) {
-      await revokeRefreshToken(refreshToken)
+      await revokeRefreshToken(refreshToken);
     }
 
-    send(res, { success: true, status: 200, message: "Logged out successfully" })
+    clearRefreshCookie(res);
+    send(res, {
+      success: true,
+      status: 200,
+      message: "Logged out successfully",
+    });
   } catch (err) {
-    catchError(res, err)
+    catchError(res, err);
   }
 }
 
 // ─── POST /auth/logout-all ────────────────────────────────────────────────────
 // Force-revoke ALL sessions for the current admin (requires valid access token)
 
-export async function logoutAll(req: AuthRequest, res: Response): Promise<void> {
+export async function logoutAll(
+  req: AuthRequest,
+  res: Response,
+): Promise<void> {
   try {
-    await revokeAllRefreshTokens(req.admin!.id)
+    await revokeAllRefreshTokens(req.admin!.id);
+    clearRefreshCookie(res);
 
-    send(res, {
-      success: true,
-      status: 200,
-      message: "All sessions revoked",
-    })
+    send(res, { success: true, status: 200, message: "All sessions revoked" });
   } catch (err) {
-    catchError(res, err)
+    catchError(res, err);
   }
 }
 
@@ -192,21 +254,30 @@ export async function me(req: AuthRequest, res: Response): Promise<void> {
   try {
     const admin = await prisma.admin.findUnique({
       where: { id: req.admin!.id },
-      select: { id: true, email: true, fullName: true, createdAt: true },
-    })
+      select: {
+        id: true,
+        email: true,
+        fullName: true,
+        createdAt: true,
+        // Include role if the column exists in your schema.
+        // If not, add: role String @default("admin") in schema.prisma
+        // role: true,
+      },
+    });
 
     if (!admin) {
-      send(res, { success: false, status: 404, message: "Admin not found" })
-      return
+      send(res, { success: false, status: 404, message: "Admin not found" });
+      return;
     }
 
     send(res, {
       success: true,
       status: 200,
       message: "Data retrieved successfully",
-      data: admin,
-    })
+      // Hardcode role until a role column is added to the Admin model
+      data: { ...admin, role: "admin" as const },
+    });
   } catch (err) {
-    catchError(res, err)
+    catchError(res, err);
   }
 }

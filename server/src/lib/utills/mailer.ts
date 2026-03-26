@@ -1,4 +1,4 @@
-import nodemailer from "nodemailer"
+import nodemailer from "nodemailer";
 
 const transporter = nodemailer.createTransport({
   host: process.env.SMTP_HOST,
@@ -8,13 +8,13 @@ const transporter = nodemailer.createTransport({
     user: process.env.SMTP_USER,
     pass: process.env.SMTP_PASS,
   },
-})
+});
 
 // ─── VERIFY CONNECTION ON STARTUP ────────────────────────────────────────────
 
 export async function verifyMailer(): Promise<void> {
-  await transporter.verify()
-  console.log("✓ Mailer connected")
+  await transporter.verify();
+  console.log("✓ Mailer connected");
 }
 
 // ─── SEND OTP EMAIL ──────────────────────────────────────────────────────────
@@ -22,7 +22,7 @@ export async function verifyMailer(): Promise<void> {
 export async function sendOtpEmail(
   toEmail: string,
   fullName: string,
-  otpCode: string
+  otpCode: string,
 ): Promise<void> {
   await transporter.sendMail({
     from: `"Admin Portal" <${process.env.SMTP_FROM}>`,
@@ -42,17 +42,19 @@ export async function sendOtpEmail(
         </p>
       </div>
     `,
-  })
+  });
 }
+
+// ─── SEND CONTACT EMAIL ───────────────────────────────────────────────────────
 
 export async function sendContactEmail(
   fullName: string,
   email: string,
   message: string,
-  createdAt: Date
+  createdAt: Date,
 ): Promise<void> {
   await transporter.sendMail({
-    from: `"Portfolio Contact" <${process.env.Seed}>`,
+    from: `"Portfolio Contact" <${process.env.SMTP_FROM}>`, // was: process.env.Seed
     to: process.env.SEED_ADMIN_EMAIL,
     replyTo: email,
     subject: `New message from ${fullName}`,
@@ -83,5 +85,5 @@ export async function sendContactEmail(
         </p>
       </div>
     `,
-  })
+  });
 }

@@ -21,8 +21,8 @@
 import { Navigate, Outlet, useLocation } from "react-router";
 import { motion, AnimatePresence } from "motion/react";
 import { cn } from "@/shared/utils/cn";
-import { useAuthStore } from "@/features/auth/context/useAuthStore";
 import type { UserRole } from "@/features/auth/types";
+import { useAuthStore } from "../store/useAuthStore";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
