@@ -15,7 +15,8 @@
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true,
     "resolveJsonModule": true,
-    "sourceMap": true
+    "sourceMap": true,
+    "typecheck": "tsc --noEmit"
   },
   "include": ["src/**/*"],
   "exclude": ["node_modules", "dist", "generated"]

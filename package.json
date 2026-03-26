@@ -1,0 +1,46 @@
+{
+	"name": "my-profolio",
+	"private": true,
+	"version": "1.0.0",
+	"description": "This is My Portfolio",
+	"main": ".eslintrc.js",
+	"type": "module",
+	"scripts": {
+		"dev": "pnpm --parallel --filter client --filter server dev",
+		"build": "pnpm -r build",
+		"lint": "eslint .",
+		"lint:fix": "eslint . --fix",
+		"format": "prettier --write .",
+		"format:check": "prettier --check .",
+		"check": "pnpm lint && pnpm format:check",
+		"prepare": "husky install"
+	},
+	"lint-staged": {
+		"*.{js,ts,jsx,tsx}": [
+			"eslint --fix",
+			"prettier --write"
+		],
+		"*.{json,css,md}": [
+			"prettier --write"
+		]
+	},
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/M-Zia-Khatri/My-Portfolio.git"
+	},
+	"keywords": [],
+	"author": "",
+	"license": "ISC",
+	"bugs": {
+		"url": "https://github.com/M-Zia-Khatri/My-Portfolio/issues"
+	},
+	"homepage": "https://github.com/M-Zia-Khatri/My-Portfolio#readme",
+	"devDependencies": {
+		"@commitlint/cli": "^20.5.0",
+		"@commitlint/config-conventional": "^20.5.0",
+		"eslint": "^10.1.0",
+		"husky": "^8.0.0",
+		"lint-staged": "^16.4.0",
+		"prettier": "^3.8.1"
+	}
+}
