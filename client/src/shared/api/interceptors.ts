@@ -1,23 +1,11 @@
-// ─── interceptors.ts ─────────────────────────────────────────────────────────
-//
-// Axios request + response interceptors.
-//
-// Request  → reads the access_token cookie via getAccessToken() and attaches
-//            it as the Authorization: Bearer header.
-// Response → on a 401, silently calls POST /auth/refresh (which sends the
-//            HttpOnly refresh_token cookie automatically), stores the new
-//            access token, and retries the original request.
-//
-// The only change vs. the original: getAccessToken() now reads from a cookie
-// instead of a module-level variable, so tokens survive page refreshes.
-
-import { api } from "./axios";
+// client/src/shared/api/interceptors.ts
 import {
   clearAccessToken,
   getAccessToken,
   setAccessToken,
 } from "@/features/auth/utils/tokenManager";
 import { refreshTokenApi } from "@/features/auth/services/auth.api";
+import type { AxiosInstance, InternalAxiosRequestConfig } from "axios";
 
 let isRefreshing = false;
 let failedQueue: Array<{
@@ -33,60 +21,60 @@ function processQueue(error: unknown, token: string | null): void {
   failedQueue = [];
 }
 
-// ── Request — attach access token ────────────────────────────────────────────
-
-api.interceptors.request.use((config) => {
-  const token = getAccessToken(); // reads the access_token cookie
-
-  if (token) {
-    config.headers.Authorization = `Bearer ${token}`;
-  }
-
-  return config;
-});
-
-// ── Response — silent token refresh on 401 ───────────────────────────────────
-
-api.interceptors.response.use(
-  (res) => res,
-  async (error) => {
-    const originalRequest = error.config;
-
-    if (error.response?.status !== 401 || originalRequest._retry) {
-      return Promise.reject(error);
+export const setupInterceptors = (api: AxiosInstance) => {
+  // ── Request — attach access token ──────────────────────────────────────────
+  api.interceptors.request.use((config: InternalAxiosRequestConfig) => {
+    const token = getAccessToken();
+    if (token) {
+      config.headers.Authorization = `Bearer ${token}`;
     }
+    return config;
+  });
 
-    if (isRefreshing) {
-      // Queue subsequent 401s until the refresh resolves
-      return new Promise<string>((resolve, reject) => {
-        failedQueue.push({ resolve, reject });
-      })
-        .then((token) => {
-          originalRequest.headers.Authorization = `Bearer ${token}`;
-          return api(originalRequest);
+  // ── Response — silent token refresh on 401 ─────────────────────────────────
+  api.interceptors.response.use(
+    (res) => res,
+    async (error) => {
+      const originalRequest = error.config;
+
+      // Ensure we don't loop on /auth/refresh or non-401 errors
+      if (
+        error.response?.status !== 401 ||
+        originalRequest._retry ||
+        originalRequest.url?.includes("/auth/refresh")
+      ) {
+        return Promise.reject(error);
+      }
+
+      if (isRefreshing) {
+        return new Promise<string>((resolve, reject) => {
+          failedQueue.push({ resolve, reject });
         })
-        .catch((err) => Promise.reject(err));
-    }
+          .then((token) => {
+            originalRequest.headers.Authorization = `Bearer ${token}`;
+            return api(originalRequest);
+          })
+          .catch((err) => Promise.reject(err));
+      }
 
-    originalRequest._retry = true;
-    isRefreshing = true;
+      originalRequest._retry = true;
+      isRefreshing = true;
 
-    try {
-      // POST /auth/refresh — no body needed; the browser sends the
-      // HttpOnly refresh_token cookie via withCredentials: true.
-      const data = await refreshTokenApi();
+      try {
+        const data = await refreshTokenApi(); // Note: ensure this doesn't cause a loop
 
-      setAccessToken(data.accessToken); // writes the access_token cookie
-      processQueue(null, data.accessToken);
+        setAccessToken(data.accessToken);
+        processQueue(null, data.accessToken);
 
-      originalRequest.headers.Authorization = `Bearer ${data.accessToken}`;
-      return api(originalRequest);
-    } catch (err) {
-      processQueue(err, null);
-      clearAccessToken(); // clear the stale cookie
-      return Promise.reject(err);
-    } finally {
-      isRefreshing = false;
-    }
-  },
-);
+        originalRequest.headers.Authorization = `Bearer ${data.accessToken}`;
+        return api(originalRequest);
+      } catch (err) {
+        processQueue(err, null);
+        clearAccessToken();
+        return Promise.reject(err);
+      } finally {
+        isRefreshing = false;
+      }
+    },
+  );
+};
