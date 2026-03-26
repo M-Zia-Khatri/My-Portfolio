@@ -1,12 +1,9 @@
+import { Flex, Select } from '@radix-ui/themes';
 import { useState } from 'react';
-import { Select, Flex } from '@radix-ui/themes';
 import useGameSet from '../store/GameSetStore';
 import CustomLevelDialog from './CustomLevelDialog';
 
-const BUILTIN_PRESETS: Record<
-  string,
-  { max: number; limit: number; time: number }
-> = {
+const BUILTIN_PRESETS: Record<string, { max: number; limit: number; time: number }> = {
   easy: { max: 20, limit: 10, time: 180 },
   normal: { max: 20, limit: 7, time: 180 },
   hard: { max: 30, limit: 4, time: 120 },

@@ -1,5 +1,5 @@
+import { AnimatePresence, motion } from 'motion/react';
 import { memo, useMemo, useState } from 'react';
-import { motion, AnimatePresence } from 'motion/react';
 import { tokenise } from './tokeniser';
 
 interface CodeLineProps {
@@ -26,9 +26,7 @@ const CodeLine = memo(function CodeLine({
 
   return (
     <motion.div
-      initial={
-        isActiveLine && line.length <= 1 ? { opacity: 0, x: -10 } : false
-      }
+      initial={isActiveLine && line.length <= 1 ? { opacity: 0, x: -10 } : false}
       animate={{ opacity: 1, x: 0 }}
       transition={{ duration: 0.12 }}
       onHoverStart={() => setHovered(true)}
@@ -44,7 +42,7 @@ const CodeLine = memo(function CodeLine({
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             transition={{ duration: 0.12 }}
-            className="absolute inset-0 pointer-events-none"
+            className="pointer-events-none absolute inset-0"
             style={{
               background: `${color}0d`,
               borderLeft: `2px solid ${color}55`,
@@ -56,7 +54,7 @@ const CodeLine = memo(function CodeLine({
       {/* Active-line ambient glow */}
       {isActiveLine && (
         <motion.span
-          className="absolute inset-0 pointer-events-none"
+          className="pointer-events-none absolute inset-0"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           style={{
@@ -68,21 +66,16 @@ const CodeLine = memo(function CodeLine({
 
       {/* Line number */}
       <span
-        className="relative shrink-0 w-10 text-right pr-4 text-[11px]
-                   select-none leading-[1.6rem] transition-colors duration-150"
+        className="relative w-10 shrink-0 pr-4 text-right text-[11px] leading-[1.6rem] transition-colors duration-150 select-none"
         style={{
-          color: isActiveLine
-            ? `${color}cc`
-            : hovered
-              ? `${color}88`
-              : 'rgba(255,255,255,0.18)',
+          color: isActiveLine ? `${color}cc` : hovered ? `${color}88` : 'rgba(255,255,255,0.18)',
         }}
       >
         {index + 1}
       </span>
 
       {/* Tokenised code */}
-      <span className="relative text-[12.5px] leading-[1.6rem] whitespace-pre tracking-tight">
+      <span className="relative text-[12.5px] leading-[1.6rem] tracking-tight whitespace-pre">
         {tokens.map((tok, j) => (
           <span key={j} style={{ color: tok.color }}>
             {tok.text}
@@ -92,7 +85,7 @@ const CodeLine = memo(function CodeLine({
         {/* Blinking cursor — only on the active (typing) line */}
         {isActiveLine && (
           <span
-            className="inline-block w-[2px] h-[13px] align-middle ml-[1px]"
+            className="ml-[1px] inline-block h-[13px] w-[2px] align-middle"
             style={{
               background: color,
               opacity: cursor ? 1 : 0,

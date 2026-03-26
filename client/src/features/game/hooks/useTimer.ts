@@ -1,4 +1,4 @@
-import { useEffect, useState, useCallback, useRef } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 
 interface UseTimerOptions {
   initialTime: number; // seconds to count down from
@@ -6,11 +6,7 @@ interface UseTimerOptions {
   onExpire?: () => void; // called once when timer reaches zero
 }
 
-export default function useTimer({
-  initialTime,
-  isActive,
-  onExpire,
-}: UseTimerOptions) {
+export default function useTimer({ initialTime, isActive, onExpire }: UseTimerOptions) {
   const [timeLeft, setTimeLeft] = useState(initialTime);
   const intervalRef = useRef<number | null>(null);
   const onExpireRef = useRef(onExpire);

@@ -1,10 +1,6 @@
-import { useEffect, useState } from 'react';
+import { CheckCircledIcon, Cross2Icon, InfoCircledIcon } from '@radix-ui/react-icons';
 import { Callout } from '@radix-ui/themes';
-import {
-  InfoCircledIcon,
-  CheckCircledIcon,
-  Cross2Icon,
-} from '@radix-ui/react-icons';
+import { useEffect, useState } from 'react';
 import { useGuessNum } from '../context/GuessNumContext';
 
 export default function Feedback() {
@@ -32,19 +28,15 @@ export default function Feedback() {
   const isClose = message === 'very close';
 
   const color = isWin ? 'green' : isClose ? 'amber' : 'blue';
-  const Icon = isWin
-    ? CheckCircledIcon
-    : isClose
-      ? InfoCircledIcon
-      : Cross2Icon;
+  const Icon = isWin ? CheckCircledIcon : isClose ? InfoCircledIcon : Cross2Icon;
 
   return (
-    <div className="fixed z-50 bottom-8 left-1/2 -translate-x-1/2 w-fit min-w-48">
+    <div className="fixed bottom-8 left-1/2 z-50 w-fit min-w-48 -translate-x-1/2">
       <Callout.Root color={color} variant="surface" size="2">
         <Callout.Icon>
           <Icon />
         </Callout.Icon>
-        <Callout.Text className="capitalize font-medium">
+        <Callout.Text className="font-medium capitalize">
           {message.replace(/cols/, 'close')}
         </Callout.Text>
       </Callout.Root>

@@ -1,23 +1,22 @@
-import js from "@eslint/js";
-import tseslint from "typescript-eslint";
-import reactHooks from "eslint-plugin-react-hooks";
+import js from '@eslint/js';
+import tseslint from 'typescript-eslint';
 
 export default [
   js.configs.recommended,
   ...tseslint.configs.recommended,
 
   {
-    files: ["client/**/*.{ts,tsx}"],
+    files: ['client/**/*.{ts,tsx}'],
     rules: {
-      "react-hooks/rules-of-hooks": "error",
-      "react-hooks/exhaustive-deps": "warn",
+      'react-hooks/rules-of-hooks': 'error',
+      'react-hooks/exhaustive-deps': 'warn',
     },
   },
 
   {
-    files: ["server/**/*.ts"],
+    files: ['server/**/*.ts'],
     rules: {
-      "no-console": "off", // server logs allowed
+      'no-console': 'off', // server logs allowed
     },
   },
 ];

@@ -1,5 +1,5 @@
-import { create } from 'zustand';
 import { AppNavigation } from '@/shared/constants/navigation.constants';
+import { create } from 'zustand';
 
 type NavigationStore = {
   activeHash: string;

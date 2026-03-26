@@ -15,7 +15,7 @@ export function fallbackCheck(
   key: string,
   interval: number,
   limit: number,
-  weight: number
+  weight: number,
 ): boolean {
   const now = Date.now() / 1000;
   const entry = fallbackStore.get(key);

@@ -72,16 +72,16 @@ export default function PortfolioSection() {
           whileInView="visible"
           viewport={VIEWPORT_ONCE}
         >
-          <span className="text-[11px] font-semibold tracking-[0.22em] uppercase text-(--blue-10)">
+          <span className="text-[11px] font-semibold tracking-[0.22em] text-(--blue-10) uppercase">
             Selected Work
           </span>
 
-          <Heading as="h2" className="text-white font-bold">
+          <Heading as="h2" className="font-bold text-white">
             Portfolio
           </Heading>
 
           <motion.div
-            className="mt-1 w-12 h-0.5 bg-linear-to-r from-transparent via-(--blue-7) to-transparent rounded-full"
+            className="mt-1 h-0.5 w-12 rounded-full bg-linear-to-r from-transparent via-(--blue-7) to-transparent"
             variants={lineVariants}
             initial="hidden"
             whileInView="visible"
@@ -90,7 +90,7 @@ export default function PortfolioSection() {
         </motion.div>
 
         <motion.div
-          className="grid grid-cols-2 w-full gap-5"
+          className="grid w-full grid-cols-2 gap-5"
           variants={containerVariants}
           initial="hidden"
           whileInView="visible"

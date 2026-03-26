@@ -70,8 +70,7 @@ const useGameSet = create<AppState>()(
       setTimeLimit: (timeLimit) => set({ timeLimit }),
       setDifficultLevel: (difficultLevel) => set({ difficultLevel }),
 
-      addCustomLevel: (level) =>
-        set((state) => ({ customLevels: [...state.customLevels, level] })),
+      addCustomLevel: (level) => set((state) => ({ customLevels: [...state.customLevels, level] })),
       removeCustomLevel: (id) =>
         set((state) => ({
           customLevels: state.customLevels.filter((l) => l.id !== id),
@@ -92,20 +91,18 @@ const useGameSet = create<AppState>()(
       }),
       merge: (persisted: unknown, current: AppState) => {
         const p = persisted as Partial<PersistedState>;
-        const hydratedHistory = (p.scoreHistory ?? []).map(
-          (r: ScoreRecord) => ({
-            ...r,
-            date: new Date(r.date),
-          })
-        );
+        const hydratedHistory = (p.scoreHistory ?? []).map((r: ScoreRecord) => ({
+          ...r,
+          date: new Date(r.date),
+        }));
         return {
           ...current,
           scoreHistory: hydratedHistory,
           customLevels: p.customLevels ?? [],
         };
       },
-    }
-  )
+    },
+  ),
 );
 
 export default useGameSet;

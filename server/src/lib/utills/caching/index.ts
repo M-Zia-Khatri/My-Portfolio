@@ -1,9 +1,3 @@
-export {
-  TTL,
-  cacheRemember,
-  cachePut,
-  cacheForget,
-  cacheInvalidatePrefix,
-} from './cache';
+export { TTL, cacheForget, cacheInvalidatePrefix, cachePut, cacheRemember } from './cache';
 
 export type { CacheOptions } from './cache.types';

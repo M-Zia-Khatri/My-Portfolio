@@ -1,6 +1,6 @@
-import { memo, useEffect, useMemo, useRef, useState } from 'react';
-import { motion } from 'motion/react';
 import gsap from 'gsap';
+import { motion } from 'motion/react';
+import { memo, useEffect, useMemo, useRef, useState } from 'react';
 import type { TerminalLine as TLine } from '../types';
 import TerminalLine from './TerminalLine';
 
@@ -63,13 +63,7 @@ const DoneBlock = memo(function DoneBlock({
 }) {
   return (
     <div>
-      <TerminalLine
-        line={block.command}
-        isActive={false}
-        cursor={false}
-        color={color}
-        index={bi}
-      />
+      <TerminalLine line={block.command} isActive={false} cursor={false} color={color} index={bi} />
       {block.outputs.map((out, oi) => (
         <TerminalLine
           key={oi}
@@ -85,11 +79,7 @@ const DoneBlock = memo(function DoneBlock({
 });
 
 // ─── TerminalView ─────────────────────────────────────────────────────────────
-export default function TerminalView({
-  skillName,
-  commands,
-  color,
-}: TerminalViewProps) {
+export default function TerminalView({ skillName, commands, color }: TerminalViewProps) {
   const [state, setState] = useState<DisplayState>(INIT_STATE);
   const [cursor, setCursor] = useState(true);
   const tlRef = useRef<gsap.core.Timeline | null>(null);
@@ -107,15 +97,9 @@ export default function TerminalView({
   // scrollRef points to the content div; the scrollable container is its
   // .content-scrollbar ancestor in CodeCard.
   useEffect(() => {
-    const el = scrollRef.current?.closest(
-      '.content-scrollbar'
-    ) as HTMLElement | null;
+    const el = scrollRef.current?.closest('.content-scrollbar') as HTMLElement | null;
     if (el) el.scrollTop = el.scrollHeight;
-  }, [
-    state.doneBlocks.length,
-    state.activeOutputs.length,
-    state.activeCommand,
-  ]);
+  }, [state.doneBlocks.length, state.activeOutputs.length, state.activeCommand]);
 
   // ── Single-tween GSAP typewriter (O(1) tweens instead of O(N chars)) ────────
   useEffect(() => {
@@ -273,14 +257,11 @@ export default function TerminalView({
           className="flex items-center"
           style={{ minHeight: '1.6rem' }}
         >
-          <span
-            style={{ color }}
-            className="text-[12.5px] font-bold mr-1.5 select-none"
-          >
+          <span style={{ color }} className="mr-1.5 text-[12.5px] font-bold select-none">
             $
           </span>
           <span
-            className="inline-block w-[2px] h-[13px] align-middle"
+            className="inline-block h-[13px] w-[2px] align-middle"
             style={{
               background: color,
               opacity: cursor ? 1 : 0,

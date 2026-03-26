@@ -1,7 +1,7 @@
-import { useState, useCallback } from 'react';
 import { Table, Text } from '@radix-ui/themes';
-import MemoizedScoreRow from './ScoreRow';
+import { useCallback, useState } from 'react';
 import useGameSet from '../store/GameSetStore';
+import MemoizedScoreRow from './ScoreRow';
 
 export default function ScoreHistory() {
   const { scoreHistory, setScoreRecords } = useGameSet();
@@ -9,21 +9,16 @@ export default function ScoreHistory() {
 
   const handleUpdateName = useCallback(
     (idx: number, newName: string): void => {
-      const updated = scoreHistory.map((r, i) =>
-        i === idx ? { ...r, name: newName } : r
-      );
+      const updated = scoreHistory.map((r, i) => (i === idx ? { ...r, name: newName } : r));
       setScoreRecords(updated);
       setEditingIdx(null);
     },
-    [scoreHistory, setScoreRecords]
+    [scoreHistory, setScoreRecords],
   );
 
   if (!scoreHistory.length) {
     return (
-      <div
-        className="p-6 text-center rounded-xl"
-        style={{ background: 'var(--gray-3)' }}
-      >
+      <div className="rounded-xl p-6 text-center" style={{ background: 'var(--gray-3)' }}>
         <Text size="2" style={{ color: 'var(--gray-10)' }} className="italic">
           No games played yet.
         </Text>
@@ -32,10 +27,7 @@ export default function ScoreHistory() {
   }
 
   return (
-    <div
-      className="rounded-xl overflow-hidden"
-      style={{ border: '1px solid var(--gray-5)' }}
-    >
+    <div className="overflow-hidden rounded-xl" style={{ border: '1px solid var(--gray-5)' }}>
       <div className="max-h-75 overflow-y-auto">
         <Table.Root size="1">
           <Table.Header>

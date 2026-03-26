@@ -9,11 +9,7 @@ import { Request, Response } from 'express';
  *
  * Pattern: rl:{<identity>}:<action>:<interval>
  */
-export function buildRedisKey(
-  action: string,
-  identity: string,
-  interval: number
-): string {
+export function buildRedisKey(action: string, identity: string, interval: number): string {
   return `rl:{${identity}}:${action}:${interval}`;
 }
 
@@ -22,9 +18,7 @@ export function buildRedisKey(
  */
 export function getIp(req: Request): string {
   const forwarded = req.headers['x-forwarded-for'] as string | undefined;
-  return (
-    forwarded?.split(',')[0]?.trim() ?? req.socket?.remoteAddress ?? 'unknown'
-  );
+  return forwarded?.split(',')[0]?.trim() ?? req.socket?.remoteAddress ?? 'unknown';
 }
 
 /**
@@ -50,7 +44,7 @@ export function setRateLimitHeaders(
   limit: number,
   remaining: number,
   resetAt: number,
-  interval: number
+  interval: number,
 ): void {
   const resetIn = Math.max(0, Math.ceil(resetAt - Date.now() / 1000));
 

@@ -3,12 +3,12 @@ import { cn } from '@/shared/utils/cn.ts';
 import BgScene from './BgScene';
 
 const headingBaseStyling = cn(
-  'font-black uppercase text-8xl/24 text-white w-full drop-shadow-[0_0_2.5px_color-mix(in_srgb,var(--blue-10)_80%,transparent),0_0_5px_color-mix(in_srgb,var(--blue-10)_90%,transparent)]'
+  'font-black uppercase text-8xl/24 text-white w-full drop-shadow-[0_0_2.5px_color-mix(in_srgb,var(--blue-10)_80%,transparent),0_0_5px_color-mix(in_srgb,var(--blue-10)_90%,transparent)]',
 );
 
 export default function HeroSection() {
   return (
-    <div className="z-10 flex h-full w-full flex-col items-center justify-center text-center mt-23">
+    <div className="z-10 mt-23 flex h-full w-full flex-col items-center justify-center text-center">
       <div className="absolute inset-0 left-0 -z-100 h-dvh w-screen bg-linear-to-t from-transparent to-(--blue-4)/50" />
       <BgScene />
 

@@ -1,4 +1,13 @@
+import CodeEmptyState from '@/features/skills/components/CodeEmptyState';
+import CodeLine from '@/features/skills/components/CodeLine';
+import CodeTabBar from '@/features/skills/components/CodeTabBar';
+import TerminalView from '@/features/skills/components/TerminalView';
+import type { Skill } from '@/features/skills/types';
+import TabScrollbarStyle from '@/shared/components/TabScrollbarStyle';
+import gsap from 'gsap';
+import { AnimatePresence, motion, useSpring, useTransform } from 'motion/react';
 import {
+  forwardRef,
   memo,
   useCallback,
   useEffect,
@@ -6,23 +15,10 @@ import {
   useMemo,
   useRef,
   useState,
-  forwardRef,
 } from 'react';
-import { motion, AnimatePresence, useSpring, useTransform } from 'motion/react';
-import gsap from 'gsap';
-import type { Skill } from '@/features/skills/types';
-import TabScrollbarStyle from '@/shared/components/TabScrollbarStyle';
-import CodeTabBar from '@/features/skills/components/CodeTabBar';
-import TerminalView from '@/features/skills/components/TerminalView';
-import CodeEmptyState from '@/features/skills/components/CodeEmptyState';
-import CodeLine from '@/features/skills/components/CodeLine';
 
 // Only re-renders when skill.color changes
-const ContentScrollbarStyle = memo(function ContentScrollbarStyle({
-  color,
-}: {
-  color: string;
-}) {
+const ContentScrollbarStyle = memo(function ContentScrollbarStyle({ color }: { color: string }) {
   return (
     <style>{`
       .content-scrollbar::-webkit-scrollbar { width: 3px; }
@@ -54,15 +50,8 @@ export interface CodeCardProps {
 }
 
 const CodeCard = forwardRef<CodeCardHandle, CodeCardProps>(function CodeCard(
-  {
-    skill,
-    openTabs,
-    onTabClick,
-    onTabClose,
-    onTypingComplete,
-    started = true,
-  }: CodeCardProps,
-  ref
+  { skill, openTabs, onTabClick, onTabClose, onTypingComplete, started = true }: CodeCardProps,
+  ref,
 ) {
   // Split animation state — only used in "code" mode
   const [completedLines, setCompletedLines] = useState<string[]>([]);
@@ -95,8 +84,7 @@ const CodeCard = forwardRef<CodeCardHandle, CodeCardProps>(function CodeCard(
 
   const spotlightBg = useTransform(
     [glowX, glowY],
-    ([x, y]) =>
-      `radial-gradient(circle at ${x} ${y}, ${skill.color}18 0%, transparent 65%)`
+    ([x, y]) => `radial-gradient(circle at ${x} ${y}, ${skill.color}18 0%, transparent 65%)`,
   );
 
   const handleMouseMove = useCallback(
@@ -106,7 +94,7 @@ const CodeCard = forwardRef<CodeCardHandle, CodeCardProps>(function CodeCard(
       mouseX.set((e.clientX - rect.left) / rect.width - 0.5);
       mouseY.set((e.clientY - rect.top) / rect.height - 0.5);
     },
-    [mouseX, mouseY]
+    [mouseX, mouseY],
   );
 
   const handleMouseLeave = useCallback(() => {
@@ -153,8 +141,7 @@ const CodeCard = forwardRef<CodeCardHandle, CodeCardProps>(function CodeCard(
       duration: t,
       ease: 'none',
       onUpdate() {
-        const { li, ci } =
-          steps[Math.round(progress.value)] ?? steps[steps.length - 1];
+        const { li, ci } = steps[Math.round(progress.value)] ?? steps[steps.length - 1];
         setCompletedLines(codeLines.slice(0, li));
         setCurrentLine(codeLines[li].slice(0, ci));
       },
@@ -175,7 +162,7 @@ const CodeCard = forwardRef<CodeCardHandle, CodeCardProps>(function CodeCard(
   // All lines to render (code mode)
   const allLines = useMemo(
     () => (isTyping ? [...completedLines, currentLine] : completedLines),
-    [completedLines, currentLine, isTyping]
+    [completedLines, currentLine, isTyping],
   );
   const activeLineI = isTyping ? allLines.length - 1 : -1;
 
@@ -203,18 +190,17 @@ const CodeCard = forwardRef<CodeCardHandle, CodeCardProps>(function CodeCard(
       >
         {/* Mouse-tracking spotlight — driven by motion values, zero React re-renders */}
         <motion.div
-          className="absolute inset-0 rounded-xl pointer-events-none z-0"
+          className="pointer-events-none absolute inset-0 z-0 rounded-xl"
           style={{ background: spotlightBg }}
         />
 
         <div
-          className="relative flex flex-col overflow-hidden rounded-xl w-full z-10"
+          className="relative z-10 flex w-full flex-col overflow-hidden rounded-xl"
           style={{
             background: cardBg,
             border: `1px solid ${skill.color}30`,
             boxShadow: `0 0 0 1px ${skill.color}18, 0 16px 48px rgba(0,0,0,0.55)`,
-            fontFamily:
-              '"JetBrains Mono","Fira Code","Cascadia Code",ui-monospace,monospace',
+            fontFamily: '"JetBrains Mono","Fira Code","Cascadia Code",ui-monospace,monospace',
             minHeight: 300,
           }}
         >
@@ -228,7 +214,7 @@ const CodeCard = forwardRef<CodeCardHandle, CodeCardProps>(function CodeCard(
           {/* Code / Terminal area */}
           <div
             ref={contentRef}
-            className="flex-1 py-3 content-scrollbar"
+            className="content-scrollbar flex-1 py-3"
             style={{
               minHeight: 260,
               maxHeight: 320,
@@ -274,10 +260,9 @@ const CodeCard = forwardRef<CodeCardHandle, CodeCardProps>(function CodeCard(
 
           {/* Bottom fade */}
           <div
-            className="absolute bottom-0 left-0 right-0 h-12 pointer-events-none"
+            className="pointer-events-none absolute right-0 bottom-0 left-0 h-12"
             style={{
-              background:
-                'linear-gradient(to top, rgba(10,14,20,0.95) 0%, transparent 100%)',
+              background: 'linear-gradient(to top, rgba(10,14,20,0.95) 0%, transparent 100%)',
             }}
           />
         </div>

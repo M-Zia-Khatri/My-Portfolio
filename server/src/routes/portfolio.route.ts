@@ -1,13 +1,13 @@
+import { rateLimit } from '@/middlewares/rate-limit/rate-limit.middleware';
 import { Router } from 'express';
-import { requireAdmin } from '../middlewares/auth.middleware';
 import {
+  createPortfolioItem,
+  deletePortfolioItem,
   getAllPortfolioItems,
   getPortfolioItemById,
-  createPortfolioItem,
   updatePortfolioItem,
-  deletePortfolioItem,
 } from '../controllers/portfolio.controller';
-import { rateLimit } from '@/middlewares/rate-limit/rate-limit.middleware';
+import { requireAdmin } from '../middlewares/auth.middleware';
 
 const portfolioRouter = Router();
 
@@ -26,7 +26,7 @@ portfolioRouter
       ],
       message: 'Too many get attempts. Try again later.',
     }),
-    getAllPortfolioItems
+    getAllPortfolioItems,
   )
   .get(
     ':id',
@@ -41,7 +41,7 @@ portfolioRouter
       ],
       message: 'Too many get attempts. Try again later.',
     }),
-    getPortfolioItemById
+    getPortfolioItemById,
   );
 
 // Admin only
@@ -57,7 +57,7 @@ portfolioRouter
         },
       ],
       message: 'Too many admin attempts. Try again later.',
-    })
+    }),
   )
   .use(requireAdmin)
   .post('/', createPortfolioItem)

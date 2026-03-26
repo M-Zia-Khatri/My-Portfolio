@@ -1,11 +1,7 @@
-import type { Request, Response, NextFunction } from 'express';
+import type { NextFunction, Request, Response } from 'express';
 import { send } from '../lib/utills/send';
 
-export function validateContact(
-  req: Request,
-  res: Response,
-  next: NextFunction
-): void {
+export function validateContact(req: Request, res: Response, next: NextFunction): void {
   const { fullName, email, message } = req.body;
   const errors: Record<string, string> = {};
 
@@ -13,11 +9,7 @@ export function validateContact(
     errors.fullName = 'Full name must be at least 2 characters';
   }
 
-  if (
-    !email ||
-    typeof email !== 'string' ||
-    !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)
-  ) {
+  if (!email || typeof email !== 'string' || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
     errors.email = 'A valid email is required';
   }
 

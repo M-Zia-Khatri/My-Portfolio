@@ -6,11 +6,7 @@ type SecComponentProps = ComponentPropsWithoutRef<typeof Container> & {
   children: ReactNode;
 };
 
-export default function SecComponent({
-  className,
-  children,
-  ...props
-}: SecComponentProps) {
+export default function SecComponent({ className, children, ...props }: SecComponentProps) {
   return (
     <Container
       size={{ initial: '1', sm: '2', md: '3', lg: '4' }}

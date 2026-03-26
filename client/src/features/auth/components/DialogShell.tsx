@@ -1,6 +1,6 @@
-import { motion, AnimatePresence, type Variants } from 'motion/react';
-import { AlertDialog } from 'radix-ui';
 import { cn } from '@/shared/utils/cn';
+import { AnimatePresence, motion, type Variants } from 'motion/react';
+import { AlertDialog } from 'radix-ui';
 import type { AuthStepConfig } from '../types';
 
 // ─── ANIMATION VARIANTS ───────────────────────────────────────────────────────
@@ -43,12 +43,7 @@ interface DialogShellProps {
 
 // ─── COMPONENT ───────────────────────────────────────────────────────────────
 
-export function DialogShell({
-  open,
-  dialogKey,
-  config,
-  children,
-}: DialogShellProps) {
+export function DialogShell({ open, dialogKey, config, children }: DialogShellProps) {
   return (
     <AlertDialog.Root open={open}>
       <AnimatePresence>
@@ -71,10 +66,7 @@ export function DialogShell({
             </AlertDialog.Overlay>
 
             {/* Panel */}
-            <AlertDialog.Content
-              asChild
-              onOpenAutoFocus={(e) => e.preventDefault()}
-            >
+            <AlertDialog.Content asChild onOpenAutoFocus={(e) => e.preventDefault()}>
               <motion.div
                 key={`${dialogKey}-panel`}
                 variants={panelVariants}
@@ -82,14 +74,13 @@ export function DialogShell({
                 animate="visible"
                 exit="exit"
                 className={cn(
-                  'fixed left-1/2 top-1/2 z-50',
+                  'fixed top-1/2 left-1/2 z-50',
                   'w-[calc(100%-2rem)] max-w-108',
                   '-translate-x-1/2 -translate-y-1/2',
-                  'rounded-2xl border p-8 shadow-2xl outline-none'
+                  'rounded-2xl border p-8 shadow-2xl outline-none',
                 )}
                 style={{
-                  background:
-                    'linear-gradient(155deg, var(--gray-2) 0%, var(--gray-1) 100%)',
+                  background: 'linear-gradient(155deg, var(--gray-2) 0%, var(--gray-1) 100%)',
                   borderColor: 'var(--gray-5)',
                   boxShadow: [
                     '0 0 0 1px var(--gray-4)',
@@ -99,7 +90,7 @@ export function DialogShell({
                 }}
               >
                 {/* Pulse badge */}
-                <div className={cn('flex items-center gap-2 mb-6')}>
+                <div className={cn('mb-6 flex items-center gap-2')}>
                   <motion.span
                     animate={{ opacity: [1, 0.4, 1] }}
                     transition={{
@@ -107,16 +98,14 @@ export function DialogShell({
                       repeat: Infinity,
                       ease: 'easeInOut',
                     }}
-                    className={cn('inline-block w-2 h-2 rounded-full shrink-0')}
+                    className={cn('inline-block h-2 w-2 shrink-0 rounded-full')}
                     style={{
                       background: 'var(--blue-9)',
                       boxShadow: '0 0 10px var(--blue-9)',
                     }}
                   />
                   <span
-                    className={cn(
-                      'text-[10px] font-mono uppercase tracking-[0.18em]'
-                    )}
+                    className={cn('font-mono text-[10px] tracking-[0.18em] uppercase')}
                     style={{ color: 'var(--blue-11)' }}
                   >
                     {config.badge}
@@ -126,9 +115,7 @@ export function DialogShell({
                 {/* Title & description */}
                 <AlertDialog.Title asChild>
                   <h2
-                    className={cn(
-                      'text-[1.65rem] font-semibold tracking-tight leading-none mb-2'
-                    )}
+                    className={cn('mb-2 text-[1.65rem] leading-none font-semibold tracking-tight')}
                     style={{
                       color: 'var(--gray-12)',
                       fontFamily: "'DM Serif Display', Georgia, serif",
@@ -139,10 +126,7 @@ export function DialogShell({
                 </AlertDialog.Title>
 
                 <AlertDialog.Description asChild>
-                  <p
-                    className={cn('text-sm mb-7')}
-                    style={{ color: 'var(--gray-10)' }}
-                  >
+                  <p className={cn('mb-7 text-sm')} style={{ color: 'var(--gray-10)' }}>
                     {config.description}
                   </p>
                 </AlertDialog.Description>

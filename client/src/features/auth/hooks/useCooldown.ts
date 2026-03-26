@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 
 export function useCooldown(initial: number, active: boolean) {
   const [time, setTime] = useState(initial);

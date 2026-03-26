@@ -1,5 +1,5 @@
-import { useEffect, useRef } from 'react';
 import gsap from 'gsap';
+import { useEffect, useRef } from 'react';
 
 type SVGWithCleanup = SVGSVGElement & {
   _cleanup?: () => void;
@@ -50,7 +50,7 @@ export default function BgScene() {
       for (let i = 0; i < count; i++) {
         const path = document.createElementNS(
           'http://www.w3.org/2000/svg',
-          'path'
+          'path',
         ) as SVGPathElement;
 
         path.setAttribute('stroke', '#76c7eb');
@@ -86,18 +86,15 @@ export default function BgScene() {
           const t = state.t;
 
           // Smooth mouse
-          smoothMouseRef.current.x +=
-            (mouseRef.current.x - smoothMouseRef.current.x) * lerpFactor;
-          smoothMouseRef.current.y +=
-            (mouseRef.current.y - smoothMouseRef.current.y) * lerpFactor;
+          smoothMouseRef.current.x += (mouseRef.current.x - smoothMouseRef.current.x) * lerpFactor;
+          smoothMouseRef.current.y += (mouseRef.current.y - smoothMouseRef.current.y) * lerpFactor;
 
           const mx = smoothMouseRef.current.x;
           const my = smoothMouseRef.current.y;
           const isActive = mouseRef.current.x !== -9999;
 
           for (let i = 0; i < lines.length; i++) {
-            const baseX =
-              baseXValues[i] + Math.sin(t + i * frequency) * amplitude;
+            const baseX = baseXValues[i] + Math.sin(t + i * frequency) * amplitude;
 
             const dx0 = baseX - mx;
             const lineNearMouse = isActive && Math.abs(dx0) < mouseRadius;
@@ -178,8 +175,8 @@ export default function BgScene() {
   }, []);
 
   return (
-    <div className="w-[101svw] h-dvh fixed left-1/2 -translate-1/2 inset-0 top-1/2 z-0">
-      <svg ref={svgRef} className="w-full h-full" />
+    <div className="fixed inset-0 top-1/2 left-1/2 z-0 h-dvh w-[101svw] -translate-1/2">
+      <svg ref={svgRef} className="h-full w-full" />
     </div>
   );
 }

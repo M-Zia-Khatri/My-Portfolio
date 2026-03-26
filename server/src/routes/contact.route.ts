@@ -1,12 +1,8 @@
-import { Router } from 'express';
-import {
-  submitContact,
-  getContacts,
-  deleteContact,
-} from '../controllers/contact.controller';
-import { validateContact } from '../middlewares/contact.middleware';
 import { requireAdmin } from '@/middlewares/auth.middleware';
 import { rateLimit } from '@/middlewares/rate-limit/rate-limit.middleware';
+import { Router } from 'express';
+import { deleteContact, getContacts, submitContact } from '../controllers/contact.controller';
+import { validateContact } from '../middlewares/contact.middleware';
 
 const contactRouter = Router();
 
@@ -24,7 +20,7 @@ contactRouter.post(
     message: 'Too many get attempts. Try again later.',
   }),
   validateContact,
-  submitContact
+  submitContact,
 );
 
 contactRouter
@@ -39,7 +35,7 @@ contactRouter
         },
       ],
       message: 'Too many get attempts. Try again later.',
-    })
+    }),
   )
   .use(requireAdmin)
   .get('/', getContacts)

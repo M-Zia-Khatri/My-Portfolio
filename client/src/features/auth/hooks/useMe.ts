@@ -1,5 +1,5 @@
-import { useQuery } from '@tanstack/react-query';
 import { api } from '@/shared/api/axios';
+import { useQuery } from '@tanstack/react-query';
 import type { AuthUser } from '../types';
 
 export const useMe = () => {

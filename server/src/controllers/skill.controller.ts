@@ -1,25 +1,17 @@
-import type { Request, Response } from 'express';
-import prisma from '../lib/prisma';
-import { Prisma, SkillMode } from 'generated/prisma/client';
-import {
-  createSkillSchema,
-  updateSkillSchema,
-} from '@/lib/validators/skill.validation';
-import { send } from '@/lib/utills/send';
 import { SkillRow, toSkillResponse } from '@/lib/types/skill.types';
+import { cacheForget, cacheInvalidatePrefix, cacheRemember, TTL } from '@/lib/utills/caching';
 import { catchError } from '@/lib/utills/catch-error';
-import {
-  cacheForget,
-  cacheInvalidatePrefix,
-  cacheRemember,
-  TTL,
-} from '@/lib/utills/caching';
+import { send } from '@/lib/utills/send';
+import { createSkillSchema, updateSkillSchema } from '@/lib/validators/skill.validation';
+import type { Request, Response } from 'express';
+import { Prisma, SkillMode } from 'generated/prisma/client';
+import prisma from '../lib/prisma';
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 // Prisma requires Prisma.JsonNull (not plain null) to explicitly store NULL
 // in a nullable Json column.
 function toJson(
-  value: unknown[] | null | undefined
+  value: unknown[] | null | undefined,
 ): Prisma.InputJsonValue | typeof Prisma.JsonNull {
   return value != null ? (value as Prisma.InputJsonValue) : Prisma.JsonNull;
 }
@@ -226,10 +218,7 @@ export async function update(req: Request, res: Response): Promise<void> {
       },
     });
 
-    await Promise.all([
-      cacheForget(CACHE_KEYS.one(id)),
-      cacheInvalidatePrefix(CACHE_KEYS.prefix),
-    ]);
+    await Promise.all([cacheForget(CACHE_KEYS.one(id)), cacheInvalidatePrefix(CACHE_KEYS.prefix)]);
 
     send(res, {
       success: true,
@@ -259,10 +248,7 @@ export async function remove(req: Request, res: Response): Promise<void> {
 
     await prisma.skill.delete({ where: { id } });
 
-    await Promise.all([
-      cacheForget(CACHE_KEYS.one(id)),
-      cacheInvalidatePrefix(CACHE_KEYS.prefix),
-    ]);
+    await Promise.all([cacheForget(CACHE_KEYS.one(id)), cacheInvalidatePrefix(CACHE_KEYS.prefix)]);
 
     send(res, {
       success: true,

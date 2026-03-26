@@ -1,14 +1,14 @@
+import { useNavigationStore } from '@/shared/store/navigation.store';
 import { animate, type AnimationPlaybackControls } from 'motion';
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { useNavigationStore } from '@/shared/store/navigation.store';
 import {
-  sections,
-  TOP_BAR_HEIGHT,
   SCROLL_DURATION_SECONDS,
-  WHEEL_TRIGGER_THRESHOLD,
-  SWIPE_TRIGGER_THRESHOLD,
-  WHEEL_ACCUMULATE_WINDOW_MS,
+  sections,
   SNAP_COOLDOWN_MS,
+  SWIPE_TRIGGER_THRESHOLD,
+  TOP_BAR_HEIGHT,
+  WHEEL_ACCUMULATE_WINDOW_MS,
+  WHEEL_TRIGGER_THRESHOLD,
 } from './Home.config';
 import {
   clampIndex,
@@ -47,7 +47,7 @@ export function useSnapScroll() {
         setActiveHash(nextHash);
       }
     },
-    [setActiveHash]
+    [setActiveHash],
   );
 
   // ─── Core: animated snap to a section's top ────────────────────────────────
@@ -63,11 +63,7 @@ export function useSnapScroll() {
 
       const targetTop = Math.max(targetSection.offsetTop - TOP_BAR_HEIGHT, 0);
 
-      if (
-        nextIndex === activeIndexRef.current &&
-        Math.abs(window.scrollY - targetTop) < 2
-      )
-        return;
+      if (nextIndex === activeIndexRef.current && Math.abs(window.scrollY - targetTop) < 2) return;
 
       animationRef.current?.stop();
       animationRef.current = null;
@@ -86,7 +82,7 @@ export function useSnapScroll() {
         },
       });
     },
-    [updateHash]
+    [updateHash],
   );
 
   // ─── Snap with cooldown (short sections only) ──────────────────────────────
@@ -99,7 +95,7 @@ export function useSnapScroll() {
       }, SNAP_COOLDOWN_MS);
       scrollToSection(targetIndex);
     },
-    [scrollToSection]
+    [scrollToSection],
   );
 
   // ─── Cleanup ───────────────────────────────────────────────────────────────
@@ -134,11 +130,7 @@ export function useSnapScroll() {
       const goingDownShort = e.deltaY > 0;
       const atFirstSection = activeIndexRef.current === 0;
       const atLastSection = activeIndexRef.current === sections.length - 1;
-      if (
-        (goingDownShort && atLastSection) ||
-        (!goingDownShort && atFirstSection)
-      )
-        return;
+      if ((goingDownShort && atLastSection) || (!goingDownShort && atFirstSection)) return;
 
       e.preventDefault();
       wheelAccumRef.current += e.deltaY;
@@ -300,9 +292,7 @@ export function useSnapScroll() {
 
       sectionRefs.current.forEach((el, i) => {
         if (!el) return;
-        const dist = Math.abs(
-          viewportMid - (el.offsetTop + el.offsetHeight / 2)
-        );
+        const dist = Math.abs(viewportMid - (el.offsetTop + el.offsetHeight / 2));
         if (dist < closestDist) {
           closestDist = dist;
           closestIndex = i;

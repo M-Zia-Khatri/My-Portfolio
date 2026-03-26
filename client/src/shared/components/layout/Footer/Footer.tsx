@@ -3,13 +3,7 @@ import { TEXT } from '@/shared/constants/style.constants';
 import { Link, Strong, Text } from '@radix-ui/themes'; // ✅ Text from here, not callout
 import { motion } from 'motion/react';
 import type { ComponentType } from 'react';
-import {
-  FaInstagram,
-  FaFacebook,
-  FaLinkedin,
-  FaGithub,
-  FaWhatsapp,
-} from 'react-icons/fa6';
+import { FaFacebook, FaGithub, FaInstagram, FaLinkedin, FaWhatsapp } from 'react-icons/fa6';
 import { NavLink } from 'react-router';
 
 const socialMedia: {
@@ -38,17 +32,13 @@ const socialMedia: {
 
 export default function Footer() {
   return (
-    <footer className="bg-(--blue-a2)/35 border-t border-(--blue-a2)/45 px-6 py-4">
-      <div className="flex flex-col sm:flex-row items-center justify-between gap-4 flex-wrap">
+    <footer className="border-t border-(--blue-a2)/45 bg-(--blue-a2)/35 px-6 py-4">
+      <div className="flex flex-col flex-wrap items-center justify-between gap-4 sm:flex-row">
         {/* Brand / Logo */}
         <Link asChild underline="none" className="shrink-0">
           <NavLink to={AppNavigation.HOME} className="flex items-center gap-2">
             <img src="/vite.svg" alt="Brand logo" className="h-8 w-8" />
-            <Text
-              size={TEXT.lg.size}
-              weight="bold"
-              className="text-(--blue-12)"
-            >
+            <Text size={TEXT.lg.size} weight="bold" className="text-(--blue-12)">
               My Portfolio
             </Text>
           </NavLink>
@@ -72,15 +62,15 @@ export default function Footer() {
               }}
               whileHover={{ scale: 1.2, y: -2 }}
               whileTap={{ scale: 0.9 }}
-              className="text-(--blue-11) hover:text-(--blue-12) transition-colors duration-200"
+              className="text-(--blue-11) transition-colors duration-200 hover:text-(--blue-12)"
             >
-              <Icon className="w-5 h-5" />
+              <Icon className="h-5 w-5" />
             </motion.a>
           ))}
         </div>
 
         {/* Copyright */}
-        <Text size="1" className="text-(--blue-a11) text-center sm:text-right">
+        <Text size="1" className="text-center text-(--blue-a11) sm:text-right">
           © 2026 <Strong>Muhammad Zia Khatri</Strong>. All Rights Reserved.
         </Text>
       </div>

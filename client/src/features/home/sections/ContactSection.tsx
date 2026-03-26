@@ -1,9 +1,9 @@
-import { motion } from 'motion/react';
-import { Flex, Heading } from '@radix-ui/themes';
 import SecComponent from '@/shared/components/SecContainer';
 import { HEADING } from '@/shared/constants/style.constants';
-import ContactForm from '../../contact/ContactForm';
+import { Flex, Heading } from '@radix-ui/themes';
+import { motion } from 'motion/react';
 import ContactCodeCard from '../../contact/ContactCodeCard';
+import ContactForm from '../../contact/ContactForm';
 
 export default function ContactSection() {
   return (
@@ -13,7 +13,7 @@ export default function ContactSection() {
           Contact
         </Heading>
 
-        <div className="mt-4 w-full grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div className="mt-4 grid w-full grid-cols-1 gap-6 md:grid-cols-2">
           {/* ── Contact Form ─────────────────────────────────────── */}
           <motion.div
             initial={{ opacity: 0, y: 24 }}

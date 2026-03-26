@@ -1,16 +1,11 @@
-import { Request, Response, NextFunction } from 'express';
 import { redis } from '@/lib/utills/redis';
-import { RateLimitConfig } from './rate-limit.types';
-import { SLIDING_WINDOW_SCRIPT } from './rate-limit.script';
+import { NextFunction, Request, Response } from 'express';
 import { fallbackCheck } from './rate-limit.fallback';
-import {
-  buildRedisKey,
-  getIp,
-  uniqueRequestId,
-  setRateLimitHeaders,
-} from './rate-limit.helpers';
+import { buildRedisKey, getIp, setRateLimitHeaders, uniqueRequestId } from './rate-limit.helpers';
+import { SLIDING_WINDOW_SCRIPT } from './rate-limit.script';
+import { RateLimitConfig } from './rate-limit.types';
 
-export type { Tier, RateLimitConfig } from './rate-limit.types';
+export type { RateLimitConfig, Tier } from './rate-limit.types';
 
 // ─── Middleware Factory ────────────────────────────────────────────────────
 
@@ -25,21 +20,13 @@ export function rateLimit(config: RateLimitConfig) {
   } = config;
 
   if (!action || !tiers?.length) {
-    throw new Error(
-      `[rateLimit] "action" and at least one "tier" are required.`
-    );
+    throw new Error(`[rateLimit] "action" and at least one "tier" are required.`);
   }
 
-  return async (
-    req: Request,
-    res: Response,
-    next: NextFunction
-  ): Promise<void> => {
+  return async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     if (skip?.(req)) return next();
 
-    const identity = keyResolver
-      ? (keyResolver(req) ?? getIp(req))
-      : getIp(req);
+    const identity = keyResolver ? (keyResolver(req) ?? getIp(req)) : getIp(req);
     const requestId = uniqueRequestId();
 
     // Track most restrictive tier across all tiers for response headers
@@ -65,7 +52,7 @@ export function rateLimit(config: RateLimitConfig) {
           String(interval), // ARGV[2]
           String(limit), // ARGV[3]
           String(weight), // ARGV[4]
-          requestId // ARGV[5]
+          requestId, // ARGV[5]
         )) as [number, number];
 
         const count = raw[0];
@@ -95,13 +82,7 @@ export function rateLimit(config: RateLimitConfig) {
       }
 
       // All tiers passed — attach headers from the most restrictive tier
-      setRateLimitHeaders(
-        res,
-        worstLimit,
-        worstRemaining,
-        worstResetAt,
-        worstInterval
-      );
+      setRateLimitHeaders(res, worstLimit, worstRemaining, worstResetAt, worstInterval);
       next();
     } catch (err) {
       console.error('[rateLimit] Redis error:', err);
@@ -120,12 +101,7 @@ export function rateLimit(config: RateLimitConfig) {
 
       for (const tier of tiers) {
         const { limit, interval, weight = 1 } = tier;
-        const allowed = fallbackCheck(
-          `${action}:${identity}:${interval}`,
-          interval,
-          limit,
-          weight
-        );
+        const allowed = fallbackCheck(`${action}:${identity}:${interval}`, interval, limit, weight);
 
         if (!allowed) {
           blocked = true;

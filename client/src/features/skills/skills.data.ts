@@ -1,21 +1,7 @@
-import {
-  FaCss3Alt,
-  FaHtml5,
-  FaLaravel,
-  FaNodeJs,
-  FaPhp,
-  FaReact,
-} from 'react-icons/fa6';
-import {
-  SiExpress,
-  SiMongodb,
-  SiMysql,
-  SiGit,
-  SiGithub,
-  SiDocker,
-} from 'react-icons/si';
-import { FaLinux } from 'react-icons/fa';
 import { BsTypescript } from 'react-icons/bs';
+import { FaLinux } from 'react-icons/fa';
+import { FaCss3Alt, FaHtml5, FaLaravel, FaNodeJs, FaPhp, FaReact } from 'react-icons/fa6';
+import { SiDocker, SiExpress, SiGit, SiGithub, SiMongodb, SiMysql } from 'react-icons/si';
 import type { Skill } from './types';
 
 export const skills: Skill[] = [

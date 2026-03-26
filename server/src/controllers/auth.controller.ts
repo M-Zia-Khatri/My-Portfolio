@@ -1,15 +1,5 @@
 // src/controllers/auth.controller.ts
-import type { Request, Response } from 'express';
-import bcrypt from 'bcrypt';
-import { sendOtpEmail } from '../lib/utills/mailer';
-import type {
-  AuthRequest,
-  LoginBody,
-  VerifyOtpBody,
-} from '@/lib/types/auth.types';
 import prisma from '@/lib/prisma';
-import { generateOtp, verifyOtp } from '@/lib/services/otp.service';
-import { catchError } from '@/lib/utills/catch-error';
 import {
   revokeAllRefreshTokens,
   revokeRefreshToken,
@@ -17,7 +7,13 @@ import {
   signAccessToken,
   signRefreshToken,
 } from '@/lib/services/jwt.service';
+import { generateOtp, verifyOtp } from '@/lib/services/otp.service';
+import type { AuthRequest, LoginBody, VerifyOtpBody } from '@/lib/types/auth.types';
+import { catchError } from '@/lib/utills/catch-error';
 import { send } from '@/lib/utills/send';
+import bcrypt from 'bcrypt';
+import type { Request, Response } from 'express';
+import { sendOtpEmail } from '../lib/utills/mailer';
 
 // ─── Constants ────────────────────────────────────────────────────────────────
 
@@ -72,8 +68,7 @@ export async function login(req: Request, res: Response): Promise<void> {
     });
 
     // Constant-time response — prevents user enumeration via timing attack
-    const dummyHash =
-      '$2b$10$invalidhashfortimingprotection0zia00khatri000000000';
+    const dummyHash = '$2b$10$invalidhashfortimingprotection0zia00khatri000000000';
     const hashToCompare = admin?.passwordHash ?? dummyHash;
     const passwordMatch = await bcrypt.compare(password, hashToCompare);
 
@@ -105,10 +100,7 @@ export async function login(req: Request, res: Response): Promise<void> {
 // accessToken  → JSON body (short-lived, held in memory by client)
 // refreshToken → HttpOnly cookie (long-lived, never exposed to JS)
 
-export async function verifyOtpHandler(
-  req: Request,
-  res: Response
-): Promise<void> {
+export async function verifyOtpHandler(req: Request, res: Response): Promise<void> {
   try {
     const { email, otp } = req.body as VerifyOtpBody;
 
@@ -169,8 +161,7 @@ export async function verifyOtpHandler(
 
 export async function refresh(req: Request, res: Response): Promise<void> {
   try {
-    const refreshToken: string | undefined =
-      req.cookies?.[REFRESH_TOKEN_COOKIE];
+    const refreshToken: string | undefined = req.cookies?.[REFRESH_TOKEN_COOKIE];
 
     if (!refreshToken) {
       send(res, { success: false, status: 401, message: 'No refresh token' });
@@ -212,8 +203,7 @@ export async function refresh(req: Request, res: Response): Promise<void> {
 
 export async function logout(req: Request, res: Response): Promise<void> {
   try {
-    const refreshToken: string | undefined =
-      req.cookies?.[REFRESH_TOKEN_COOKIE];
+    const refreshToken: string | undefined = req.cookies?.[REFRESH_TOKEN_COOKIE];
 
     if (refreshToken) {
       await revokeRefreshToken(refreshToken);
@@ -233,10 +223,7 @@ export async function logout(req: Request, res: Response): Promise<void> {
 // ─── POST /auth/logout-all ────────────────────────────────────────────────────
 // Force-revoke ALL sessions for the current admin (requires valid access token)
 
-export async function logoutAll(
-  req: AuthRequest,
-  res: Response
-): Promise<void> {
+export async function logoutAll(req: AuthRequest, res: Response): Promise<void> {
   try {
     await revokeAllRefreshTokens(req.admin!.id);
     clearRefreshCookie(res);

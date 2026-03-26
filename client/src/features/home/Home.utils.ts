@@ -1,4 +1,4 @@
-import { sections, BOUNDARY_THRESHOLD, TOP_BAR_HEIGHT } from './Home.config';
+import { BOUNDARY_THRESHOLD, sections, TOP_BAR_HEIGHT } from './Home.config';
 
 // ─── Index helpers ───────────────────────────────────────────────────────────
 
@@ -21,9 +21,7 @@ export function isSectionTall(el: HTMLElement) {
 /** True when the viewport bottom has reached the section's bottom edge */
 export function isAtSectionBottom(el: HTMLElement) {
   const sectionBottom = el.offsetTop - TOP_BAR_HEIGHT + el.offsetHeight;
-  return (
-    window.scrollY + window.innerHeight >= sectionBottom - BOUNDARY_THRESHOLD
-  );
+  return window.scrollY + window.innerHeight >= sectionBottom - BOUNDARY_THRESHOLD;
 }
 
 /** True when the viewport top is at or above the section's top edge */

@@ -1,10 +1,7 @@
 import crypto from 'crypto';
 import jwt from 'jsonwebtoken';
 import prisma from '../prisma';
-import type {
-  AccessTokenPayload,
-  RefreshTokenPayload,
-} from '../types/auth.types';
+import type { AccessTokenPayload, RefreshTokenPayload } from '../types/auth.types';
 
 const ACCESS_SECRET = process.env.JWT_ACCESS_SECRET!;
 const REFRESH_SECRET = process.env.JWT_REFRESH_SECRET!;
@@ -63,7 +60,7 @@ export function verifyAccessToken(token: string): AccessTokenPayload {
 // ─── VERIFY & ROTATE REFRESH TOKEN ───────────────────────────────────────────
 
 export async function rotateRefreshToken(
-  oldToken: string
+  oldToken: string,
 ): Promise<{ accessToken: string; refreshToken: string } | null> {
   let payload: RefreshTokenPayload;
 

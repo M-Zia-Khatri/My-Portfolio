@@ -1,17 +1,9 @@
-import type { Request, Response } from 'express';
-import { send } from '../lib/utills/send';
-import { catchError } from '../lib/utills/catch-error';
 import prisma from '@/lib/prisma';
-import {
-  CreatePortfolioDto,
-  UpdatePortfolioDto,
-} from '@/lib/types/portfolio.types';
-import {
-  cacheRemember,
-  cacheForget,
-  cacheInvalidatePrefix,
-  TTL,
-} from '@/lib/utills/caching';
+import { CreatePortfolioDto, UpdatePortfolioDto } from '@/lib/types/portfolio.types';
+import { cacheForget, cacheInvalidatePrefix, cacheRemember, TTL } from '@/lib/utills/caching';
+import type { Request, Response } from 'express';
+import { catchError } from '../lib/utills/catch-error';
+import { send } from '../lib/utills/send';
 
 const CACHE_KEYS = {
   all: 'portfolio:list',
@@ -38,8 +30,7 @@ function parseItem(item: Record<string, unknown>) {
 }
 
 function validateCreate(body: Partial<CreatePortfolioDto>): string | null {
-  const { siteName, siteRole, siteUrl, siteImageUrl, useTech, description } =
-    body;
+  const { siteName, siteRole, siteUrl, siteImageUrl, useTech, description } = body;
 
   if (!siteName?.trim()) return 'siteName is required';
   if (!siteRole?.trim()) return 'siteRole is required';
@@ -48,8 +39,7 @@ function validateCreate(body: Partial<CreatePortfolioDto>): string | null {
   if (!siteImageUrl?.trim()) return 'siteImageUrl is required';
   if (!isValidUrl(siteImageUrl)) return 'siteImageUrl must be a valid URL';
   if (!description?.trim()) return 'description is required';
-  if (!Array.isArray(useTech) || useTech.length === 0)
-    return 'useTech must be a non-empty array';
+  if (!Array.isArray(useTech) || useTech.length === 0) return 'useTech must be a non-empty array';
   if (useTech.some((t) => typeof t !== 'string' || !t.trim()))
     return 'useTech must contain non-empty strings';
 
@@ -70,8 +60,7 @@ function validateUpdate(body: UpdatePortfolioDto): string | null {
   }
 
   if (useTech !== undefined) {
-    if (!Array.isArray(useTech) || useTech.length === 0)
-      return 'useTech must be a non-empty array';
+    if (!Array.isArray(useTech) || useTech.length === 0) return 'useTech must be a non-empty array';
     if (useTech.some((t) => typeof t !== 'string' || !t.trim()))
       return 'useTech must contain non-empty strings';
   }
@@ -81,10 +70,7 @@ function validateUpdate(body: UpdatePortfolioDto): string | null {
 
 // ─── GET /api/portfolio ──────────────────────────────────────────────────────
 
-export async function getAllPortfolioItems(
-  _req: Request,
-  res: Response
-): Promise<void> {
+export async function getAllPortfolioItems(_req: Request, res: Response): Promise<void> {
   try {
     const items = await cacheRemember(CACHE_KEYS.all, {
       ttl: TTL.ONE_DAY,
@@ -109,10 +95,7 @@ export async function getAllPortfolioItems(
 
 // ─── GET /api/portfolio/:id ──────────────────────────────────────────────────
 
-export async function getPortfolioItemById(
-  req: Request,
-  res: Response
-): Promise<void> {
+export async function getPortfolioItemById(req: Request, res: Response): Promise<void> {
   try {
     const { id } = req.params;
 
@@ -145,10 +128,7 @@ export async function getPortfolioItemById(
 
 // ─── POST /api/portfolio ─────────────────────────────────────────────────────
 
-export async function createPortfolioItem(
-  req: Request,
-  res: Response
-): Promise<void> {
+export async function createPortfolioItem(req: Request, res: Response): Promise<void> {
   try {
     const body = req.body as Partial<CreatePortfolioDto>;
 
@@ -192,10 +172,7 @@ export async function createPortfolioItem(
 
 // ─── PATCH /api/portfolio/:id ────────────────────────────────────────────────
 
-export async function updatePortfolioItem(
-  req: Request,
-  res: Response
-): Promise<void> {
+export async function updatePortfolioItem(req: Request, res: Response): Promise<void> {
   try {
     const { id } = req.params;
     const body = req.body as UpdatePortfolioDto;
@@ -222,8 +199,7 @@ export async function updatePortfolioItem(
       return;
     }
 
-    const { siteName, siteRole, siteUrl, siteImageUrl, useTech, description } =
-      body;
+    const { siteName, siteRole, siteUrl, siteImageUrl, useTech, description } = body;
 
     const updatedItem = await prisma.portfolio_item.update({
       where: { id },
@@ -237,10 +213,7 @@ export async function updatePortfolioItem(
       },
     });
 
-    await Promise.all([
-      cacheForget(CACHE_KEYS.one(id)),
-      cacheInvalidatePrefix(CACHE_KEYS.prefix),
-    ]);
+    await Promise.all([cacheForget(CACHE_KEYS.one(id)), cacheInvalidatePrefix(CACHE_KEYS.prefix)]);
 
     send(res, {
       success: true,
@@ -255,10 +228,7 @@ export async function updatePortfolioItem(
 
 // ─── DELETE /api/portfolio/:id ───────────────────────────────────────────────
 
-export async function deletePortfolioItem(
-  req: Request,
-  res: Response
-): Promise<void> {
+export async function deletePortfolioItem(req: Request, res: Response): Promise<void> {
   try {
     const { id } = req.params;
 
@@ -275,10 +245,7 @@ export async function deletePortfolioItem(
 
     await prisma.portfolio_item.delete({ where: { id } });
 
-    await Promise.all([
-      cacheForget(CACHE_KEYS.one(id)),
-      cacheInvalidatePrefix(CACHE_KEYS.prefix),
-    ]);
+    await Promise.all([cacheForget(CACHE_KEYS.one(id)), cacheInvalidatePrefix(CACHE_KEYS.prefix)]);
 
     send(res, {
       success: true,

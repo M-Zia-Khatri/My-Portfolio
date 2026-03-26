@@ -1,13 +1,9 @@
+import prisma from '@/lib/prisma';
+import { cacheInvalidatePrefix, cacheRemember, TTL } from '@/lib/utills/caching';
 import type { Request, Response } from 'express';
+import { catchError } from '../lib/utills/catch-error';
 import { sendContactEmail } from '../lib/utills/mailer';
 import { send } from '../lib/utills/send';
-import { catchError } from '../lib/utills/catch-error';
-import prisma from '@/lib/prisma';
-import {
-  cacheRemember,
-  cacheInvalidatePrefix,
-  TTL,
-} from '@/lib/utills/caching';
 
 const CACHE_KEYS = {
   list: (page: number, pageSize: number) => `contacts:list:${page}:${pageSize}`,
@@ -16,10 +12,7 @@ const CACHE_KEYS = {
 
 // ─── SUBMIT CONTACT FORM (Public) ─────────────────────────────────────────────
 
-export async function submitContact(
-  req: Request,
-  res: Response
-): Promise<void> {
+export async function submitContact(req: Request, res: Response): Promise<void> {
   try {
     const { fullName, email, message } = req.body;
 
@@ -35,7 +28,7 @@ export async function submitContact(
 
     // Fire-and-forget — don't block the response on email delivery
     sendContactEmail(fullName, email, message, entry.created_at).catch((err) =>
-      console.error('[Mailer] Failed to send contact email:', err)
+      console.error('[Mailer] Failed to send contact email:', err),
     );
 
     send(res, {
@@ -57,25 +50,22 @@ export async function getContacts(req: Request, res: Response): Promise<void> {
     const pageSize = Math.min(50, Number(req.query.pageSize) || 20);
     const skip = (page - 1) * pageSize;
 
-    const { items, total } = await cacheRemember(
-      CACHE_KEYS.list(page, pageSize),
-      {
-        ttl: TTL.ONE_DAY,
-        staleTtl: TTL.ONE_WEEK,
-        callback: async () => {
-          const [items, total] = await Promise.all([
-            prisma.contactMessage.findMany({
-              orderBy: { created_at: 'desc' },
-              skip,
-              take: pageSize,
-            }),
-            prisma.contactMessage.count(),
-          ]);
+    const { items, total } = await cacheRemember(CACHE_KEYS.list(page, pageSize), {
+      ttl: TTL.ONE_DAY,
+      staleTtl: TTL.ONE_WEEK,
+      callback: async () => {
+        const [items, total] = await Promise.all([
+          prisma.contactMessage.findMany({
+            orderBy: { created_at: 'desc' },
+            skip,
+            take: pageSize,
+          }),
+          prisma.contactMessage.count(),
+        ]);
 
-          return { items, total };
-        },
-      }
-    );
+        return { items, total };
+      },
+    });
 
     send(res, {
       success: true,
@@ -96,10 +86,7 @@ export async function getContacts(req: Request, res: Response): Promise<void> {
 
 // ─── DELETE MESSAGE (Admin only) ──────────────────────────────────────────────
 
-export async function deleteContact(
-  req: Request,
-  res: Response
-): Promise<void> {
+export async function deleteContact(req: Request, res: Response): Promise<void> {
   try {
     const { id } = req.params;
 

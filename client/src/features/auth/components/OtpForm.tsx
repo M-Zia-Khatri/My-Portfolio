@@ -1,15 +1,15 @@
+import { useVerifyOtp } from '@/features/auth/hooks/useVerifyOtp';
+import { cn } from '@/shared/utils/cn';
+import { zodResolver } from '@hookform/resolvers/zod';
 import { useEffect, useRef } from 'react';
 import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { cn } from '@/shared/utils/cn';
-import { otpSchema, type OtpFields } from '../auth.schema';
 import { AUTH_CONFIG, OTP_RESEND_COOLDOWN } from '../auth.config';
-import { useVerifyOtp } from '@/features/auth/hooks/useVerifyOtp';
+import { otpSchema, type OtpFields } from '../auth.schema';
 import { useApiError } from '../hooks/useApiError';
 import { useCooldown } from '../hooks/useCooldown';
 import { DialogShell } from './DialogShell';
-import { FieldError } from './ui/FieldError';
 import { ApiErrorBanner } from './ui/ApiErrorBanner';
+import { FieldError } from './ui/FieldError';
 import { SubmitButton } from './ui/SubmitButton';
 
 // ─── PROPS ────────────────────────────────────────────────────────────────────
@@ -79,20 +79,14 @@ export function OtpForm({ open, email, onSuccess, onResend }: OtpFormProps) {
 
   return (
     <DialogShell open={open} dialogKey="otp" config={AUTH_CONFIG.otp}>
-      <form
-        onSubmit={handleSubmit(onSubmit)}
-        className={cn('space-y-5')}
-        noValidate
-      >
+      <form onSubmit={handleSubmit(onSubmit)} className={cn('space-y-5')} noValidate>
         <ApiErrorBanner message={error} />
 
         {/* OTP input */}
         <div>
           <label
             htmlFor="otp-code"
-            className={cn(
-              'block text-xs font-medium mb-1.5 tracking-wide select-none'
-            )}
+            className={cn('mb-1.5 block text-xs font-medium tracking-wide select-none')}
             style={{ color: 'var(--gray-11)' }}
           >
             One-time password
@@ -114,13 +108,11 @@ export function OtpForm({ open, email, onSuccess, onResend }: OtpFormProps) {
               'w-full rounded-xl px-4 py-3.5 outline-none',
               'border font-mono transition-none',
               'text-center text-2xl tracking-[0.7em]',
-              'placeholder:opacity-20 placeholder:tracking-[0.6em]'
+              'placeholder:tracking-[0.6em] placeholder:opacity-20',
             )}
             style={{
               background: 'var(--gray-3)',
-              borderColor: errors.code
-                ? 'var(--red-8, #b91c1c)'
-                : 'var(--gray-6)',
+              borderColor: errors.code ? 'var(--red-8, #b91c1c)' : 'var(--gray-6)',
               color: 'var(--gray-12)',
               boxShadow: 'inset 0 1px 3px rgba(0,0,0,0.25)',
             }}
@@ -133,8 +125,7 @@ export function OtpForm({ open, email, onSuccess, onResend }: OtpFormProps) {
               e.currentTarget.style.borderColor = errors.code
                 ? 'var(--red-8, #b91c1c)'
                 : 'var(--gray-6)';
-              e.currentTarget.style.boxShadow =
-                'inset 0 1px 3px rgba(0,0,0,0.25)';
+              e.currentTarget.style.boxShadow = 'inset 0 1px 3px rgba(0,0,0,0.25)';
             }}
             onChange={(e) => {
               // Strip non-digits before RHF sees the value
@@ -146,10 +137,7 @@ export function OtpForm({ open, email, onSuccess, onResend }: OtpFormProps) {
         </div>
 
         {/* Divider */}
-        <div
-          className={cn('h-px w-full')}
-          style={{ background: 'var(--gray-4)' }}
-        />
+        <div className={cn('h-px w-full')} style={{ background: 'var(--gray-4)' }} />
 
         <SubmitButton
           isPending={isPending}
@@ -158,17 +146,14 @@ export function OtpForm({ open, email, onSuccess, onResend }: OtpFormProps) {
         />
 
         {/* Resend */}
-        <p
-          className={cn('text-center text-xs')}
-          style={{ color: 'var(--gray-10)' }}
-        >
+        <p className={cn('text-center text-xs')} style={{ color: 'var(--gray-10)' }}>
           Didn't receive the code?{' '}
           <button
             type="button"
             onClick={handleResend}
             disabled={!cooldown.ready}
             className={cn(
-              'font-semibold transition-colors duration-200 disabled:cursor-not-allowed'
+              'font-semibold transition-colors duration-200 disabled:cursor-not-allowed',
             )}
             style={{
               color: cooldown.ready ? 'var(--blue-11)' : 'var(--gray-9)',

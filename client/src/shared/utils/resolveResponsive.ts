@@ -23,15 +23,11 @@ function getWidth(): number {
  * Validates a `custom` map at construction time so errors surface early,
  * not buried inside a render cycle.
  */
-export function createResponsiveValue<T>(
-  value: ResponsiveValue<T>
-): ResponsiveValue<T> {
+export function createResponsiveValue<T>(value: ResponsiveValue<T>): ResponsiveValue<T> {
   if (value.custom) {
     for (const key of Object.keys(value.custom)) {
       if (Number.isNaN(Number(key))) {
-        throw new Error(
-          `Invalid key "${key}" in "custom". All keys must be numeric.`
-        );
+        throw new Error(`Invalid key "${key}" in "custom". All keys must be numeric.`);
       }
     }
   }
@@ -54,22 +50,12 @@ export function resolveResponsive<T>(obj: ResponsiveValue<T>): T | undefined {
   const width = getWidth();
 
   // --- 1. Exact named breakpoint match ---
-  if (obj.desktop !== undefined && width > breakpoints.laptop)
-    return obj.desktop;
-  if (
-    obj.laptop !== undefined &&
-    width > breakpoints.tablet &&
-    width <= breakpoints.laptop
-  )
+  if (obj.desktop !== undefined && width > breakpoints.laptop) return obj.desktop;
+  if (obj.laptop !== undefined && width > breakpoints.tablet && width <= breakpoints.laptop)
     return obj.laptop;
-  if (
-    obj.tablet !== undefined &&
-    width > breakpoints.mobile &&
-    width <= breakpoints.tablet
-  )
+  if (obj.tablet !== undefined && width > breakpoints.mobile && width <= breakpoints.tablet)
     return obj.tablet;
-  if (obj.mobile !== undefined && width <= breakpoints.mobile)
-    return obj.mobile;
+  if (obj.mobile !== undefined && width <= breakpoints.mobile) return obj.mobile;
 
   // --- 2. Cascade: nearest smaller defined breakpoint ---
   // e.g. only mobile + desktop defined → tablet width falls back to mobile

@@ -1,8 +1,8 @@
 // server/src/routes/skill.route.ts
-import { Router } from 'express';
-import { requireAdmin } from '../middlewares/auth.middleware';
-import * as skill from '../controllers/skill.controller';
 import { rateLimit } from '@/middlewares/rate-limit/rate-limit.middleware';
+import { Router } from 'express';
+import * as skill from '../controllers/skill.controller';
+import { requireAdmin } from '../middlewares/auth.middleware';
 
 const router = Router();
 
@@ -21,7 +21,7 @@ router
       ],
       message: 'Too many get attempts. Try again later.',
     }),
-    skill.getAll
+    skill.getAll,
   )
   .get(
     ':id',
@@ -36,7 +36,7 @@ router
       ],
       message: 'Too many get attempts. Try again later.',
     }),
-    skill.getOne
+    skill.getOne,
   );
 
 // ─── Admin only ───────────────────────────────────────────────────────────────
@@ -53,7 +53,7 @@ router
         },
       ],
       message: 'Too many get attempts. Try again later.',
-    })
+    }),
   )
   .post('/', skill.create)
   .patch('/:id', skill.update)

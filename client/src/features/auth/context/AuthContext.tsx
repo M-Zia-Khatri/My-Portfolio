@@ -16,11 +16,11 @@
  *  Bridge        → AuthProvider (this file)
  */
 
-import { useEffect } from 'react';
-import { useQueryClient } from '@tanstack/react-query';
 import { api } from '@/shared/api/axios';
-import { useMe } from '../hooks/useMe';
 import { setQueryClient, useAuthStore } from '@/shared/store/useAuthStore';
+import { useQueryClient } from '@tanstack/react-query';
+import { useEffect } from 'react';
+import { useMe } from '../hooks/useMe';
 
 // ─── Logout API ───────────────────────────────────────────────────────────────
 

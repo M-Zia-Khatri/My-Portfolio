@@ -1,10 +1,10 @@
-import { Navigate, type RouteObject } from 'react-router';
-import AppLayout from '@/shared/components/layout/AppLayout';
-import Home from '@/features/home/Home';
-import { AppNavigation } from '@/shared/constants/navigation.constants';
-import Dashboard from '@/features/dashboard/Dashboard';
-import ProtectedRoute from '@/shared/components/ProtectedRoute';
 import Auth from '@/features/auth/Auth';
+import Dashboard from '@/features/dashboard/Dashboard';
+import Home from '@/features/home/Home';
+import AppLayout from '@/shared/components/layout/AppLayout';
+import ProtectedRoute from '@/shared/components/ProtectedRoute';
+import { AppNavigation } from '@/shared/constants/navigation.constants';
+import { Navigate, type RouteObject } from 'react-router';
 
 const AppRoutes: RouteObject[] = [
   {

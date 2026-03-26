@@ -1,10 +1,10 @@
-import { useState, useCallback, useEffect } from 'react';
+import { AppNavigation } from '@/shared/constants/navigation.constants';
+import { useCallback, useEffect, useState } from 'react';
 import { useNavigate } from 'react-router';
 import { LoginForm } from './components/LoginForm';
 import { OtpForm } from './components/OtpForm';
 import { useAuth } from './context/AuthContext';
 import type { AuthStep } from './types';
-import { AppNavigation } from '@/shared/constants/navigation.constants';
 
 export default function Auth() {
   const navigate = useNavigate();

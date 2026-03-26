@@ -1,23 +1,19 @@
-import { useState } from 'react';
+import { api } from '@/shared/api/axios';
+import { HEADING, TEXT } from '@/shared/constants/style.constants';
+import { CheckCircledIcon, EnvelopeClosedIcon, PaperPlaneIcon } from '@radix-ui/react-icons';
 import {
-  Card,
   Button,
+  Callout,
+  Card,
   Flex,
   Heading,
-  Text,
-  TextField,
-  TextArea,
-  Callout,
   Separator,
+  Text,
+  TextArea,
+  TextField,
 } from '@radix-ui/themes';
-import {
-  CheckCircledIcon,
-  EnvelopeClosedIcon,
-  PaperPlaneIcon,
-} from '@radix-ui/react-icons';
-import { motion, AnimatePresence } from 'motion/react';
-import { HEADING, TEXT } from '@/shared/constants/style.constants';
-import { api } from '@/shared/api/axios';
+import { AnimatePresence, motion } from 'motion/react';
+import { useState } from 'react';
 
 type FormState = 'idle' | 'loading' | 'success' | 'error';
 
@@ -57,8 +53,7 @@ export default function ContactForm() {
   const [status, setStatus] = useState<FormState>('idle');
 
   const handleChange =
-    (field: keyof FormData) =>
-    (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    (field: keyof FormData) => (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
       setForm((prev) => ({ ...prev, [field]: e.target.value }));
       if (errors[field]) setErrors((prev) => ({ ...prev, [field]: undefined }));
     };
@@ -90,20 +85,12 @@ export default function ContactForm() {
       // p="6"
       // className="rounded-xl border border-(--gray-a2) bg-(--gray-a2)/50 backdrop-blur-sm"
     >
-      <Heading
-        as="h3"
-        size={HEADING.h3.size}
-        weight="bold"
-        className="text-white"
-      >
+      <Heading as="h3" size={HEADING.h3.size} weight="bold" className="text-white">
         Contact Form
       </Heading>
       <Text size={TEXT.base.size} weight="medium">
         Please contact me directly at{' '}
-        <Text
-          size={TEXT.base.size}
-          className="font-extrabold text-(--blue-a11)"
-        >
+        <Text size={TEXT.base.size} className="font-extrabold text-(--blue-a11)">
           muhammadziakhatri@gmail.com
         </Text>{' '}
         or drop your info here.
@@ -124,16 +111,9 @@ export default function ContactForm() {
               <Callout.Icon>
                 <CheckCircledIcon width={18} height={18} />
               </Callout.Icon>
-              <Callout.Text>
-                Your message was sent! I'll get back to you soon.
-              </Callout.Text>
+              <Callout.Text>Your message was sent! I'll get back to you soon.</Callout.Text>
             </Callout.Root>
-            <Button
-              mt="4"
-              variant="ghost"
-              size="2"
-              onClick={() => setStatus('idle')}
-            >
+            <Button mt="4" variant="ghost" size="2" onClick={() => setStatus('idle')}>
               Send another message
             </Button>
           </motion.div>
@@ -225,9 +205,7 @@ export default function ContactForm() {
 
               {status === 'error' && (
                 <Callout.Root color="red" variant="surface" size="1">
-                  <Callout.Text>
-                    Something went wrong. Please try again.
-                  </Callout.Text>
+                  <Callout.Text>Something went wrong. Please try again.</Callout.Text>
                 </Callout.Root>
               )}
 

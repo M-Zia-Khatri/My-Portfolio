@@ -1,17 +1,17 @@
 import React, {
   createContext,
-  useContext,
   useCallback,
-  type ReactNode,
+  useContext,
+  useEffect,
   useReducer,
   useState,
-  useEffect,
+  type ReactNode,
 } from 'react';
-import { gameReducer, initialGameState } from './gameReducer';
-import type { GuessResultType } from '../types/guessNumContextTypes';
 import useTimer from '../hooks/useTimer';
-import useGameSet, { type ScoreRecord } from '../store/GameSetStore';
 import { generateId } from '../services/idGenerator';
+import useGameSet, { type ScoreRecord } from '../store/GameSetStore';
+import type { GuessResultType } from '../types/guessNumContextTypes';
+import { gameReducer, initialGameState } from './gameReducer';
 
 function calculateScore({
   guessResults,
@@ -26,9 +26,7 @@ function calculateScore({
   timeLeft: number;
   difficultLevel: string;
 }): number {
-  const attemptScore = guessResults.length
-    ? (guessLimit / guessResults.length) * 100
-    : 0;
+  const attemptScore = guessResults.length ? (guessLimit / guessResults.length) * 100 : 0;
   const timeScore = initialTimeLimit ? (timeLeft / initialTimeLimit) * 100 : 0;
   const closeBonus = guessResults.reduce((sum, { message }) => {
     return message === 'very close' ? sum + 10 : sum;
@@ -65,9 +63,7 @@ interface GuessNumContextType {
   clearAndReloadHistory: VoidFunction; // Add this function
 }
 
-const GuessNumContext = createContext<GuessNumContextType | undefined>(
-  undefined
-);
+const GuessNumContext = createContext<GuessNumContextType | undefined>(undefined);
 
 type Props = { children: ReactNode };
 
@@ -83,10 +79,7 @@ export const GuessNumProvider: React.FC<Props> = ({ children }) => {
   } = useGameSet();
 
   // Core game state via reducer
-  const [state, dispatch] = useReducer(
-    gameReducer,
-    initialGameState(guessLimit)
-  );
+  const [state, dispatch] = useReducer(gameReducer, initialGameState(guessLimit));
   const { randomNumber, guessResults, showNumber, guessTurn, started } = state;
 
   // Player name
@@ -121,7 +114,7 @@ export const GuessNumProvider: React.FC<Props> = ({ children }) => {
 
       dispatch({ type: 'MAKE_GUESS', payload: { guess, message } });
     },
-    [randomNumber, showNumber, maxNumber]
+    [randomNumber, showNumber, maxNumber],
   );
 
   const restartGame = useCallback(() => {

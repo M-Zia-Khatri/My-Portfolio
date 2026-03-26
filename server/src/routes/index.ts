@@ -1,8 +1,8 @@
 import { Router } from 'express';
-import authRouter from './auth.route';
 import skillRouter from '../routes/skill.route';
-import portfolioRouter from './portfolio.route';
+import authRouter from './auth.route';
 import contactRouter from './contact.route';
+import portfolioRouter from './portfolio.route';
 
 const router = Router();
 

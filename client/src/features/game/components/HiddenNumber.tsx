@@ -1,9 +1,9 @@
-import { useMemo } from 'react';
+import { TEXT } from '@/shared/constants/style.constants';
 import { Button, Text, TextField } from '@radix-ui/themes';
+import { Timer } from 'lucide-react';
+import { useMemo } from 'react';
 import { useGuessNum } from '../context/GuessNumContext';
 import SelDifficultLevel from './SelDifficultLevel';
-import { TEXT } from '@/shared/constants/style.constants';
-import { Timer } from 'lucide-react';
 
 export default function HiddenNumber() {
   const {
@@ -18,10 +18,7 @@ export default function HiddenNumber() {
     setNameInput,
   } = useGuessNum();
 
-  const isWin = useMemo(
-    () => guessResults.some((r) => r.message === 'you win'),
-    [guessResults]
-  );
+  const isWin = useMemo(() => guessResults.some((r) => r.message === 'you win'), [guessResults]);
 
   const formattedTime = useMemo(() => {
     const m = Math.floor(timeLeft / 60);
@@ -42,7 +39,7 @@ export default function HiddenNumber() {
       <div className="flex items-center justify-between gap-3">
         <Text
           size={TEXT.lg.size}
-          className="font-extrabold flex items-center "
+          className="flex items-center font-extrabold"
           color={isUrgent ? 'red' : 'blue'}
         >
           <Timer size={16} />
@@ -86,7 +83,7 @@ export default function HiddenNumber() {
       {started && (
         <div className="flex justify-center">
           <div
-            className="w-28 h-28 flex items-center justify-center rounded-full text-5xl font-extrabold transition-all duration-500"
+            className="flex h-28 w-28 items-center justify-center rounded-full text-5xl font-extrabold transition-all duration-500"
             style={
               showNumber
                 ? {
@@ -110,7 +107,7 @@ export default function HiddenNumber() {
 
       {/* Post-game result & replay */}
       {showNumber && (
-        <div className="text-center flex flex-col items-center gap-3">
+        <div className="flex flex-col items-center gap-3 text-center">
           <Text
             size="4"
             weight="bold"

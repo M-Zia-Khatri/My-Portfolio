@@ -1,19 +1,11 @@
-import { NavLink } from 'react-router';
-import { useNavigationStore } from '@/shared/store/navigation.store';
 import { AppNavigation } from '@/shared/constants/navigation.constants';
-import { motion, type Variants } from 'motion/react';
-import {
-  Box,
-  Button,
-  Card,
-  Container,
-  Flex,
-  Link,
-  Text,
-} from '@radix-ui/themes';
-import { cn } from '@/shared/utils/cn';
-import { useEffect, useRef, useState } from 'react';
 import { TEXT } from '@/shared/constants/style.constants';
+import { useNavigationStore } from '@/shared/store/navigation.store';
+import { cn } from '@/shared/utils/cn';
+import { Box, Button, Card, Container, Flex, Link, Text } from '@radix-ui/themes';
+import { motion, type Variants } from 'motion/react';
+import { useEffect, useRef, useState } from 'react';
+import { NavLink } from 'react-router';
 
 const navItems = [
   { label: 'Home', href: AppNavigation.HOME },
@@ -121,9 +113,7 @@ export default function TopBar() {
               'h-15',
               'gap-4',
               'px-8 shadow-[0_2px_15px_color-mix(in_srgb,var(--blue-3),transparent_10%)]',
-              activeHash === AppNavigation.HOME
-                ? 'bg-(--blue-4)/15'
-                : 'bg-(--blue-4)/20'
+              activeHash === AppNavigation.HOME ? 'bg-(--blue-4)/15' : 'bg-(--blue-4)/20',
             )}
             style={{ outlineColor: 'var(--gray-6)' }}
           >
@@ -135,16 +125,9 @@ export default function TopBar() {
             >
               {/* brand logo */}
               <Link asChild underline="none" className="shrink-0">
-                <NavLink
-                  to={AppNavigation.HOME}
-                  className="flex items-center gap-2"
-                >
+                <NavLink to={AppNavigation.HOME} className="flex items-center gap-2">
                   <img src="/vite.svg" alt="Brand logo" className="h-8 w-8" />
-                  <Text
-                    size={TEXT.lg.size}
-                    weight="bold"
-                    className="text-white"
-                  >
+                  <Text size={TEXT.lg.size} weight="bold" className="text-white">
                     My Portfolio
                   </Text>
                 </NavLink>
@@ -174,10 +157,7 @@ export default function TopBar() {
                                   to={item.href}
                                   className="relative inline-flex items-center pb-1"
                                 >
-                                  <Text
-                                    size={TEXT.base.size}
-                                    className="text-white"
-                                  >
+                                  <Text size={TEXT.base.size} className="text-white">
                                     {item.label}
                                   </Text>
                                   <motion.span
@@ -192,10 +172,7 @@ export default function TopBar() {
                                   href={item.href}
                                   className="relative inline-flex items-center pb-1"
                                 >
-                                  <Text
-                                    size={TEXT.base.size}
-                                    className="text-white"
-                                  >
+                                  <Text size={TEXT.base.size} className="text-white">
                                     {item.label}
                                   </Text>
                                   <motion.span

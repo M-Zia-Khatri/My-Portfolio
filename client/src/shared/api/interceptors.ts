@@ -1,10 +1,10 @@
 // client/src/shared/api/interceptors.ts
+import { refreshTokenApi } from '@/features/auth/services/auth.api';
 import {
   clearAccessToken,
   getAccessToken,
   setAccessToken,
 } from '@/features/auth/utils/tokenManager';
-import { refreshTokenApi } from '@/features/auth/services/auth.api';
 import type { AxiosInstance, InternalAxiosRequestConfig } from 'axios';
 
 let isRefreshing = false;
@@ -76,6 +76,6 @@ export const setupInterceptors = (api: AxiosInstance) => {
       } finally {
         isRefreshing = false;
       }
-    }
+    },
   );
 };

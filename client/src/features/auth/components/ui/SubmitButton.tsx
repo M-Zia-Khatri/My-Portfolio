@@ -1,5 +1,5 @@
-import { motion } from 'motion/react';
 import { cn } from '@/shared/utils/cn';
+import { motion } from 'motion/react';
 import { Spinner } from './Spinner';
 
 interface SubmitButtonProps {
@@ -8,11 +8,7 @@ interface SubmitButtonProps {
   pendingLabel?: string;
 }
 
-export function SubmitButton({
-  isPending,
-  label,
-  pendingLabel = 'Verifying…',
-}: SubmitButtonProps) {
+export function SubmitButton({ isPending, label, pendingLabel = 'Verifying…' }: SubmitButtonProps) {
   return (
     <motion.button
       type="submit"
@@ -22,13 +18,12 @@ export function SubmitButton({
       transition={{ type: 'spring', stiffness: 500, damping: 30 }}
       className={cn(
         'w-full rounded-xl py-2.5 text-sm font-semibold tracking-wide',
-        'transition-colors duration-200 mt-1',
-        'disabled:opacity-50 disabled:cursor-not-allowed',
-        'flex items-center justify-center gap-2'
+        'mt-1 transition-colors duration-200',
+        'disabled:cursor-not-allowed disabled:opacity-50',
+        'flex items-center justify-center gap-2',
       )}
       style={{
-        background:
-          'linear-gradient(135deg, var(--blue-9) 0%, var(--blue-8) 100%)',
+        background: 'linear-gradient(135deg, var(--blue-9) 0%, var(--blue-8) 100%)',
         color: 'var(--blue-contrast)',
         boxShadow: isPending ? 'none' : '0 4px 24px -4px var(--blue-a7)',
       }}

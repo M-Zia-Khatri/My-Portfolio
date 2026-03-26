@@ -24,7 +24,7 @@ export function recordFailure(err: unknown, context: string): void {
     circuit.halfOpenAt = Date.now() + RECOVERY_WINDOW_MS;
     console.warn(
       `[cache] Circuit OPEN — Redis bypassed for ${RECOVERY_WINDOW_MS / 1000}s ` +
-        `after ${circuit.failures} failures.`
+        `after ${circuit.failures} failures.`,
     );
   }
 }

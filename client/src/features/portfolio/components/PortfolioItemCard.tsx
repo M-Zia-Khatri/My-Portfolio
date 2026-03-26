@@ -1,18 +1,12 @@
-import { Badge, Flex, Text, AspectRatio, Heading } from '@radix-ui/themes';
-import {
-  motion,
-  useMotionValue,
-  useTransform,
-  animate,
-  type Variants,
-} from 'motion/react';
-import { useRef, useState, useEffect, useCallback } from 'react';
-import type { PortfolioItem } from '../types';
 import { BorderTrail } from '@/shared/components/motion-primitives/border-trail';
-import { cn } from '@/shared/utils/cn';
 import { HEADING, TEXT } from '@/shared/constants/style.constants';
-import { ArrowUpRight } from 'lucide-react';
+import { cn } from '@/shared/utils/cn';
+import { AspectRatio, Badge, Flex, Heading, Text } from '@radix-ui/themes';
 import gsap from 'gsap';
+import { ArrowUpRight } from 'lucide-react';
+import { animate, motion, useMotionValue, useTransform, type Variants } from 'motion/react';
+import { useCallback, useEffect, useRef, useState } from 'react';
+import type { PortfolioItem } from '../types';
 
 interface PortfolioItemCardProps {
   item: PortfolioItem;
@@ -74,7 +68,7 @@ export function PortfolioItemCard({ item }: PortfolioItemCardProps) {
           duration: 3.6,
           ease: 'none',
         },
-        0
+        0,
       )
       .fromTo(
         lead,
@@ -85,13 +79,9 @@ export function PortfolioItemCard({ item }: PortfolioItemCardProps) {
           duration: 3,
           ease: 'none',
         },
-        0.25
+        0.25,
       )
-      .to(
-        [lead, trail],
-        { opacity: 0, duration: 0.4, ease: 'power2.in' },
-        '-=0.5'
-      );
+      .to([lead, trail], { opacity: 0, duration: 0.4, ease: 'power2.in' }, '-=0.5');
 
     return () => {
       shineTlRef.current?.kill();
@@ -109,16 +99,8 @@ export function PortfolioItemCard({ item }: PortfolioItemCardProps) {
   }, [flipped]);
 
   // ── Flip ────────────────────────────────────────────────────
-  const frontOpacity = useTransform(
-    rotateY,
-    [0, 89, 90, 91, 180],
-    [1, 1, 0, 0, 0]
-  );
-  const backOpacity = useTransform(
-    rotateY,
-    [0, 89, 90, 91, 180],
-    [0, 0, 0, 1, 1]
-  );
+  const frontOpacity = useTransform(rotateY, [0, 89, 90, 91, 180], [1, 1, 0, 0, 0]);
+  const backOpacity = useTransform(rotateY, [0, 89, 90, 91, 180], [0, 0, 0, 1, 1]);
   const frontTransform = useTransform(rotateY, (v) => `rotateY(${v}deg)`);
   const backTransform = useTransform(rotateY, (v) => `rotateY(${v + 180}deg)`);
 
@@ -136,7 +118,7 @@ export function PortfolioItemCard({ item }: PortfolioItemCardProps) {
       mouseX.set((e.clientX - rect.left) / rect.width - 0.5);
       mouseY.set((e.clientY - rect.top) / rect.height - 0.5);
     },
-    [mouseX, mouseY]
+    [mouseX, mouseY],
   );
 
   const handleMouseLeave = useCallback(() => {
@@ -160,7 +142,7 @@ export function PortfolioItemCard({ item }: PortfolioItemCardProps) {
 
   return (
     <motion.div
-      className="perspective-distant cursor-pointer group"
+      className="group cursor-pointer perspective-distant"
       onClick={flip}
       onMouseMove={handleMouseMove}
       onMouseLeave={handleMouseLeave}
@@ -185,7 +167,7 @@ export function PortfolioItemCard({ item }: PortfolioItemCardProps) {
       }}
     >
       <AspectRatio ratio={16 / 9}>
-        <div className="relative w-full h-full transform-3d">
+        <div className="relative h-full w-full transform-3d">
           {/* ── FRONT ── */}
           <motion.div
             className={cn(faceBase)}
@@ -196,14 +178,14 @@ export function PortfolioItemCard({ item }: PortfolioItemCardProps) {
             }}
           >
             <motion.img
-              className="absolute w-[110%] h-[110%] left-[0%] -top-[5%] object-cover"
+              className="absolute -top-[5%] left-[0%] h-[110%] w-[110%] object-cover"
               src={item.siteImageUrl}
               alt={item.siteName}
               style={{ x: imgX, y: imgY, willChange: 'transform' }}
             />
 
             <motion.div
-              className="absolute inset-0 z-10 pointer-events-none"
+              className="pointer-events-none absolute inset-0 z-10"
               style={{
                 background:
                   'linear-gradient(108deg, transparent 30%, rgba(255,255,255,0.08) 50%, transparent 70%)',
@@ -225,7 +207,7 @@ export function PortfolioItemCard({ item }: PortfolioItemCardProps) {
               target="_blank"
               rel="noopener noreferrer"
               onClick={(e) => e.stopPropagation()}
-              className="absolute z-20 top-3 right-3 w-8 h-8 rounded-full border border-(--blue-12)/30 flex items-center justify-center bg-(--blue-12)/10 backdrop-blur-sm"
+              className="absolute top-3 right-3 z-20 flex h-8 w-8 items-center justify-center rounded-full border border-(--blue-12)/30 bg-(--blue-12)/10 backdrop-blur-sm"
               variants={{
                 idle: { opacity: 0, scale: 0.75, y: -4 },
                 hovered: {
@@ -250,7 +232,7 @@ export function PortfolioItemCard({ item }: PortfolioItemCardProps) {
             </motion.a>
 
             <motion.div
-              className="absolute bottom-0 left-0 right-0 p-4"
+              className="absolute right-0 bottom-0 left-0 p-4"
               variants={{
                 idle: { y: 4, opacity: 0.85 },
                 hovered: {
@@ -263,13 +245,13 @@ export function PortfolioItemCard({ item }: PortfolioItemCardProps) {
               <Heading
                 as="h3"
                 size={HEADING.h3.size}
-                className="text-white font-bold leading-tight ml-2"
+                className="ml-2 leading-tight font-bold text-white"
               >
                 {item.siteName}
               </Heading>
               <Badge
                 size="3"
-                className="inline-block text-[10px] font-semibold uppercase rounded-full mt-2"
+                className="mt-2 inline-block rounded-full text-[10px] font-semibold uppercase"
               >
                 {item.siteRole}
               </Badge>
@@ -303,7 +285,7 @@ export function PortfolioItemCard({ item }: PortfolioItemCardProps) {
             {/* Soft trail — masked to grid lines */}
             <div
               ref={gridShineTrailRef}
-              className="absolute inset-0 pointer-events-none"
+              className="pointer-events-none absolute inset-0"
               style={{
                 backgroundImage:
                   'linear-gradient(135deg, transparent 44%, rgba(96,165,250,0.25) 50%, transparent 56%)',
@@ -322,7 +304,7 @@ export function PortfolioItemCard({ item }: PortfolioItemCardProps) {
             {/* Sharp lead — masked to grid lines */}
             <div
               ref={gridShineLeadRef}
-              className="absolute inset-0 pointer-events-none"
+              className="pointer-events-none absolute inset-0"
               style={{
                 backgroundImage:
                   'linear-gradient(135deg, transparent 48%, rgba(186,230,255,0.95) 50%, transparent 52%)',
@@ -338,24 +320,20 @@ export function PortfolioItemCard({ item }: PortfolioItemCardProps) {
               }}
             />
 
-            <div className="absolute top-0 left-0 right-0 h-0.5 bg-linear-to-r from-transparent via-(--blue-8) blur-[1.5px] to-transparent" />
+            <div className="absolute top-0 right-0 left-0 h-0.5 bg-linear-to-r from-transparent via-(--blue-8) to-transparent blur-[1.5px]" />
 
-            <div className="relative z-10 flex flex-col h-full p-4 gap-3">
+            <div className="relative z-10 flex h-full flex-col gap-3 p-4">
               <motion.div
                 custom={0}
                 variants={backItemVariants}
                 animate={flipped ? 'visible' : 'hidden'}
               >
-                <Heading
-                  as="h4"
-                  size={HEADING.h4.size}
-                  className="text-white leading-tight"
-                >
+                <Heading as="h4" size={HEADING.h4.size} className="leading-tight text-white">
                   {item.siteName}
                 </Heading>
                 <Text
                   size={TEXT.sm.size}
-                  className="text-(--blue-10) uppercase tracking-widest font-semibold mt-1"
+                  className="mt-1 font-semibold tracking-widest text-(--blue-10) uppercase"
                   as="p"
                 >
                   {item.siteRole}
@@ -368,11 +346,7 @@ export function PortfolioItemCard({ item }: PortfolioItemCardProps) {
                 animate={flipped ? 'visible' : 'hidden'}
                 className="flex-1"
               >
-                <Text
-                  size={TEXT.sm.size}
-                  className="text-white/60 leading-relaxed"
-                  as="p"
-                >
+                <Text size={TEXT.sm.size} className="leading-relaxed text-white/60" as="p">
                   {item.description}
                 </Text>
               </motion.div>
@@ -387,11 +361,7 @@ export function PortfolioItemCard({ item }: PortfolioItemCardProps) {
                     <motion.div
                       key={tech}
                       initial={{ opacity: 0, scale: 0.7 }}
-                      animate={
-                        flipped
-                          ? { opacity: 1, scale: 1 }
-                          : { opacity: 0, scale: 0.7 }
-                      }
+                      animate={flipped ? { opacity: 1, scale: 1 } : { opacity: 0, scale: 0.7 }}
                       transition={{
                         delay: flipped ? 0.32 + i * 0.055 : 0,
                         type: 'spring',
@@ -408,11 +378,7 @@ export function PortfolioItemCard({ item }: PortfolioItemCardProps) {
                         },
                       }}
                     >
-                      <Badge
-                        variant="surface"
-                        size="3"
-                        className="tracking-wide cursor-default"
-                      >
+                      <Badge variant="surface" size="3" className="cursor-default tracking-wide">
                         {tech}
                       </Badge>
                     </motion.div>

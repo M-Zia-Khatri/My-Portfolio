@@ -1,14 +1,7 @@
+import ziaImg from '@/assets/images/zia.png';
 import SecComponent from '@/shared/components/SecContainer';
 import { HEADING, TEXT } from '@/shared/constants/style.constants';
-import {
-  AspectRatio,
-  Box,
-  Grid,
-  Heading,
-  Strong,
-  Text,
-} from '@radix-ui/themes';
-import ziaImg from '@/assets/images/zia.png';
+import { AspectRatio, Box, Grid, Heading, Strong, Text } from '@radix-ui/themes';
 import { motion } from 'motion/react';
 
 const MotionBox = motion(Box);
@@ -37,7 +30,7 @@ export default function AboutSection() {
               initial={{ scale: 0.95 }}
               whileInView={{ scale: 1 }}
               transition={{ duration: 0.6 }}
-              className="w-full h-full drop-shadow-[0_0_15px_color-mix(in_srgb,var(--blue-3),transparent_10%)]"
+              className="h-full w-full drop-shadow-[0_0_15px_color-mix(in_srgb,var(--blue-3),transparent_10%)]"
               src={ziaImg}
               title="My picture"
               alt="my image"
@@ -47,7 +40,7 @@ export default function AboutSection() {
 
         {/* Text */}
         <MotionBox
-          className="lg:col-span-2 space-y-4 flex flex-col justify-center text-center order-1 lg:order-3"
+          className="order-1 flex flex-col justify-center space-y-4 text-center lg:order-3 lg:col-span-2"
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, delay: 0.1 }}
@@ -66,35 +59,22 @@ export default function AboutSection() {
           <MotionText size={TEXT.base.size}>
             Hi, I'm&nbsp;
             <Strong className="text-(--blue-a12)">Zia</Strong>, a&nbsp;
-            <Strong className="text-(--blue-a12)">
-              Full-Stack Developer
-            </Strong>{' '}
-            who builds&nbsp;
-            <Strong className="text-(--blue-a12)">
-              fast, scalable web applications
-            </Strong>
-            . I work primarily with&nbsp;
+            <Strong className="text-(--blue-a12)">Full-Stack Developer</Strong> who builds&nbsp;
+            <Strong className="text-(--blue-a12)">fast, scalable web applications</Strong>. I work
+            primarily with&nbsp;
             <Strong className="text-(--blue-a12)">React</Strong>,&nbsp;
             <Strong className="text-(--blue-a12)">Node.js</Strong>,&nbsp;
             <Strong className="text-(--blue-a12)">PHP</Strong>, and&nbsp;
-            <Strong className="text-(--blue-a12)">Laravel</Strong> to create
-            modern digital products. My focus is on&nbsp;
+            <Strong className="text-(--blue-a12)">Laravel</Strong> to create modern digital
+            products. My focus is on&nbsp;
             <Strong className="text-(--blue-a12)">clean architecture</Strong>
             ,&nbsp;
-            <Strong className="text-(--blue-a12)">
-              performance optimization
-            </Strong>
-            , and&nbsp;
-            <Strong className="text-(--blue-a12)">maintainable code</Strong>. I
-            enjoy&nbsp;
-            <Strong className="text-(--blue-a12)">
-              solving complex problems
-            </Strong>
+            <Strong className="text-(--blue-a12)">performance optimization</Strong>, and&nbsp;
+            <Strong className="text-(--blue-a12)">maintainable code</Strong>. I enjoy&nbsp;
+            <Strong className="text-(--blue-a12)">solving complex problems</Strong>
             &nbsp; and turning ideas into&nbsp;
-            <Strong className="text-(--blue-a12)">
-              reliable web solutions
-            </Strong>
-            . I aim to build applications that are both&nbsp;
+            <Strong className="text-(--blue-a12)">reliable web solutions</Strong>. I aim to build
+            applications that are both&nbsp;
             <Strong className="text-(--blue-a12)">efficient</Strong> and&nbsp;
             <Strong className="text-(--blue-a12)">user-focused</Strong>.
           </MotionText>

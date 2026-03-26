@@ -4,11 +4,11 @@
  * File placement: src/app/App.tsx
  */
 
-import { RouterProvider } from 'react-router';
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { Theme } from '@radix-ui/themes';
-import { AppRouter } from './routes/router';
 import { AuthProvider } from '@/features/auth/context/AuthContext';
+import { Theme } from '@radix-ui/themes';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { RouterProvider } from 'react-router';
+import { AppRouter } from './routes/router';
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -28,7 +28,7 @@ export default function App() {
         grayColor="gray"
         radius="small"
         scaling="100%"
-        className="bg-(--color-background) overflow-hidden"
+        className="overflow-hidden bg-(--color-background)"
       >
         <AuthProvider>
           <RouterProvider router={AppRouter} />

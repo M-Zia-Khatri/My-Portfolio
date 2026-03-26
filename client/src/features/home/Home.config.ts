@@ -1,9 +1,9 @@
 import type { ComponentType } from 'react';
-import HeroSection from './sections/hero/HeroSection';
 import { AboutSection, PortfolioSection } from './sections';
-import SkillsSection from './sections/SkillsSection';
-import GameSection from './sections/GameSection';
 import ContactSection from './sections/ContactSection';
+import GameSection from './sections/GameSection';
+import HeroSection from './sections/hero/HeroSection';
+import SkillsSection from './sections/SkillsSection';
 
 // ─── Scroll constants ────────────────────────────────────────────────────────
 

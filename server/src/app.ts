@@ -1,5 +1,5 @@
-import express from 'express';
 import cors from 'cors';
+import express from 'express';
 import './lib/utills/redis.ts';
 import routes from './routes/index.ts';
 
@@ -9,7 +9,7 @@ app.use(
   cors({
     origin: 'http://localhost:5173',
     credentials: true,
-  })
+  }),
 );
 
 app.use(express.json());

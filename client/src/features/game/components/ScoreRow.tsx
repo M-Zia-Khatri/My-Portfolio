@@ -1,5 +1,5 @@
-import { memo, useEffect, useRef } from 'react';
 import { Badge, Table, Text } from '@radix-ui/themes';
+import { memo, useEffect, useRef } from 'react';
 import type { ScoreRecord } from '../store/GameSetStore';
 
 interface ScoreRowProps {
@@ -11,14 +11,7 @@ interface ScoreRowProps {
   onSave: (newName: string) => void;
 }
 
-function ScoreRow({
-  record,
-  idx,
-  isEditing,
-  onEdit,
-  onCancel,
-  onSave,
-}: ScoreRowProps) {
+function ScoreRow({ record, idx, isEditing, onEdit, onCancel, onSave }: ScoreRowProps) {
   const inputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
@@ -38,11 +31,7 @@ function ScoreRow({
       }}
     >
       <Table.Cell>
-        <Text
-          size="1"
-          className="font-mono"
-          style={{ color: 'var(--gray-10)' }}
-        >
+        <Text size="1" className="font-mono" style={{ color: 'var(--gray-10)' }}>
           {idx + 1}
         </Text>
       </Table.Cell>
@@ -61,7 +50,7 @@ function ScoreRow({
               if (e.key === 'Enter') onSave(e.currentTarget.value.trim());
               if (e.key === 'Escape') onCancel();
             }}
-            className="w-full max-w-[120px] rounded px-2 py-0.5 text-xs text-center"
+            className="w-full max-w-[120px] rounded px-2 py-0.5 text-center text-xs"
             style={{
               background: 'var(--gray-3)',
               border: '1px solid var(--blue-7)',
@@ -78,11 +67,7 @@ function ScoreRow({
             title="Double-click to edit name"
           >
             {record.name || (
-              <Text
-                size="1"
-                className="italic"
-                style={{ color: 'var(--gray-9)' }}
-              >
+              <Text size="1" className="italic" style={{ color: 'var(--gray-9)' }}>
                 —
               </Text>
             )}
@@ -108,11 +93,7 @@ function ScoreRow({
       </Table.Cell>
 
       <Table.Cell>
-        <Text
-          size="1"
-          className="font-mono"
-          style={{ color: 'var(--gray-10)' }}
-        >
+        <Text size="1" className="font-mono" style={{ color: 'var(--gray-10)' }}>
           {record.difficultLevel}
         </Text>
       </Table.Cell>

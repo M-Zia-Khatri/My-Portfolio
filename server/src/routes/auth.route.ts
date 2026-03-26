@@ -27,7 +27,7 @@ authRouter.post(
     message: 'Too many login attempts. Try again later.',
     failBehavior: 'closed',
   }),
-  login
+  login,
 ); // Step 1: email + password
 
 authRouter.post(
@@ -44,7 +44,7 @@ authRouter.post(
     message: 'Too many verification attempts. Try again later.',
     failBehavior: 'closed',
   }),
-  verifyOtpHandler
+  verifyOtpHandler,
 ); // Step 2: OTP → JWT pair
 
 authRouter.post(
@@ -61,7 +61,7 @@ authRouter.post(
     message: 'Too many refresh attempts. Try again later.',
     failBehavior: 'closed',
   }),
-  refresh
+  refresh,
 ); // Rotate refresh token
 
 authRouter.post('/logout', logout); // Revoke current session

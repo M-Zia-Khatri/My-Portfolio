@@ -1,6 +1,6 @@
-import { memo } from 'react';
-import { motion, AnimatePresence } from 'motion/react';
 import { cn } from '@/shared/utils/cn';
+import { AnimatePresence, motion } from 'motion/react';
+import { memo } from 'react';
 
 interface FieldErrorProps {
   message?: string;
@@ -16,7 +16,7 @@ export const FieldError = memo(({ message }: FieldErrorProps) => (
         exit={{ opacity: 0, height: 0 }}
         transition={{ duration: 0.16 }}
         role="alert"
-        className={cn('text-xs mt-1.5 font-mono')}
+        className={cn('mt-1.5 font-mono text-xs')}
         style={{ color: 'var(--red-11, #fca5a5)' }}
       >
         {message}

@@ -1,5 +1,5 @@
-import { memo } from 'react';
 import { motion } from 'motion/react';
+import { memo } from 'react';
 import type { TerminalLine as TLine } from '../types';
 
 interface TerminalLineProps {
@@ -37,7 +37,7 @@ const TerminalLine = memo(function TerminalLine({
       ) : line.kind === 'comment' ? (
         // Dimmed # comment
         <span
-          className="text-[12.5px] leading-[1.6rem] whitespace-pre tracking-tight select-none"
+          className="text-[12.5px] leading-[1.6rem] tracking-tight whitespace-pre select-none"
           style={{ color: 'rgba(255,255,255,0.28)' }}
         >
           {line.text}
@@ -45,29 +45,24 @@ const TerminalLine = memo(function TerminalLine({
       ) : line.kind === 'output' ? (
         // Output line — slightly dimmer, no prompt
         <span
-          className="text-[12.5px] leading-[1.6rem] whitespace-pre tracking-tight pl-4"
+          className="pl-4 text-[12.5px] leading-[1.6rem] tracking-tight whitespace-pre"
           style={{ color: 'rgba(255,255,255,0.55)' }}
         >
           {line.text}
         </span>
       ) : (
         // Command line with $ prompt
-        <span className="flex items-center gap-0 text-[12.5px] leading-[1.6rem] whitespace-pre tracking-tight">
+        <span className="flex items-center gap-0 text-[12.5px] leading-[1.6rem] tracking-tight whitespace-pre">
           {/* Prompt */}
-          <span
-            style={{ color: color }}
-            className="select-none mr-1.5 font-bold"
-          >
+          <span style={{ color: color }} className="mr-1.5 font-bold select-none">
             $
           </span>
           {/* Command text — partial while typing, full when done */}
-          <span style={{ color: '#e2e8f0' }}>
-            {isActive ? (partial ?? '') : line.text}
-          </span>
+          <span style={{ color: '#e2e8f0' }}>{isActive ? (partial ?? '') : line.text}</span>
           {/* Blinking block cursor on the active command */}
           {isActive && (
             <span
-              className="inline-block w-0.5 h-3.25 align-middle ml-0.5"
+              className="ml-0.5 inline-block h-3.25 w-0.5 align-middle"
               style={{
                 background: color,
                 opacity: cursor ? 1 : 0,

@@ -1,15 +1,8 @@
-import { useMemo } from 'react';
-import {
-  Badge,
-  Callout,
-  Card,
-  Separator,
-  Strong,
-  Text,
-} from '@radix-ui/themes';
-import { CheckCircledIcon, CrossCircledIcon } from '@radix-ui/react-icons';
-import { useGuessNum } from '../context/GuessNumContext';
 import { TEXT } from '@/shared/constants/style.constants';
+import { CheckCircledIcon, CrossCircledIcon } from '@radix-ui/react-icons';
+import { Badge, Callout, Card, Separator, Strong, Text } from '@radix-ui/themes';
+import { useMemo } from 'react';
+import { useGuessNum } from '../context/GuessNumContext';
 
 const feedbackColor = (message: string) => {
   if (message === 'you win') return 'green';
@@ -21,13 +14,10 @@ const feedbackColor = (message: string) => {
 export default function GuessResult() {
   const { guessResults, guessTurn, showNumber, randomNumber } = useGuessNum();
 
-  const didWin = useMemo(
-    () => guessResults.some((r) => r.message === 'you win'),
-    [guessResults]
-  );
+  const didWin = useMemo(() => guessResults.some((r) => r.message === 'you win'), [guessResults]);
 
   return (
-    <div className="h-full flex flex-col gap-4">
+    <div className="flex h-full flex-col gap-4">
       {/* Turns left */}
       <Card
         // variant="go"
@@ -52,12 +42,9 @@ export default function GuessResult() {
       <Separator size="4" className="h-0.375" />
 
       {/* Guess history */}
-      <div className="flex-1 flex flex-col gap-2 overflow-y-auto pr-1">
+      <div className="flex flex-1 flex-col gap-2 overflow-y-auto pr-1">
         {guessResults.length === 0 && (
-          <Text
-            size={TEXT.base.size}
-            className="italic text-center font-medium mt-4"
-          >
+          <Text size={TEXT.base.size} className="mt-4 text-center font-medium italic">
             No guesses yet.
           </Text>
         )}
@@ -69,8 +56,7 @@ export default function GuessResult() {
             // style={{ background: "var(--gray-3)", border: "1px solid var(--gray-5)" }}
           >
             <Text size={TEXT.base.size} weight="medium">
-              #{i + 1} <span className="text-(--blue-11) "> — </span>{' '}
-              <Strong>{result.guess}</Strong>
+              #{i + 1} <span className="text-(--blue-11)"> — </span> <Strong>{result.guess}</Strong>
             </Text>
             <Badge
               className="px-2.5"
@@ -87,12 +73,9 @@ export default function GuessResult() {
       {/* Final outcome */}
       {showNumber && randomNumber != null && (
         <Callout.Root color={didWin ? 'green' : 'red'} variant="surface">
-          <Callout.Icon>
-            {didWin ? <CheckCircledIcon /> : <CrossCircledIcon />}
-          </Callout.Icon>
+          <Callout.Icon>{didWin ? <CheckCircledIcon /> : <CrossCircledIcon />}</Callout.Icon>
           <Callout.Text>
-            {didWin ? '🎉 You Win!' : '😢 You Lose!'} The number was{' '}
-            <strong>{randomNumber}</strong>
+            {didWin ? '🎉 You Win!' : '😢 You Lose!'} The number was <strong>{randomNumber}</strong>
           </Callout.Text>
         </Callout.Root>
       )}

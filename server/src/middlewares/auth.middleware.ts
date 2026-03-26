@@ -2,7 +2,7 @@
 import { verifyAccessToken } from '@/lib/services/jwt.service';
 import { AuthRequest } from '@/lib/types/auth.types';
 import { ApiResponse } from '@/lib/types/globle.types';
-import type { Response, NextFunction } from 'express';
+import type { NextFunction, Response } from 'express';
 
 // ─── HELPER ───────────────────────────────────────────────────────────────────
 
@@ -13,11 +13,7 @@ function unauthorized(res: Response, message: string): void {
 
 // ─── MIDDLEWARE ───────────────────────────────────────────────────────────────
 
-export function requireAdmin(
-  req: AuthRequest,
-  res: Response,
-  next: NextFunction
-): void {
+export function requireAdmin(req: AuthRequest, res: Response, next: NextFunction): void {
   const authHeader = req.headers.authorization;
 
   if (!authHeader?.startsWith('Bearer ')) {
@@ -39,9 +35,7 @@ export function requireAdmin(
     next();
   } catch (err: any) {
     const message =
-      err?.name === 'TokenExpiredError'
-        ? 'Access token expired'
-        : 'Invalid access token';
+      err?.name === 'TokenExpiredError' ? 'Access token expired' : 'Invalid access token';
 
     unauthorized(res, message);
   }

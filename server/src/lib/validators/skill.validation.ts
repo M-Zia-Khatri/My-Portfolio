@@ -35,9 +35,7 @@ const createTerminalSkillSchema = z.object({
   lang: z.string().min(1, 'lang is required'),
   color: z.string().min(1, 'color is required'),
   mode: z.literal('terminal'),
-  commands: z
-    .array(terminalLineSchema)
-    .min(1, 'commands array must have at least one line'),
+  commands: z.array(terminalLineSchema).min(1, 'commands array must have at least one line'),
   code: z.undefined().or(z.null()).optional(),
 });
 

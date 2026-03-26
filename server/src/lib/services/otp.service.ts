@@ -1,5 +1,5 @@
-import crypto from 'crypto';
 import bcrypt from 'bcrypt';
+import crypto from 'crypto';
 import prisma from '../prisma';
 
 const OTP_EXPIRY_MS = 5 * 60 * 1000; // 5 minutes
@@ -42,10 +42,7 @@ export async function generateOtp(adminId: string): Promise<string> {
 // ─── VERIFY ───────────────────────────────────────────────────────────────────
 
 /** Returns true if the OTP is valid and marks it as used. */
-export async function verifyOtp(
-  adminId: string,
-  otpCode: string
-): Promise<boolean> {
+export async function verifyOtp(adminId: string, otpCode: string): Promise<boolean> {
   // Fetch the latest valid (unused, non-expired) OTP for this admin
   const record = await prisma.otpToken.findFirst({
     where: {

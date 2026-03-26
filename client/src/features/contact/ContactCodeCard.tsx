@@ -19,20 +19,19 @@
  * CodeCard: `onTypingComplete` prop and the imperative `pause/resume` ref).
  */
 
-import { useCallback, useEffect, useRef, useState } from 'react';
-import { motion, AnimatePresence } from 'motion/react';
-import { BorderTrail } from '@/shared/components/motion-primitives/border-trail';
-import type { Skill } from '../skills/types';
 import type { CodeCardHandle } from '@/shared/components/CodeCard';
 import CodeCard from '@/shared/components/CodeCard';
+import { BorderTrail } from '@/shared/components/motion-primitives/border-trail';
+import { AnimatePresence, motion } from 'motion/react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import TabScrollbarStyle from '../../shared/components/TabScrollbarStyle';
 import { skills } from '../skills/skills.data';
+import type { Skill } from '../skills/types';
 
 // ── Curated list: code-only skills so the typewriter always fires ─────────────
 const CONTACT_SKILLS = skills.filter(
   (s): s is Skill & { mode: 'code' } =>
-    s.mode === 'code' &&
-    ['TypeScript', 'React', 'Node.js', 'CSS', 'Express'].includes(s.name)
+    s.mode === 'code' && ['TypeScript', 'React', 'Node.js', 'CSS', 'Express'].includes(s.name),
 );
 
 // ── Status shown in the top-right badge ──────────────────────────────────────
@@ -67,7 +66,7 @@ function StatusBadge({
             {[0, 0.18, 0.36].map((delay, i) => (
               <motion.span
                 key={i}
-                className="inline-block w-0.75 h-0.75 rounded-full"
+                className="inline-block h-0.75 w-0.75 rounded-full"
                 style={{ background: color }}
                 animate={{ opacity: [0.2, 1, 0.2], y: [0, -2, 0] }}
                 transition={{
@@ -98,8 +97,7 @@ function StatusBadge({
             ⏸
           </motion.span>
           <span>
-            resuming in{' '}
-            <span className="font-bold tabular-nums">{secondsLeft}s</span>
+            resuming in <span className="font-bold tabular-nums">{secondsLeft}s</span>
           </span>
         </motion.span>
       )}
@@ -142,13 +140,7 @@ function StatusBadge({
 }
 
 // ── Progress rail (pill dots at the bottom of the card) ──────────────────────
-function ProgressRail({
-  autoIndex,
-  isDone,
-}: {
-  autoIndex: number;
-  isDone: boolean;
-}) {
+function ProgressRail({ autoIndex, isDone }: { autoIndex: number; isDone: boolean }) {
   return (
     <div className="flex items-center justify-center gap-1.5 py-2.5">
       {CONTACT_SKILLS.map((s, i) => (
@@ -167,7 +159,7 @@ function ProgressRail({
                   : 'rgba(255,255,255,0.18)',
           }}
           transition={{ duration: 0.4, ease: 'easeInOut' }}
-          className="h-1 rounded-full cursor-default"
+          className="h-1 cursor-default rounded-full"
         />
       ))}
     </div>
@@ -221,9 +213,7 @@ export default function ContactCodeCard() {
       autoIndexRef.current = nextIdx;
       setAutoIndex(nextIdx);
       setOpenTabs((prev) =>
-        prev.find((t) => t.name === nextSkill.name)
-          ? prev
-          : [...prev, nextSkill]
+        prev.find((t) => t.name === nextSkill.name) ? prev : [...prev, nextSkill],
       );
       setActiveSkill(nextSkill);
       setCardStatus('typing');
@@ -251,7 +241,7 @@ export default function ContactCodeCard() {
           observer.disconnect(); // one-shot — never need to observe again
         }
       },
-      { threshold: 0.35 } // at least 35 % of the card must be visible
+      { threshold: 0.35 }, // at least 35 % of the card must be visible
     );
 
     observer.observe(el);
@@ -311,7 +301,7 @@ export default function ContactCodeCard() {
         setCardStatus('typing');
       }, delayMs);
     },
-    [cardStatus]
+    [cardStatus],
   );
 
   // No close buttons in the contact card — tabs only accumulate
@@ -325,7 +315,7 @@ export default function ContactCodeCard() {
       clearTimeout(pauseTimerRef.current!);
       clearInterval(countdownRef.current!);
     },
-    []
+    [],
   );
 
   // While idle CodeCard shows the empty state naturally (openTabs=[])
@@ -335,7 +325,7 @@ export default function ContactCodeCard() {
   return (
     <div ref={containerRef} className="flex flex-col gap-2">
       {/* Status badge floats above the card */}
-      <div className="flex justify-end pr-1 h-5">
+      <div className="flex h-5 justify-end pr-1">
         <StatusBadge
           status={cardStatus}
           color={autoSkill.color}
@@ -354,7 +344,7 @@ export default function ContactCodeCard() {
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              className="absolute inset-0 rounded-xl pointer-events-none z-20"
+              className="pointer-events-none absolute inset-0 z-20 rounded-xl"
               style={{
                 background:
                   'repeating-linear-gradient(45deg,transparent,transparent 4px,rgba(255,200,80,0.018) 4px,rgba(255,200,80,0.018) 8px)',

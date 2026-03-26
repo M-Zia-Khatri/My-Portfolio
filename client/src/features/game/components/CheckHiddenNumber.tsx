@@ -1,17 +1,14 @@
+import { Button } from '@radix-ui/themes';
 import { useMemo } from 'react';
 import { useGuessNum } from '../context/GuessNumContext';
 import useGameSet from '../store/GameSetStore';
 import type { GuessResultType } from '../types/guessNumContextTypes';
-import { Button } from '@radix-ui/themes';
 
 export default function CheckHiddenNumber() {
   const { makeGuess, showNumber, guessResults, started } = useGuessNum();
   const { maxNumber } = useGameSet();
 
-  const numbers = useMemo(
-    () => Array.from({ length: maxNumber }, (_, i) => i + 1),
-    [maxNumber]
-  );
+  const numbers = useMemo(() => Array.from({ length: maxNumber }, (_, i) => i + 1), [maxNumber]);
 
   const resultMap = useMemo(() => {
     const m = new Map<number, GuessResultType>();
@@ -21,15 +18,14 @@ export default function CheckHiddenNumber() {
 
   const getVariant = (result: GuessResultType | undefined) => {
     if (!result) return { color: 'gray' as const, variant: 'soft' as const };
-    if (result.message === 'you win')
-      return { color: 'green' as const, variant: 'solid' as const };
+    if (result.message === 'you win') return { color: 'green' as const, variant: 'solid' as const };
     if (result.message === 'very close')
       return { color: 'amber' as const, variant: 'solid' as const };
     return { color: 'blue' as const, variant: 'soft' as const };
   };
 
   return (
-    <div className="flex flex-wrap gap-2 justify-center">
+    <div className="flex flex-wrap justify-center gap-2">
       {numbers.map((n) => {
         const result = resultMap.get(n);
         const disabled = !!result || showNumber || !started;

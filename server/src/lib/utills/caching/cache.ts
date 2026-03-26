@@ -1,6 +1,6 @@
 import { redis } from '../redis';
-import { CACHE_PREFIX, LOCK_RETRY_DELAY } from './cache.constants';
 import { isCircuitOpen, recordFailure, recordSuccess } from './cache.circuit';
+import { CACHE_PREFIX, LOCK_RETRY_DELAY } from './cache.constants';
 import { buildKey, buildLockKey } from './cache.keys';
 import { acquireLock, releaseLock, sleep } from './cache.lock';
 import { deserialize, serialize } from './cache.serializer';
@@ -17,7 +17,7 @@ async function writeToCache<T>(
   redisKey: string,
   data: T,
   ttl: number,
-  staleTtl: number
+  staleTtl: number,
 ): Promise<void> {
   const payload: CachePayload<T> = {
     data,
@@ -36,7 +36,7 @@ function revalidateInBackground<T>(
   lockKey: string,
   ttl: number,
   staleTtl: number,
-  callback: () => Promise<T>
+  callback: () => Promise<T>,
 ): void {
   Promise.resolve()
     .then(async () => {
@@ -51,9 +51,7 @@ function revalidateInBackground<T>(
         await releaseLock(lockKey);
       }
     })
-    .catch((err) =>
-      recordFailure(err, `background revalidation of "${redisKey}"`)
-    );
+    .catch((err) => recordFailure(err, `background revalidation of "${redisKey}"`));
 }
 
 // ---------------------------------------------------------------------------
@@ -78,10 +76,7 @@ function revalidateInBackground<T>(
  *   callback: () => db.skill.findMany(),
  * })
  */
-export async function cacheRemember<T>(
-  key: string,
-  options: CacheOptions<T>
-): Promise<T> {
+export async function cacheRemember<T>(key: string, options: CacheOptions<T>): Promise<T> {
   const { ttl, staleTtl = 0, callback } = options;
   const redisKey = buildKey(key);
   const lockKey = buildLockKey(redisKey);
@@ -104,9 +99,7 @@ export async function cacheRemember<T>(
       }
 
       if (staleTtl > 0) {
-        console.debug(
-          `[cache] HIT (stale — revalidating in background): ${redisKey}`
-        );
+        console.debug(`[cache] HIT (stale — revalidating in background): ${redisKey}`);
         revalidateInBackground(redisKey, lockKey, ttl, staleTtl, callback);
         return payload.data;
       }
@@ -123,7 +116,7 @@ export async function cacheRemember<T>(
     try {
       const data = await callback();
       writeToCache(redisKey, data, ttl, staleTtl).catch((err) =>
-        recordFailure(err, `SET "${redisKey}"`)
+        recordFailure(err, `SET "${redisKey}"`),
       );
       return data;
     } finally {
@@ -158,11 +151,7 @@ export async function cacheRemember<T>(
  * @example
  * await cachePut("skills:detail:42", updatedSkill, TTL.ONE_HOUR)
  */
-export async function cachePut<T>(
-  key: string,
-  value: T,
-  ttl: number
-): Promise<void> {
+export async function cachePut<T>(key: string, value: T, ttl: number): Promise<void> {
   if (isCircuitOpen()) return;
   const redisKey = buildKey(key);
 
@@ -223,13 +212,7 @@ export async function cacheInvalidatePrefix(prefix: string): Promise<void> {
 
   try {
     do {
-      const [nextCursor, keys] = await redis.scan(
-        cursor,
-        'MATCH',
-        pattern,
-        'COUNT',
-        100
-      );
+      const [nextCursor, keys] = await redis.scan(cursor, 'MATCH', pattern, 'COUNT', 100);
       cursor = nextCursor;
       keysToDelete.push(...keys);
     } while (cursor !== '0');
@@ -238,12 +221,10 @@ export async function cacheInvalidatePrefix(prefix: string): Promise<void> {
       await redis.del(...keysToDelete);
       recordSuccess();
       console.info(
-        `[cache] Invalidated prefix "${prefix}": ${keysToDelete.length} key(s) removed.`
+        `[cache] Invalidated prefix "${prefix}": ${keysToDelete.length} key(s) removed.`,
       );
     } else {
-      console.debug(
-        `[cache] Invalidate prefix "${prefix}": nothing to delete.`
-      );
+      console.debug(`[cache] Invalidate prefix "${prefix}": nothing to delete.`);
     }
   } catch (err) {
     recordFailure(err, `cacheInvalidatePrefix "${prefix}"`);

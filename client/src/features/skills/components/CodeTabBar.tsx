@@ -1,5 +1,5 @@
-import { useRef, useEffect } from 'react';
-import { motion, AnimatePresence } from 'motion/react';
+import { AnimatePresence, motion } from 'motion/react';
+import { useEffect, useRef } from 'react';
 import type { Skill } from '../types';
 
 interface CodeTabBarProps {
@@ -9,12 +9,7 @@ interface CodeTabBarProps {
   onTabClose: (skill: Skill) => void;
 }
 
-export default function CodeTabBar({
-  skill,
-  openTabs,
-  onTabClick,
-  onTabClose,
-}: CodeTabBarProps) {
+export default function CodeTabBar({ skill, openTabs, onTabClick, onTabClose }: CodeTabBarProps) {
   const tabBarRef = useRef<HTMLDivElement>(null);
 
   // Auto-scroll the active tab into view whenever it changes
@@ -30,31 +25,28 @@ export default function CodeTabBar({
 
   return (
     <div
-      className="flex items-stretch shrink-0"
+      className="flex shrink-0 items-stretch"
       style={{
         background: 'rgba(0,0,0,0.5)',
         borderBottom: '1px solid rgba(255,255,255,0.08)',
       }}
     >
       {/* macOS window dots */}
-      <div className="flex items-center gap-[6px] px-3 shrink-0">
+      <div className="flex shrink-0 items-center gap-[6px] px-3">
         {(['#ff5f57', '#febc2e', '#28c840'] as const).map((c, i) => (
           <motion.span
             key={i}
             whileHover={{ scale: 1.25 }}
-            className="w-[11px] h-[11px] rounded-full inline-block cursor-default"
+            className="inline-block h-[11px] w-[11px] cursor-default rounded-full"
             style={{ background: c }}
           />
         ))}
       </div>
 
-      <div className="w-px my-2 bg-white/10 shrink-0" />
+      <div className="my-2 w-px shrink-0 bg-white/10" />
 
       {/* Scrollable tabs */}
-      <div
-        ref={tabBarRef}
-        className="tab-scrollbar flex items-stretch flex-1 min-w-0"
-      >
+      <div ref={tabBarRef} className="tab-scrollbar flex min-w-0 flex-1 items-stretch">
         <AnimatePresence initial={false}>
           {openTabs.map((tab) => {
             const isActive = tab.name === skill.name;
@@ -82,8 +74,7 @@ export default function CodeTabBar({
                 }}
                 transition={{ duration: 0.22, ease: 'easeInOut' }}
                 onClick={() => onTabClick(tab)}
-                className="relative flex items-center gap-[7px] text-[11px] leading-none
-                           select-none cursor-pointer shrink-0 overflow-hidden group/tab"
+                className="group/tab relative flex shrink-0 cursor-pointer items-center gap-[7px] overflow-hidden text-[11px] leading-none select-none"
                 style={{
                   background: isActive ? `${tab.color}16` : 'transparent',
                   borderRight: '1px solid rgba(255,255,255,0.06)',
@@ -96,7 +87,7 @@ export default function CodeTabBar({
                 {isActive && (
                   <motion.span
                     layoutId="tab-underline"
-                    className="absolute bottom-0 left-0 right-0 h-[2px]"
+                    className="absolute right-0 bottom-0 left-0 h-[2px]"
                     style={{ background: tab.color }}
                     transition={{ type: 'spring', stiffness: 340, damping: 28 }}
                   />
@@ -104,18 +95,14 @@ export default function CodeTabBar({
 
                 {/* Icon wobble when tab becomes active */}
                 <motion.span
-                  animate={
-                    isActive ? { rotate: [0, 10, -8, 0] } : { rotate: 0 }
-                  }
+                  animate={isActive ? { rotate: [0, 10, -8, 0] } : { rotate: 0 }}
                   transition={{ duration: 0.45, ease: 'easeInOut' }}
                   className="shrink-0"
                 >
                   <tab.icon size={12} />
                 </motion.span>
 
-                <span className="whitespace-nowrap font-medium tracking-tight">
-                  {tab.fileName}
-                </span>
+                <span className="font-medium tracking-tight whitespace-nowrap">{tab.fileName}</span>
 
                 {/* Close button: idle dot → ✕ on hover */}
                 <motion.button
@@ -124,13 +111,12 @@ export default function CodeTabBar({
                     onTabClose(tab);
                   }}
                   whileTap={{ scale: 0.75 }}
-                  className="relative flex items-center justify-center w-[14px] h-[14px]
-                             ml-0.5 cursor-pointer shrink-0 text-[10px]"
+                  className="relative ml-0.5 flex h-[14px] w-[14px] shrink-0 cursor-pointer items-center justify-center text-[10px]"
                   style={{ color: tab.color }}
                   aria-label={`Close ${tab.fileName}`}
                 >
                   <motion.span
-                    className="absolute w-[5px] h-[5px] rounded-full"
+                    className="absolute h-[5px] w-[5px] rounded-full"
                     style={{ background: tab.color, opacity: 0.5 }}
                     whileHover={{ opacity: 0, scale: 0 }}
                     transition={{ duration: 0.12 }}
@@ -151,10 +137,7 @@ export default function CodeTabBar({
       </div>
 
       {/* Language badge — pinned right */}
-      <div
-        className="px-4 flex items-center text-[10px] tracking-widest opacity-25
-                      text-white uppercase shrink-0"
-      >
+      <div className="flex shrink-0 items-center px-4 text-[10px] tracking-widest text-white uppercase opacity-25">
         {skill.lang}
       </div>
     </div>

@@ -7,9 +7,7 @@ const IS_PROD = import.meta.env.PROD;
 // ─── Get ─────────────────────────────────────────────────────────────────────
 
 export function getCookie(name: string): string | null {
-  const match = document.cookie
-    .split('; ')
-    .find((row) => row.startsWith(`${name}=`));
+  const match = document.cookie.split('; ').find((row) => row.startsWith(`${name}=`));
 
   return match ? decodeURIComponent(match.split('=')[1]) : null;
 }
@@ -24,18 +22,10 @@ interface SetCookieOptions {
   sameSite?: 'strict' | 'lax' | 'none';
 }
 
-export function setCookie(
-  name: string,
-  value: string,
-  options: SetCookieOptions = {}
-): void {
+export function setCookie(name: string, value: string, options: SetCookieOptions = {}): void {
   const { maxAge, path = '/', sameSite = 'strict' } = options;
 
-  const parts = [
-    `${name}=${encodeURIComponent(value)}`,
-    `path=${path}`,
-    `SameSite=${sameSite}`,
-  ];
+  const parts = [`${name}=${encodeURIComponent(value)}`, `path=${path}`, `SameSite=${sameSite}`];
 
   if (maxAge !== undefined) parts.push(`max-age=${maxAge}`);
   if (IS_PROD) parts.push('Secure');

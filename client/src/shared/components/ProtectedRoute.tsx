@@ -18,10 +18,10 @@
  *   </Route>
  */
 
-import { Navigate, Outlet, useLocation } from 'react-router';
-import { motion, AnimatePresence } from 'motion/react';
-import { cn } from '@/shared/utils/cn';
 import type { UserRole } from '@/features/auth/types';
+import { cn } from '@/shared/utils/cn';
+import { AnimatePresence, motion } from 'motion/react';
+import { Navigate, Outlet, useLocation } from 'react-router';
 import { useAuthStore } from '../store/useAuthStore';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
@@ -45,20 +45,14 @@ const AuthLoadingScreen = () => (
     animate={{ opacity: 1 }}
     exit={{ opacity: 0 }}
     transition={{ duration: 0.2 }}
-    className={cn(
-      'fixed inset-0 z-50 flex items-center justify-center',
-      'bg-(--color-background)'
-    )}
+    className={cn('fixed inset-0 z-50 flex items-center justify-center', 'bg-(--color-background)')}
   >
     {/* Pulsing ring that matches the blue theme from index.css */}
-    <div className={cn('relative flex items-center justify-center size-12')}>
+    <div className={cn('relative flex size-12 items-center justify-center')}>
       <motion.span
         animate={{ scale: [1, 1.5, 1], opacity: [0.6, 0, 0.6] }}
         transition={{ duration: 1.4, repeat: Infinity, ease: 'easeInOut' }}
-        className={cn(
-          'absolute inset-0 rounded-full',
-          'bg-(--blue-8) opacity-60'
-        )}
+        className={cn('absolute inset-0 rounded-full', 'bg-(--blue-8) opacity-60')}
       />
       <span className={cn('relative size-5 rounded-full', 'bg-(--blue-9)')} />
     </div>

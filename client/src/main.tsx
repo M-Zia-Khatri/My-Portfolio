@@ -13,11 +13,7 @@ if ('scrollRestoration' in window.history) {
 }
 window.scrollTo(0, 0);
 if (window.location.hash) {
-  window.history.replaceState(
-    null,
-    '',
-    window.location.pathname + window.location.search
-  );
+  window.history.replaceState(null, '', window.location.pathname + window.location.search);
 }
 
 window.addEventListener('pageshow', (e) => {
@@ -25,11 +21,7 @@ window.addEventListener('pageshow', (e) => {
     // bfcache restore — React state is frozen so we just reset the scroll
     window.scrollTo(0, 0);
     if (window.location.hash) {
-      window.history.replaceState(
-        null,
-        '',
-        window.location.pathname + window.location.search
-      );
+      window.history.replaceState(null, '', window.location.pathname + window.location.search);
     }
   }
 });
@@ -37,5 +29,5 @@ window.addEventListener('pageshow', (e) => {
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
     <App />
-  </StrictMode>
+  </StrictMode>,
 );

@@ -1,6 +1,6 @@
 import { motion } from 'motion/react';
-import { useSnapScroll } from './useSnapScroll';
 import { sectionClassName, sections } from './Home.config';
+import { useSnapScroll } from './useSnapScroll';
 
 export default function Home() {
   const { activeIndex, sectionRefs } = useSnapScroll();
@@ -8,8 +8,8 @@ export default function Home() {
   return (
     <>
       {/* Background layers */}
-      <div className="bg-[url(@/assets/images/bg-noise.png)] opacity-2.5 -z-100 absolute top-0 w-full h-full left-0" />
-      <div className="-z-90 absolute top-0 w-full h-full left-0 bg-(--blue-3)/15" />
+      <div className="absolute top-0 left-0 -z-100 h-full w-full bg-[url(@/assets/images/bg-noise.png)] opacity-2.5" />
+      <div className="absolute top-0 left-0 -z-90 h-full w-full bg-(--blue-3)/15" />
 
       <div
         id="home-scroll-container"
@@ -27,7 +27,7 @@ export default function Home() {
               }}
               className={
                 index === 0
-                  ? 'flex h-[calc(100dvh-5rem)] scroll-mt-24 flex-col justify-center mb-5'
+                  ? 'mb-5 flex h-[calc(100dvh-5rem)] scroll-mt-24 flex-col justify-center'
                   : sectionClassName
               }
               animate={{
