@@ -3,7 +3,8 @@ import { cn } from '@/shared/utils/cn.ts';
 import BgScene from './BgScene';
 
 const headingBaseStyling = cn(
-  'font-black uppercase text-8xl/24 text-white w-full drop-shadow-[0_0_2.5px_color-mix(in_srgb,var(--blue-10)_80%,transparent),0_0_5px_color-mix(in_srgb,var(--blue-10)_90%,transparent)]',
+  'font-black uppercase text-white w-full drop-shadow-[0_0_2.5px_color-mix(in_srgb,var(--blue-10)_80%,transparent),0_0_5px_color-mix(in_srgb,var(--blue-10)_90%,transparent)]',
+  'text-5xl/12 sm:text-6xl/16 md:text-7xl/20 lg:text-8xl/24 2xl:text-9xl/30 ',
 );
 
 export default function HeroSection() {
