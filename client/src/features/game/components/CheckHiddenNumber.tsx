@@ -1,8 +1,8 @@
-import { useMemo } from "react";
-import { useGuessNum } from "../context/GuessNumContext";
-import useGameSet from "../store/GameSetStore";
-import type { GuessResultType } from "../types/guessNumContextTypes";
-import { Button } from "@radix-ui/themes";
+import { useMemo } from 'react';
+import { useGuessNum } from '../context/GuessNumContext';
+import useGameSet from '../store/GameSetStore';
+import type { GuessResultType } from '../types/guessNumContextTypes';
+import { Button } from '@radix-ui/themes';
 
 export default function CheckHiddenNumber() {
   const { makeGuess, showNumber, guessResults, started } = useGuessNum();
@@ -20,12 +20,12 @@ export default function CheckHiddenNumber() {
   }, [guessResults]);
 
   const getVariant = (result: GuessResultType | undefined) => {
-    if (!result) return { color: "gray" as const, variant: "soft" as const };
-    if (result.message === "you win")
-      return { color: "green" as const, variant: "solid" as const };
-    if (result.message === "very close")
-      return { color: "amber" as const, variant: "solid" as const };
-    return { color: "blue" as const, variant: "soft" as const };
+    if (!result) return { color: 'gray' as const, variant: 'soft' as const };
+    if (result.message === 'you win')
+      return { color: 'green' as const, variant: 'solid' as const };
+    if (result.message === 'very close')
+      return { color: 'amber' as const, variant: 'solid' as const };
+    return { color: 'blue' as const, variant: 'soft' as const };
   };
 
   return (
@@ -43,7 +43,11 @@ export default function CheckHiddenNumber() {
             variant={variant}
             disabled={disabled}
             onClick={() => makeGuess(n)}
-            style={{ width: 40, height: 40, cursor: disabled ? "not-allowed" : "pointer" }}
+            style={{
+              width: 40,
+              height: 40,
+              cursor: disabled ? 'not-allowed' : 'pointer',
+            }}
           >
             {n}
           </Button>

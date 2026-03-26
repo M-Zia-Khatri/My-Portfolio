@@ -21,21 +21,21 @@
 //    to the origin, and carries no CSRF risk because all state-changing
 //    endpoints also require a valid access token in the Authorization header.
 
-import { clearCookie, getCookie, setCookie } from "./cookieManager"
+import { clearCookie, getCookie, setCookie } from './cookieManager';
 
-const ACCESS_TOKEN_COOKIE = "access_token"
-const ACCESS_TOKEN_MAX_AGE = 15 * 60   // 15 minutes — matches JWT expiry
+const ACCESS_TOKEN_COOKIE = 'access_token';
+const ACCESS_TOKEN_MAX_AGE = 15 * 60; // 15 minutes — matches JWT expiry
 
 // ─── API ──────────────────────────────────────────────────────────────────────
 
 export function setAccessToken(token: string): void {
-  setCookie(ACCESS_TOKEN_COOKIE, token, { maxAge: ACCESS_TOKEN_MAX_AGE })
+  setCookie(ACCESS_TOKEN_COOKIE, token, { maxAge: ACCESS_TOKEN_MAX_AGE });
 }
 
 export function getAccessToken(): string | null {
-  return getCookie(ACCESS_TOKEN_COOKIE)
+  return getCookie(ACCESS_TOKEN_COOKIE);
 }
 
 export function clearAccessToken(): void {
-  clearCookie(ACCESS_TOKEN_COOKIE)
+  clearCookie(ACCESS_TOKEN_COOKIE);
 }

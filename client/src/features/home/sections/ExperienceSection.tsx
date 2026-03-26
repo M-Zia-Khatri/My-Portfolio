@@ -3,7 +3,8 @@ export default function ExperienceSection() {
     <>
       <h2 className="text-3xl font-bold">Experience</h2>
       <p className="mt-4 text-base-content/70">
-        5+ years delivering full-stack web projects, from initial concepts to production launches.
+        5+ years delivering full-stack web projects, from initial concepts to
+        production launches.
       </p>
     </>
   );

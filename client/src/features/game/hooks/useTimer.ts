@@ -1,9 +1,9 @@
-import { useEffect, useState, useCallback, useRef } from "react";
+import { useEffect, useState, useCallback, useRef } from 'react';
 
 interface UseTimerOptions {
-  initialTime: number;     // seconds to count down from
-  isActive: boolean;       // whether the timer should be running
-  onExpire?: () => void;   // called once when timer reaches zero
+  initialTime: number; // seconds to count down from
+  isActive: boolean; // whether the timer should be running
+  onExpire?: () => void; // called once when timer reaches zero
 }
 
 export default function useTimer({

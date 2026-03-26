@@ -1,4 +1,4 @@
-import { CACHE_PREFIX } from "./cache.constants"
+import { CACHE_PREFIX } from './cache.constants';
 
 /**
  * Builds a namespaced Redis key using `:` as the delimiter.
@@ -8,9 +8,9 @@ import { CACHE_PREFIX } from "./cache.constants"
  *   "portfolio:item:7"  → "app:cache:portfolio:item:7"
  */
 export function buildKey(key: string): string {
-  return `${CACHE_PREFIX}:${key}`
+  return `${CACHE_PREFIX}:${key}`;
 }
 
 export function buildLockKey(redisKey: string): string {
-  return `${redisKey}:lock`
+  return `${redisKey}:lock`;
 }

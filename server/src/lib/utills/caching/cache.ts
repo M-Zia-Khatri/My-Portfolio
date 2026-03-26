@@ -1,13 +1,13 @@
-import { redis } from "../redis"
-import { CACHE_PREFIX, LOCK_RETRY_DELAY } from "./cache.constants"
-import { isCircuitOpen, recordFailure, recordSuccess } from "./cache.circuit"
-import { buildKey, buildLockKey } from "./cache.keys"
-import { acquireLock, releaseLock, sleep } from "./cache.lock"
-import { deserialize, serialize } from "./cache.serializer"
-import type { CacheOptions, CachePayload } from "./cache.types"
+import { redis } from '../redis';
+import { CACHE_PREFIX, LOCK_RETRY_DELAY } from './cache.constants';
+import { isCircuitOpen, recordFailure, recordSuccess } from './cache.circuit';
+import { buildKey, buildLockKey } from './cache.keys';
+import { acquireLock, releaseLock, sleep } from './cache.lock';
+import { deserialize, serialize } from './cache.serializer';
+import type { CacheOptions, CachePayload } from './cache.types';
 
-export { TTL } from "./cache.constants"
-export type { CacheOptions } from "./cache.types"
+export { TTL } from './cache.constants';
+export type { CacheOptions } from './cache.types';
 
 // ---------------------------------------------------------------------------
 // Internal write helper
@@ -22,9 +22,9 @@ async function writeToCache<T>(
   const payload: CachePayload<T> = {
     data,
     expiry: Date.now() + ttl * 1_000,
-  }
-  await redis.set(redisKey, serialize(payload), "EX", ttl + staleTtl)
-  recordSuccess()
+  };
+  await redis.set(redisKey, serialize(payload), 'EX', ttl + staleTtl);
+  recordSuccess();
 }
 
 // ---------------------------------------------------------------------------
@@ -40,20 +40,20 @@ function revalidateInBackground<T>(
 ): void {
   Promise.resolve()
     .then(async () => {
-      const acquired = await acquireLock(lockKey)
-      if (!acquired) return
+      const acquired = await acquireLock(lockKey);
+      if (!acquired) return;
 
       try {
-        const fresh = await callback()
-        await writeToCache(redisKey, fresh, ttl, staleTtl)
-        console.debug(`[cache] Background revalidated: ${redisKey}`)
+        const fresh = await callback();
+        await writeToCache(redisKey, fresh, ttl, staleTtl);
+        console.debug(`[cache] Background revalidated: ${redisKey}`);
       } finally {
-        await releaseLock(lockKey)
+        await releaseLock(lockKey);
       }
     })
     .catch((err) =>
       recordFailure(err, `background revalidation of "${redisKey}"`)
-    )
+    );
 }
 
 // ---------------------------------------------------------------------------
@@ -82,67 +82,69 @@ export async function cacheRemember<T>(
   key: string,
   options: CacheOptions<T>
 ): Promise<T> {
-  const { ttl, staleTtl = 0, callback } = options
-  const redisKey                         = buildKey(key)
-  const lockKey                          = buildLockKey(redisKey)
+  const { ttl, staleTtl = 0, callback } = options;
+  const redisKey = buildKey(key);
+  const lockKey = buildLockKey(redisKey);
 
   if (isCircuitOpen()) {
-    console.warn(`[cache] BYPASS (circuit open): ${redisKey}`)
-    return callback()
+    console.warn(`[cache] BYPASS (circuit open): ${redisKey}`);
+    return callback();
   }
 
   try {
-    const raw = await redis.get(redisKey)
-    recordSuccess()
+    const raw = await redis.get(redisKey);
+    recordSuccess();
 
     if (raw !== null) {
-      const payload = deserialize<T>(raw)
+      const payload = deserialize<T>(raw);
 
       if (payload.expiry > Date.now()) {
-        console.debug(`[cache] HIT (fresh): ${redisKey}`)
-        return payload.data
+        console.debug(`[cache] HIT (fresh): ${redisKey}`);
+        return payload.data;
       }
 
       if (staleTtl > 0) {
-        console.debug(`[cache] HIT (stale — revalidating in background): ${redisKey}`)
-        revalidateInBackground(redisKey, lockKey, ttl, staleTtl, callback)
-        return payload.data
+        console.debug(
+          `[cache] HIT (stale — revalidating in background): ${redisKey}`
+        );
+        revalidateInBackground(redisKey, lockKey, ttl, staleTtl, callback);
+        return payload.data;
       }
     } else {
-      console.debug(`[cache] MISS: ${redisKey}`)
+      console.debug(`[cache] MISS: ${redisKey}`);
     }
   } catch (err) {
-    recordFailure(err, `GET "${redisKey}"`)
+    recordFailure(err, `GET "${redisKey}"`);
   }
 
-  const acquired = await acquireLock(lockKey).catch(() => false)
+  const acquired = await acquireLock(lockKey).catch(() => false);
 
   if (acquired) {
     try {
-      const data = await callback()
+      const data = await callback();
       writeToCache(redisKey, data, ttl, staleTtl).catch((err) =>
         recordFailure(err, `SET "${redisKey}"`)
-      )
-      return data
+      );
+      return data;
     } finally {
-      await releaseLock(lockKey)
+      await releaseLock(lockKey);
     }
   }
 
-  await sleep(LOCK_RETRY_DELAY)
+  await sleep(LOCK_RETRY_DELAY);
 
   try {
-    const retry = await redis.get(redisKey)
-    recordSuccess()
+    const retry = await redis.get(redisKey);
+    recordSuccess();
     if (retry !== null) {
-      console.debug(`[cache] HIT (post-lock retry): ${redisKey}`)
-      return deserialize<T>(retry).data
+      console.debug(`[cache] HIT (post-lock retry): ${redisKey}`);
+      return deserialize<T>(retry).data;
     }
   } catch (err) {
-    recordFailure(err, `GET retry "${redisKey}"`)
+    recordFailure(err, `GET retry "${redisKey}"`);
   }
 
-  return callback()
+  return callback();
 }
 
 // ---------------------------------------------------------------------------
@@ -161,14 +163,14 @@ export async function cachePut<T>(
   value: T,
   ttl: number
 ): Promise<void> {
-  if (isCircuitOpen()) return
-  const redisKey = buildKey(key)
+  if (isCircuitOpen()) return;
+  const redisKey = buildKey(key);
 
   try {
-    await writeToCache(redisKey, value, ttl, 0)
-    console.info(`[cache] PUT: ${redisKey}`)
+    await writeToCache(redisKey, value, ttl, 0);
+    console.info(`[cache] PUT: ${redisKey}`);
   } catch (err) {
-    recordFailure(err, `cachePut "${redisKey}"`)
+    recordFailure(err, `cachePut "${redisKey}"`);
   }
 }
 
@@ -183,15 +185,15 @@ export async function cachePut<T>(
  * await cacheForget("skills:detail:42")
  */
 export async function cacheForget(key: string): Promise<void> {
-  if (isCircuitOpen()) return
-  const redisKey = buildKey(key)
+  if (isCircuitOpen()) return;
+  const redisKey = buildKey(key);
 
   try {
-    await redis.del(redisKey)
-    recordSuccess()
-    console.info(`[cache] FORGET: ${redisKey}`)
+    await redis.del(redisKey);
+    recordSuccess();
+    console.info(`[cache] FORGET: ${redisKey}`);
   } catch (err) {
-    recordFailure(err, `cacheForget "${redisKey}"`)
+    recordFailure(err, `cacheForget "${redisKey}"`);
   }
 }
 
@@ -213,31 +215,37 @@ export async function cacheForget(key: string): Promise<void> {
  * await cacheInvalidatePrefix("portfolio:item")
  */
 export async function cacheInvalidatePrefix(prefix: string): Promise<void> {
-  if (isCircuitOpen()) return
+  if (isCircuitOpen()) return;
 
-  const pattern      = `${CACHE_PREFIX}:${prefix}:*`
-  let   cursor       = "0"
-  const keysToDelete: string[] = []
+  const pattern = `${CACHE_PREFIX}:${prefix}:*`;
+  let cursor = '0';
+  const keysToDelete: string[] = [];
 
   try {
     do {
       const [nextCursor, keys] = await redis.scan(
-        cursor, "MATCH", pattern, "COUNT", 100
-      )
-      cursor = nextCursor
-      keysToDelete.push(...keys)
-    } while (cursor !== "0")
+        cursor,
+        'MATCH',
+        pattern,
+        'COUNT',
+        100
+      );
+      cursor = nextCursor;
+      keysToDelete.push(...keys);
+    } while (cursor !== '0');
 
     if (keysToDelete.length > 0) {
-      await redis.del(...keysToDelete)
-      recordSuccess()
+      await redis.del(...keysToDelete);
+      recordSuccess();
       console.info(
         `[cache] Invalidated prefix "${prefix}": ${keysToDelete.length} key(s) removed.`
-      )
+      );
     } else {
-      console.debug(`[cache] Invalidate prefix "${prefix}": nothing to delete.`)
+      console.debug(
+        `[cache] Invalidate prefix "${prefix}": nothing to delete.`
+      );
     }
   } catch (err) {
-    recordFailure(err, `cacheInvalidatePrefix "${prefix}"`)
+    recordFailure(err, `cacheInvalidatePrefix "${prefix}"`);
   }
 }

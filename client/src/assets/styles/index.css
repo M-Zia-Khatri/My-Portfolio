@@ -85,12 +85,11 @@
 }
 
 .radix-themes {
-  --heading-font-size-adjust: 1.1
+  --heading-font-size-adjust: 1.1;
 }
 
 @supports (color: color(display-p3 1 1 1)) {
   @media (color-gamut: p3) {
-
     .dark,
     .dark-theme {
       --blue-1: oklch(11.5% 0.0215 228.6);
@@ -119,7 +118,7 @@
       --gray-11: oklch(76.7% 0.0364 222.1);
       --gray-12: oklch(94.8% 0.0097 222.1);
 
-      --color-background: hsl(0, 0%, 0.5%)
+      --color-background: hsl(0, 0%, 0.5%);
     }
   }
 }
@@ -129,7 +128,6 @@
 ------------------------------------------------------- */
 
 @layer base {
-
   *,
   ::after,
   ::before,

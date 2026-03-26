@@ -5,7 +5,6 @@ import SkillsSection from './sections/SkillsSection';
 import GameSection from './sections/GameSection';
 import ContactSection from './sections/ContactSection';
 
-
 // ─── Scroll constants ────────────────────────────────────────────────────────
 
 export const TOP_BAR_HEIGHT = 0;

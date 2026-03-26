@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState } from 'react';
 import {
   Card,
   Button,
@@ -9,16 +9,17 @@ import {
   TextArea,
   Callout,
   Separator,
-} from "@radix-ui/themes";
+} from '@radix-ui/themes';
 import {
   CheckCircledIcon,
   EnvelopeClosedIcon,
   PaperPlaneIcon,
-} from "@radix-ui/react-icons";
-import { motion, AnimatePresence } from "motion/react";
-import { HEADING, TEXT } from "@/shared/constants/style.constants";
+} from '@radix-ui/react-icons';
+import { motion, AnimatePresence } from 'motion/react';
+import { HEADING, TEXT } from '@/shared/constants/style.constants';
+import { api } from '@/shared/api/axios';
 
-type FormState = "idle" | "loading" | "success" | "error";
+type FormState = 'idle' | 'loading' | 'success' | 'error';
 
 interface FormData {
   fullName: string;
@@ -34,33 +35,33 @@ interface FormErrors {
 
 function validate(data: FormData): FormErrors {
   const errors: FormErrors = {};
-  if (!data.fullName.trim()) errors.fullName = "Full name is required.";
+  if (!data.fullName.trim()) errors.fullName = 'Full name is required.';
   if (!data.email.trim()) {
-    errors.email = "Email is required.";
+    errors.email = 'Email is required.';
   } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(data.email)) {
-    errors.email = "Please enter a valid email address.";
+    errors.email = 'Please enter a valid email address.';
   }
-  if (!data.message.trim()) errors.message = "Message cannot be empty.";
+  if (!data.message.trim()) errors.message = 'Message cannot be empty.';
   else if (data.message.trim().length < 10)
-    errors.message = "Message must be at least 10 characters.";
+    errors.message = 'Message must be at least 10 characters.';
   return errors;
 }
 
 export default function ContactForm() {
   const [form, setForm] = useState<FormData>({
-    fullName: "",
-    email: "",
-    message: "",
+    fullName: '',
+    email: '',
+    message: '',
   });
   const [errors, setErrors] = useState<FormErrors>({});
-  const [status, setStatus] = useState<FormState>("idle");
+  const [status, setStatus] = useState<FormState>('idle');
 
   const handleChange =
     (field: keyof FormData) =>
-      (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-        setForm((prev) => ({ ...prev, [field]: e.target.value }));
-        if (errors[field]) setErrors((prev) => ({ ...prev, [field]: undefined }));
-      };
+    (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+      setForm((prev) => ({ ...prev, [field]: e.target.value }));
+      if (errors[field]) setErrors((prev) => ({ ...prev, [field]: undefined }));
+    };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -70,40 +71,48 @@ export default function ContactForm() {
       return;
     }
 
-    setStatus("loading");
+    setStatus('loading');
 
     try {
-      await new Promise<void>((resolve) => setTimeout(resolve, 1400));
-      setStatus("success");
-      setForm({ fullName: "", email: "", message: "" });
+      await api.post('/contact', form);
+      setStatus('success');
+      setForm({ fullName: '', email: '', message: '' });
     } catch {
-      setStatus("error");
+      setStatus('error');
     }
   };
 
-  const isLoading = status === "loading";
+  const isLoading = status === 'loading';
 
   return (
     <Card
       size={'4'}
-    // p="6"
-    // className="rounded-xl border border-(--gray-a2) bg-(--gray-a2)/50 backdrop-blur-sm"
+      // p="6"
+      // className="rounded-xl border border-(--gray-a2) bg-(--gray-a2)/50 backdrop-blur-sm"
     >
-      <Heading as="h3" size={HEADING.h3.size} weight="bold" className="text-white" >
+      <Heading
+        as="h3"
+        size={HEADING.h3.size}
+        weight="bold"
+        className="text-white"
+      >
         Contact Form
       </Heading>
       <Text size={TEXT.base.size} weight="medium">
-        Please contact me directly at{" "}
-        <Text size={TEXT.base.size} className="font-extrabold text-(--blue-a11)">
+        Please contact me directly at{' '}
+        <Text
+          size={TEXT.base.size}
+          className="font-extrabold text-(--blue-a11)"
+        >
           muhammadziakhatri@gmail.com
-        </Text>{" "}
+        </Text>{' '}
         or drop your info here.
       </Text>
 
       <Separator my="4" size="4" />
 
       <AnimatePresence mode="wait">
-        {status === "success" ? (
+        {status === 'success' ? (
           <motion.div
             key="success"
             initial={{ opacity: 0, scale: 0.95 }}
@@ -123,7 +132,7 @@ export default function ContactForm() {
               mt="4"
               variant="ghost"
               size="2"
-              onClick={() => setStatus("idle")}
+              onClick={() => setStatus('idle')}
             >
               Send another message
             </Button>
@@ -138,7 +147,7 @@ export default function ContactForm() {
             noValidate
           >
             <Flex direction="column" gap="4">
-              <Flex direction={{ initial: "column", sm: "row" }} gap="4">
+              <Flex direction={{ initial: 'column', sm: 'row' }} gap="4">
                 {/* Full Name */}
                 <Flex direction="column" gap="1" flexGrow="1">
                   <Text as="label" size={TEXT.base.size} weight="medium">
@@ -148,14 +157,16 @@ export default function ContactForm() {
                     size={TEXT.base.size}
                     placeholder="Your Name"
                     value={form.fullName}
-                    onChange={handleChange("fullName")}
-                    color={errors.fullName ? "red" : undefined}
+                    onChange={handleChange('fullName')}
+                    color={errors.fullName ? 'red' : undefined}
                     disabled={isLoading}
                     aria-invalid={!!errors.fullName}
-                  // className="shadow-2xl"
+                    // className="shadow-2xl"
                   />
                   {errors.fullName && (
-                    <Text size={TEXT.sm.size} color="red">{errors.fullName}</Text>
+                    <Text size={TEXT.sm.size} color="red">
+                      {errors.fullName}
+                    </Text>
                   )}
                 </Flex>
 
@@ -169,8 +180,8 @@ export default function ContactForm() {
                     type="email"
                     placeholder="you@example.com"
                     value={form.email}
-                    onChange={handleChange("email")}
-                    color={errors.email ? "red" : undefined}
+                    onChange={handleChange('email')}
+                    color={errors.email ? 'red' : undefined}
                     disabled={isLoading}
                     aria-invalid={!!errors.email}
                   >
@@ -179,7 +190,9 @@ export default function ContactForm() {
                     </TextField.Slot>
                   </TextField.Root>
                   {errors.email && (
-                    <Text size={TEXT.sm.size} color="red">{errors.email}</Text>
+                    <Text size={TEXT.sm.size} color="red">
+                      {errors.email}
+                    </Text>
                   )}
                 </Flex>
               </Flex>
@@ -194,13 +207,15 @@ export default function ContactForm() {
                   rows={5}
                   placeholder="Tell me about your project,"
                   value={form.message}
-                  onChange={handleChange("message")}
-                  color={errors.message ? "red" : undefined}
+                  onChange={handleChange('message')}
+                  color={errors.message ? 'red' : undefined}
                   disabled={isLoading}
                   aria-invalid={!!errors.message}
                 />
                 {errors.message && (
-                  <Text size={TEXT.sm.size} color="red">{errors.message}</Text>
+                  <Text size={TEXT.sm.size} color="red">
+                    {errors.message}
+                  </Text>
                 )}
               </Flex>
 
@@ -208,7 +223,7 @@ export default function ContactForm() {
                 I'll never share your data with anyone else. Pinky promise!
               </Text>
 
-              {status === "error" && (
+              {status === 'error' && (
                 <Callout.Root color="red" variant="surface" size="1">
                   <Callout.Text>
                     Something went wrong. Please try again.
@@ -224,7 +239,7 @@ export default function ContactForm() {
                 className="w-full cursor-pointer"
               >
                 {isLoading ? (
-                  "Sending…"
+                  'Sending…'
                 ) : (
                   <Flex align="center" gap="2">
                     Send Message

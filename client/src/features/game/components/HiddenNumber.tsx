@@ -1,9 +1,9 @@
-import { useMemo } from "react";
-import { Button, Text, TextField } from "@radix-ui/themes";
-import { useGuessNum } from "../context/GuessNumContext";
-import SelDifficultLevel from "./SelDifficultLevel";
-import { TEXT } from "@/shared/constants/style.constants";
-import {  Timer } from "lucide-react";
+import { useMemo } from 'react';
+import { Button, Text, TextField } from '@radix-ui/themes';
+import { useGuessNum } from '../context/GuessNumContext';
+import SelDifficultLevel from './SelDifficultLevel';
+import { TEXT } from '@/shared/constants/style.constants';
+import { Timer } from 'lucide-react';
 
 export default function HiddenNumber() {
   const {
@@ -19,14 +19,14 @@ export default function HiddenNumber() {
   } = useGuessNum();
 
   const isWin = useMemo(
-    () => guessResults.some((r) => r.message === "you win"),
+    () => guessResults.some((r) => r.message === 'you win'),
     [guessResults]
   );
 
   const formattedTime = useMemo(() => {
     const m = Math.floor(timeLeft / 60);
     const s = timeLeft % 60;
-    return `${String(m).padStart(2, "0")}:${String(s).padStart(2, "0")}`;
+    return `${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
   }, [timeLeft]);
 
   const isUrgent = timeLeft <= 30 && started && !showNumber;
@@ -45,11 +45,17 @@ export default function HiddenNumber() {
           className="font-extrabold flex items-center "
           color={isUrgent ? 'red' : 'blue'}
         >
-          <Timer size={16} />&nbsp; {formattedTime}
+          <Timer size={16} />
+          &nbsp; {formattedTime}
         </Text>
 
         {/* Disabled once game is in progress */}
-        <div style={{ opacity: started && !showNumber ? 0.4 : 1, pointerEvents: started && !showNumber ? "none" : "auto" }}>
+        <div
+          style={{
+            opacity: started && !showNumber ? 0.4 : 1,
+            pointerEvents: started && !showNumber ? 'none' : 'auto',
+          }}
+        >
           <SelDifficultLevel />
         </div>
       </div>
@@ -62,7 +68,7 @@ export default function HiddenNumber() {
             value={nameInput}
             onChange={(e) => setNameInput(e.target.value)}
             size="3"
-            style={{ maxWidth: 280, width: "100%" }}
+            style={{ maxWidth: 280, width: '100%' }}
           />
           <Button
             size="3"
@@ -84,20 +90,20 @@ export default function HiddenNumber() {
             style={
               showNumber
                 ? {
-                  background: isWin ? "var(--green-4)" : "var(--red-4)",
-                  color: isWin ? "var(--green-11)" : "var(--red-11)",
-                  border: `3px solid ${isWin ? "var(--green-7)" : "var(--red-7)"}`,
-                  boxShadow: `0 0 32px ${isWin ? "var(--green-a6)" : "var(--red-a6)"}`,
-                }
+                    background: isWin ? 'var(--green-4)' : 'var(--red-4)',
+                    color: isWin ? 'var(--green-11)' : 'var(--red-11)',
+                    border: `3px solid ${isWin ? 'var(--green-7)' : 'var(--red-7)'}`,
+                    boxShadow: `0 0 32px ${isWin ? 'var(--green-a6)' : 'var(--red-a6)'}`,
+                  }
                 : {
-                  background: "var(--blue-4)",
-                  color: "transparent",
-                  border: "3px solid var(--blue-7)",
-                  boxShadow: "0 0 32px var(--blue-a5)",
-                }
+                    background: 'var(--blue-4)',
+                    color: 'transparent',
+                    border: '3px solid var(--blue-7)',
+                    boxShadow: '0 0 32px var(--blue-a5)',
+                  }
             }
           >
-            {showNumber ? randomNumber : "??"}
+            {showNumber ? randomNumber : '??'}
           </div>
         </div>
       )}
@@ -108,18 +114,18 @@ export default function HiddenNumber() {
           <Text
             size="4"
             weight="bold"
-            style={{ color: isWin ? "var(--green-11)" : "var(--red-11)" }}
+            style={{ color: isWin ? 'var(--green-11)' : 'var(--red-11)' }}
           >
             {isWin
-              ? "🎉 You got it!"
+              ? '🎉 You got it!'
               : timeLeft === 0
                 ? "⏰ Time's up — try again"
-                : "You lose — try again"}
+                : 'You lose — try again'}
           </Text>
           <Button
             size="3"
             variant="solid"
-            color={isWin ? "green" : "blue"}
+            color={isWin ? 'green' : 'blue'}
             onClick={handlePlayAgain}
             style={{ minWidth: 140 }}
           >

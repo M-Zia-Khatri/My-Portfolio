@@ -1,11 +1,11 @@
-import type { ComponentType } from "react";
+import type { ComponentType } from 'react';
 
 // ─── Terminal ────────────────────────────────────────────────────────────────
 export type TerminalLine =
-  | { kind: "command"; text: string }   // typed char-by-char, shows $ prompt
-  | { kind: "output";  text: string }   // appears instantly after command runs
-  | { kind: "comment"; text: string }   // dimmed # comment line
-  | { kind: "blank" };                  // empty spacer row
+  | { kind: 'command'; text: string } // typed char-by-char, shows $ prompt
+  | { kind: 'output'; text: string } // appears instantly after command runs
+  | { kind: 'comment'; text: string } // dimmed # comment line
+  | { kind: 'blank' }; // empty spacer row
 
 // ─── Skill ───────────────────────────────────────────────────────────────────
 interface SkillBase {
@@ -17,12 +17,12 @@ interface SkillBase {
 }
 
 interface CodeSkill extends SkillBase {
-  mode: "code";
+  mode: 'code';
   code: string[];
 }
 
 interface TerminalSkill extends SkillBase {
-  mode: "terminal";
+  mode: 'terminal';
   commands: TerminalLine[];
 }
 

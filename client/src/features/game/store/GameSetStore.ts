@@ -1,13 +1,13 @@
 // @/stores/GameSetStore.ts
-import { create } from "zustand";
-import { persist } from "zustand/middleware";
-import type { GuessResultType } from "../types/guessNumContextTypes";
+import { create } from 'zustand';
+import { persist } from 'zustand/middleware';
+import type { GuessResultType } from '../types/guessNumContextTypes';
 
 export type ScoreRecord = {
   id: string;
   name: string;
   score: number;
-  result: "win" | "lose";
+  result: 'win' | 'lose';
   attempts: number;
   guessLimit: number;
   timeTaken: number;
@@ -59,7 +59,7 @@ const useGameSet = create<AppState>()(
       maxNumber: 20,
       guessLimit: 7,
       timeLimit: 180,
-      difficultLevel: "normal",
+      difficultLevel: 'normal',
 
       customLevels: [],
       scoreHistory: [],
@@ -85,17 +85,19 @@ const useGameSet = create<AppState>()(
       clearScoreHistory: () => set({ scoreHistory: [] }),
     }),
     {
-      name: "guess-number-history",
+      name: 'guess-number-history',
       partialize: (state) => ({
         scoreHistory: state.scoreHistory,
         customLevels: state.customLevels,
       }),
       merge: (persisted: unknown, current: AppState) => {
         const p = persisted as Partial<PersistedState>;
-        const hydratedHistory = (p.scoreHistory ?? []).map((r: ScoreRecord) => ({
-          ...r,
-          date: new Date(r.date),
-        }));
+        const hydratedHistory = (p.scoreHistory ?? []).map(
+          (r: ScoreRecord) => ({
+            ...r,
+            date: new Date(r.date),
+          })
+        );
         return {
           ...current,
           scoreHistory: hydratedHistory,

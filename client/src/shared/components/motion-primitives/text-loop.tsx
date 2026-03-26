@@ -58,9 +58,9 @@ export function TextLoop({
       <AnimatePresence mode={mode} initial={false}>
         <motion.div
           key={currentIndex}
-          initial='initial'
-          animate='animate'
-          exit='exit'
+          initial="initial"
+          animate="animate"
+          exit="exit"
           transition={transition}
           variants={variants || motionVariants}
         >

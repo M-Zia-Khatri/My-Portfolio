@@ -1,10 +1,12 @@
-import { memo } from "react";
+import { memo } from 'react';
 
 interface TabScrollbarStyleProps {
   color: string;
 }
 
-const TabScrollbarStyle = memo(function TabScrollbarStyle({ color }: TabScrollbarStyleProps) {
+const TabScrollbarStyle = memo(function TabScrollbarStyle({
+  color,
+}: TabScrollbarStyleProps) {
   return (
     <style>{`
       .tab-scrollbar { overflow-x: auto; overflow-y: hidden; }

@@ -1,14 +1,13 @@
-import { useCallback, useMemo, useState } from "react";
-import { motion } from "motion/react";
-import { Box, Heading } from "@radix-ui/themes";
-import { BorderTrail } from "@/shared/components/motion-primitives/border-trail";
-import SecComponent from "@/shared/components/SecContainer";
-import { HEADING } from "@/shared/constants/style.constants";
-import type { Skill } from "@/features/skills/types";
-import { skills } from "@/features/skills/skills.data";
-import CodeCard from "@/shared/components/CodeCard";
-import SkillChip from "@/features/skills/components/SkillChip";
-
+import { useCallback, useMemo, useState } from 'react';
+import { motion } from 'motion/react';
+import { Box, Heading } from '@radix-ui/themes';
+import { BorderTrail } from '@/shared/components/motion-primitives/border-trail';
+import SecComponent from '@/shared/components/SecContainer';
+import { HEADING } from '@/shared/constants/style.constants';
+import type { Skill } from '@/features/skills/types';
+import { skills } from '@/features/skills/skills.data';
+import CodeCard from '@/shared/components/CodeCard';
+import SkillChip from '@/features/skills/components/SkillChip';
 
 export default function SkillsSection() {
   const [active, setActive] = useState<Skill | null>(skills[0]);
@@ -16,7 +15,7 @@ export default function SkillsSection() {
 
   const handleChipClick = useCallback((skill: Skill) => {
     setOpenTabs((prev) =>
-      prev.find((t) => t.name === skill.name) ? prev : [...prev, skill],
+      prev.find((t) => t.name === skill.name) ? prev : [...prev, skill]
     );
     setActive(skill);
   }, []);
@@ -41,8 +40,9 @@ export default function SkillsSection() {
 
   // Stable per-chip callbacks — prevents SkillChip memo from breaking
   const chipHandlers = useMemo(
-    () => Object.fromEntries(skills.map((s) => [s.name, () => handleChipClick(s)])),
-    [handleChipClick],
+    () =>
+      Object.fromEntries(skills.map((s) => [s.name, () => handleChipClick(s)])),
+    [handleChipClick]
   );
 
   const resolvedSkill = active ?? skills[0];
@@ -50,7 +50,6 @@ export default function SkillsSection() {
   return (
     <SecComponent>
       <Box className="flex flex-col items-center gap-8 w-full max-w-xl mx-auto">
-
         {/* Heading */}
         <motion.div
           initial={{ opacity: 0, y: 14 }}
@@ -59,7 +58,9 @@ export default function SkillsSection() {
           transition={{ duration: 0.45 }}
           className="text-center"
         >
-          <Heading as="h2" size={HEADING.h2.size}>Tech Stack</Heading>
+          <Heading as="h2" size={HEADING.h2.size}>
+            Tech Stack
+          </Heading>
           <p className="mt-1 text-sm opacity-40 tracking-wide">
             select a skill to explore
           </p>
@@ -103,10 +104,9 @@ export default function SkillsSection() {
               background: `linear-gradient(to right, transparent, ${resolvedSkill.color}, transparent)`,
             }}
             size={80}
-            transition={{ duration: 4, repeat: Infinity, ease: "linear" }}
+            transition={{ duration: 4, repeat: Infinity, ease: 'linear' }}
           />
         </motion.div>
-
       </Box>
     </SecComponent>
   );

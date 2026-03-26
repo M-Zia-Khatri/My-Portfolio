@@ -1,4 +1,4 @@
-import { animate, type AnimationPlaybackControls } from 'framer-motion';
+import { animate, type AnimationPlaybackControls } from 'motion';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { useNavigationStore } from '@/shared/store/navigation.store';
 import {
@@ -47,7 +47,7 @@ export function useSnapScroll() {
         setActiveHash(nextHash);
       }
     },
-    [setActiveHash],
+    [setActiveHash]
   );
 
   // ─── Core: animated snap to a section's top ────────────────────────────────
@@ -66,7 +66,8 @@ export function useSnapScroll() {
       if (
         nextIndex === activeIndexRef.current &&
         Math.abs(window.scrollY - targetTop) < 2
-      ) return;
+      )
+        return;
 
       animationRef.current?.stop();
       animationRef.current = null;
@@ -80,10 +81,12 @@ export function useSnapScroll() {
         duration: SCROLL_DURATION_SECONDS,
         ease: [0.25, 0.46, 0.45, 0.94],
         onUpdate: (latest) => window.scrollTo(0, latest),
-        onComplete: () => { animationRef.current = null; },
+        onComplete: () => {
+          animationRef.current = null;
+        },
       });
     },
-    [updateHash],
+    [updateHash]
   );
 
   // ─── Snap with cooldown (short sections only) ──────────────────────────────
@@ -91,10 +94,12 @@ export function useSnapScroll() {
     (targetIndex: number) => {
       if (snapCooldownRef.current) return;
       snapCooldownRef.current = true;
-      setTimeout(() => { snapCooldownRef.current = false; }, SNAP_COOLDOWN_MS);
+      setTimeout(() => {
+        snapCooldownRef.current = false;
+      }, SNAP_COOLDOWN_MS);
       scrollToSection(targetIndex);
     },
-    [scrollToSection],
+    [scrollToSection]
   );
 
   // ─── Cleanup ───────────────────────────────────────────────────────────────
@@ -129,7 +134,11 @@ export function useSnapScroll() {
       const goingDownShort = e.deltaY > 0;
       const atFirstSection = activeIndexRef.current === 0;
       const atLastSection = activeIndexRef.current === sections.length - 1;
-      if ((goingDownShort && atLastSection) || (!goingDownShort && atFirstSection)) return;
+      if (
+        (goingDownShort && atLastSection) ||
+        (!goingDownShort && atFirstSection)
+      )
+        return;
 
       e.preventDefault();
       wheelAccumRef.current += e.deltaY;
@@ -208,7 +217,10 @@ export function useSnapScroll() {
         activeIndexRef.current = 0;
       });
     });
-    return () => { cancelAnimationFrame(raf1); cancelAnimationFrame(raf2); };
+    return () => {
+      cancelAnimationFrame(raf1);
+      cancelAnimationFrame(raf2);
+    };
   }, []);
 
   // ─── Hash change listener + intentional deep-link navigation ───────────────
@@ -267,7 +279,9 @@ export function useSnapScroll() {
       snapToSection(activeIndexRef.current + (goingDown ? 1 : -1));
     };
 
-    container.addEventListener('touchstart', handleTouchStart, { passive: true });
+    container.addEventListener('touchstart', handleTouchStart, {
+      passive: true,
+    });
     container.addEventListener('touchend', handleTouchEnd, { passive: false });
     return () => {
       container.removeEventListener('touchstart', handleTouchStart);
@@ -286,8 +300,13 @@ export function useSnapScroll() {
 
       sectionRefs.current.forEach((el, i) => {
         if (!el) return;
-        const dist = Math.abs(viewportMid - (el.offsetTop + el.offsetHeight / 2));
-        if (dist < closestDist) { closestDist = dist; closestIndex = i; }
+        const dist = Math.abs(
+          viewportMid - (el.offsetTop + el.offsetHeight / 2)
+        );
+        if (dist < closestDist) {
+          closestDist = dist;
+          closestIndex = i;
+        }
       });
 
       if (closestIndex !== activeIndexRef.current) {

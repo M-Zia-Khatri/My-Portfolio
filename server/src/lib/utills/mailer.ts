@@ -1,9 +1,9 @@
-import nodemailer from "nodemailer";
+import nodemailer from 'nodemailer';
 
 const transporter = nodemailer.createTransport({
   host: process.env.SMTP_HOST,
   port: Number(process.env.SMTP_PORT ?? 587),
-  secure: process.env.SMTP_SECURE === "true",
+  secure: process.env.SMTP_SECURE === 'true',
   auth: {
     user: process.env.SMTP_USER,
     pass: process.env.SMTP_PASS,
@@ -14,7 +14,7 @@ const transporter = nodemailer.createTransport({
 
 export async function verifyMailer(): Promise<void> {
   await transporter.verify();
-  console.log("✓ Mailer connected");
+  console.log('✓ Mailer connected');
 }
 
 // ─── SEND OTP EMAIL ──────────────────────────────────────────────────────────
@@ -22,12 +22,12 @@ export async function verifyMailer(): Promise<void> {
 export async function sendOtpEmail(
   toEmail: string,
   fullName: string,
-  otpCode: string,
+  otpCode: string
 ): Promise<void> {
   await transporter.sendMail({
     from: `"Admin Portal" <${process.env.SMTP_FROM}>`,
     to: toEmail,
-    subject: "Your Admin Login OTP",
+    subject: 'Your Admin Login OTP',
     text: `Hi ${fullName},\n\nYour one-time password is: ${otpCode}\n\nIt expires in 5 minutes. Do not share it with anyone.`,
     html: `
       <div style="font-family:sans-serif;max-width:480px;margin:auto">
@@ -51,7 +51,7 @@ export async function sendContactEmail(
   fullName: string,
   email: string,
   message: string,
-  createdAt: Date,
+  createdAt: Date
 ): Promise<void> {
   await transporter.sendMail({
     from: `"Portfolio Contact" <${process.env.SMTP_FROM}>`, // was: process.env.Seed

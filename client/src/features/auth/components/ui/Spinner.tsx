@@ -1,9 +1,9 @@
-import { cn } from "@/shared/utils/cn";
+import { cn } from '@/shared/utils/cn';
 
 export function Spinner() {
   return (
     <svg
-      className={cn("animate-spin h-4 w-4 shrink-0")}
+      className={cn('animate-spin h-4 w-4 shrink-0')}
       xmlns="http://www.w3.org/2000/svg"
       fill="none"
       viewBox="0 0 24 24"

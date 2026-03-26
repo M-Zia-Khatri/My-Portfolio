@@ -1,22 +1,22 @@
-import type { Request, Response } from "express";
-import { send } from "../lib/utills/send";
-import { catchError } from "../lib/utills/catch-error";
-import prisma from "@/lib/prisma";
+import type { Request, Response } from 'express';
+import { send } from '../lib/utills/send';
+import { catchError } from '../lib/utills/catch-error';
+import prisma from '@/lib/prisma';
 import {
   CreatePortfolioDto,
   UpdatePortfolioDto,
-} from "@/lib/types/portfolio.types";
+} from '@/lib/types/portfolio.types';
 import {
   cacheRemember,
   cacheForget,
   cacheInvalidatePrefix,
   TTL,
-} from "@/lib/utills/caching";
+} from '@/lib/utills/caching';
 
 const CACHE_KEYS = {
-  all: "portfolio:list",
+  all: 'portfolio:list',
   one: (id: string) => `portfolio:${id}`,
-  prefix: "portfolio",
+  prefix: 'portfolio',
 };
 
 // ─── Helpers ────────────────────────────────────────────────────────────────
@@ -41,17 +41,17 @@ function validateCreate(body: Partial<CreatePortfolioDto>): string | null {
   const { siteName, siteRole, siteUrl, siteImageUrl, useTech, description } =
     body;
 
-  if (!siteName?.trim()) return "siteName is required";
-  if (!siteRole?.trim()) return "siteRole is required";
-  if (!siteUrl?.trim()) return "siteUrl is required";
-  if (!isValidUrl(siteUrl)) return "siteUrl must be a valid URL";
-  if (!siteImageUrl?.trim()) return "siteImageUrl is required";
-  if (!isValidUrl(siteImageUrl)) return "siteImageUrl must be a valid URL";
-  if (!description?.trim()) return "description is required";
+  if (!siteName?.trim()) return 'siteName is required';
+  if (!siteRole?.trim()) return 'siteRole is required';
+  if (!siteUrl?.trim()) return 'siteUrl is required';
+  if (!isValidUrl(siteUrl)) return 'siteUrl must be a valid URL';
+  if (!siteImageUrl?.trim()) return 'siteImageUrl is required';
+  if (!isValidUrl(siteImageUrl)) return 'siteImageUrl must be a valid URL';
+  if (!description?.trim()) return 'description is required';
   if (!Array.isArray(useTech) || useTech.length === 0)
-    return "useTech must be a non-empty array";
-  if (useTech.some((t) => typeof t !== "string" || !t.trim()))
-    return "useTech must contain non-empty strings";
+    return 'useTech must be a non-empty array';
+  if (useTech.some((t) => typeof t !== 'string' || !t.trim()))
+    return 'useTech must contain non-empty strings';
 
   return null;
 }
@@ -60,20 +60,20 @@ function validateUpdate(body: UpdatePortfolioDto): string | null {
   const { siteUrl, siteImageUrl, useTech } = body;
 
   if (siteUrl !== undefined) {
-    if (!siteUrl.trim()) return "siteUrl must not be empty";
-    if (!isValidUrl(siteUrl)) return "siteUrl must be a valid URL";
+    if (!siteUrl.trim()) return 'siteUrl must not be empty';
+    if (!isValidUrl(siteUrl)) return 'siteUrl must be a valid URL';
   }
 
   if (siteImageUrl !== undefined) {
-    if (!siteImageUrl.trim()) return "siteImageUrl must not be empty";
-    if (!isValidUrl(siteImageUrl)) return "siteImageUrl must be a valid URL";
+    if (!siteImageUrl.trim()) return 'siteImageUrl must not be empty';
+    if (!isValidUrl(siteImageUrl)) return 'siteImageUrl must be a valid URL';
   }
 
   if (useTech !== undefined) {
     if (!Array.isArray(useTech) || useTech.length === 0)
-      return "useTech must be a non-empty array";
-    if (useTech.some((t) => typeof t !== "string" || !t.trim()))
-      return "useTech must contain non-empty strings";
+      return 'useTech must be a non-empty array';
+    if (useTech.some((t) => typeof t !== 'string' || !t.trim()))
+      return 'useTech must contain non-empty strings';
   }
 
   return null;
@@ -83,7 +83,7 @@ function validateUpdate(body: UpdatePortfolioDto): string | null {
 
 export async function getAllPortfolioItems(
   _req: Request,
-  res: Response,
+  res: Response
 ): Promise<void> {
   try {
     const items = await cacheRemember(CACHE_KEYS.all, {
@@ -91,14 +91,14 @@ export async function getAllPortfolioItems(
       staleTtl: TTL.ONE_WEEK,
       callback: () =>
         prisma.portfolio_item.findMany({
-          orderBy: { created_at: "desc" },
+          orderBy: { created_at: 'desc' },
         }),
     });
 
     send(res, {
       success: true,
       status: 200,
-      message: "Portfolio items retrieved successfully",
+      message: 'Portfolio items retrieved successfully',
       data: items.map(parseItem),
       meta: { total: items.length },
     });
@@ -111,7 +111,7 @@ export async function getAllPortfolioItems(
 
 export async function getPortfolioItemById(
   req: Request,
-  res: Response,
+  res: Response
 ): Promise<void> {
   try {
     const { id } = req.params;
@@ -126,7 +126,7 @@ export async function getPortfolioItemById(
       send(res, {
         success: false,
         status: 404,
-        message: "Portfolio item not found",
+        message: 'Portfolio item not found',
         error: { detail: `No item with id "${id}"` },
       });
       return;
@@ -135,7 +135,7 @@ export async function getPortfolioItemById(
     send(res, {
       success: true,
       status: 200,
-      message: "Portfolio item retrieved successfully",
+      message: 'Portfolio item retrieved successfully',
       data: parseItem(item),
     });
   } catch (err) {
@@ -147,7 +147,7 @@ export async function getPortfolioItemById(
 
 export async function createPortfolioItem(
   req: Request,
-  res: Response,
+  res: Response
 ): Promise<void> {
   try {
     const body = req.body as Partial<CreatePortfolioDto>;
@@ -157,7 +157,7 @@ export async function createPortfolioItem(
       send(res, {
         success: false,
         status: 400,
-        message: "Validation error",
+        message: 'Validation error',
         error: { detail: validationError },
       });
       return;
@@ -182,7 +182,7 @@ export async function createPortfolioItem(
     send(res, {
       success: true,
       status: 201,
-      message: "Portfolio item created successfully",
+      message: 'Portfolio item created successfully',
       data: parseItem(newItem),
     });
   } catch (err) {
@@ -194,7 +194,7 @@ export async function createPortfolioItem(
 
 export async function updatePortfolioItem(
   req: Request,
-  res: Response,
+  res: Response
 ): Promise<void> {
   try {
     const { id } = req.params;
@@ -205,7 +205,7 @@ export async function updatePortfolioItem(
       send(res, {
         success: false,
         status: 404,
-        message: "Portfolio item not found",
+        message: 'Portfolio item not found',
         error: { detail: `No item with id "${id}"` },
       });
       return;
@@ -216,7 +216,7 @@ export async function updatePortfolioItem(
       send(res, {
         success: false,
         status: 400,
-        message: "Validation error",
+        message: 'Validation error',
         error: { detail: validationError },
       });
       return;
@@ -245,7 +245,7 @@ export async function updatePortfolioItem(
     send(res, {
       success: true,
       status: 200,
-      message: "Portfolio item updated successfully",
+      message: 'Portfolio item updated successfully',
       data: parseItem(updatedItem),
     });
   } catch (err) {
@@ -257,7 +257,7 @@ export async function updatePortfolioItem(
 
 export async function deletePortfolioItem(
   req: Request,
-  res: Response,
+  res: Response
 ): Promise<void> {
   try {
     const { id } = req.params;
@@ -267,7 +267,7 @@ export async function deletePortfolioItem(
       send(res, {
         success: false,
         status: 404,
-        message: "Portfolio item not found",
+        message: 'Portfolio item not found',
         error: { detail: `No item with id "${id}"` },
       });
       return;
@@ -276,14 +276,14 @@ export async function deletePortfolioItem(
     await prisma.portfolio_item.delete({ where: { id } });
 
     await Promise.all([
-  cacheForget(CACHE_KEYS.one(id)),
-  cacheInvalidatePrefix(CACHE_KEYS.prefix),
-])
+      cacheForget(CACHE_KEYS.one(id)),
+      cacheInvalidatePrefix(CACHE_KEYS.prefix),
+    ]);
 
     send(res, {
       success: true,
       status: 200,
-      message: "Portfolio item deleted successfully",
+      message: 'Portfolio item deleted successfully',
     });
   } catch (err) {
     catchError(res, err);

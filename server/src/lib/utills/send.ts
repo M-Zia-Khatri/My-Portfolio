@@ -1,6 +1,6 @@
-import type { Response } from "express"
-import { ApiResponse } from "../types/globle.types"
+import type { Response } from 'express';
+import { ApiResponse } from '../types/globle.types';
 
 export function send<T>(res: Response, payload: ApiResponse<T>): void {
-  res.status(payload.status).json(payload)
+  res.status(payload.status).json(payload);
 }

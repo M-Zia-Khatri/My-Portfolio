@@ -1,9 +1,9 @@
-import { motion } from "motion/react";
-import { Flex, Heading } from "@radix-ui/themes";
-import SecComponent from "@/shared/components/SecContainer";
-import { HEADING } from "@/shared/constants/style.constants";
-import ContactForm from "../../contact/ContactForm";
-import ContactCodeCard from "../../contact/ContactCodeCard";
+import { motion } from 'motion/react';
+import { Flex, Heading } from '@radix-ui/themes';
+import SecComponent from '@/shared/components/SecContainer';
+import { HEADING } from '@/shared/constants/style.constants';
+import ContactForm from '../../contact/ContactForm';
+import ContactCodeCard from '../../contact/ContactCodeCard';
 
 export default function ContactSection() {
   return (
@@ -19,7 +19,7 @@ export default function ContactSection() {
             initial={{ opacity: 0, y: 24 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
-            transition={{ duration: 0.5, ease: "easeOut" }}
+            transition={{ duration: 0.5, ease: 'easeOut' }}
           >
             <ContactForm />
           </motion.div>
@@ -29,7 +29,7 @@ export default function ContactSection() {
             initial={{ opacity: 0, y: 24 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
-            transition={{ duration: 0.5, delay: 0.1, ease: "easeOut" }}
+            transition={{ duration: 0.5, delay: 0.1, ease: 'easeOut' }}
             className="flex flex-col justify-center"
             style={{ perspective: 900 }}
           >

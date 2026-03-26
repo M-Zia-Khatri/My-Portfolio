@@ -184,7 +184,7 @@ jobs:
           echo "- SSH to server and run docker-compose pull && docker-compose up -d"
           echo "- Deploy to Kubernetes cluster"
           echo "- Deploy to cloud platform (AWS, GCP, Azure, etc.)"
-          
+
       # Example: Deploy via SSH (uncomment and configure)
       # - name: Deploy to server via SSH
       #   uses: appleboy/ssh-action@master

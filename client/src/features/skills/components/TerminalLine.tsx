@@ -1,6 +1,6 @@
-import { memo } from "react";
-import { motion } from "motion/react";
-import type { TerminalLine as TLine } from "../types";
+import { memo } from 'react';
+import { motion } from 'motion/react';
+import type { TerminalLine as TLine } from '../types';
 
 interface TerminalLineProps {
   line: TLine;
@@ -29,24 +29,24 @@ const TerminalLine = memo(function TerminalLine({
       animate={{ opacity: 1, x: 0 }}
       transition={{ duration: 0.1 }}
       className="flex items-start"
-      style={{ minHeight: "1.6rem", fontFamily: "inherit" }}
+      style={{ minHeight: '1.6rem', fontFamily: 'inherit' }}
     >
-      {line.kind === "blank" ? (
+      {line.kind === 'blank' ? (
         // Empty spacer — just reserves the row height
         <span className="leading-[1.6rem]">&nbsp;</span>
-      ) : line.kind === "comment" ? (
+      ) : line.kind === 'comment' ? (
         // Dimmed # comment
         <span
           className="text-[12.5px] leading-[1.6rem] whitespace-pre tracking-tight select-none"
-          style={{ color: "rgba(255,255,255,0.28)" }}
+          style={{ color: 'rgba(255,255,255,0.28)' }}
         >
           {line.text}
         </span>
-      ) : line.kind === "output" ? (
+      ) : line.kind === 'output' ? (
         // Output line — slightly dimmer, no prompt
         <span
           className="text-[12.5px] leading-[1.6rem] whitespace-pre tracking-tight pl-4"
-          style={{ color: "rgba(255,255,255,0.55)" }}
+          style={{ color: 'rgba(255,255,255,0.55)' }}
         >
           {line.text}
         </span>
@@ -54,12 +54,15 @@ const TerminalLine = memo(function TerminalLine({
         // Command line with $ prompt
         <span className="flex items-center gap-0 text-[12.5px] leading-[1.6rem] whitespace-pre tracking-tight">
           {/* Prompt */}
-          <span style={{ color: color }} className="select-none mr-1.5 font-bold">
+          <span
+            style={{ color: color }}
+            className="select-none mr-1.5 font-bold"
+          >
             $
           </span>
           {/* Command text — partial while typing, full when done */}
-          <span style={{ color: "#e2e8f0" }}>
-            {isActive ? partial ?? "" : line.text}
+          <span style={{ color: '#e2e8f0' }}>
+            {isActive ? (partial ?? '') : line.text}
           </span>
           {/* Blinking block cursor on the active command */}
           {isActive && (
@@ -68,7 +71,7 @@ const TerminalLine = memo(function TerminalLine({
               style={{
                 background: color,
                 opacity: cursor ? 1 : 0,
-                transition: "opacity 0.08s",
+                transition: 'opacity 0.08s',
               }}
             />
           )}

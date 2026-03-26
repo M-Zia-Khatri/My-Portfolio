@@ -1,8 +1,8 @@
-import { memo, useEffect, useMemo, useRef, useState } from "react";
-import { motion } from "motion/react";
-import gsap from "gsap";
-import type { TerminalLine as TLine } from "../types";
-import TerminalLine from "./TerminalLine";
+import { memo, useEffect, useMemo, useRef, useState } from 'react';
+import { motion } from 'motion/react';
+import gsap from 'gsap';
+import type { TerminalLine as TLine } from '../types';
+import TerminalLine from './TerminalLine';
 
 interface TerminalViewProps {
   skillName: string;
@@ -11,7 +11,7 @@ interface TerminalViewProps {
 }
 
 interface Block {
-  command: TLine & { kind: "command" };
+  command: TLine & { kind: 'command' };
   outputs: TLine[];
 }
 
@@ -24,7 +24,11 @@ interface DisplayState {
 }
 
 const INIT_STATE: DisplayState = {
-  doneBlocks: [], activeCommand: "", activeOutputs: [], activeBlock: null, done: false,
+  doneBlocks: [],
+  activeCommand: '',
+  activeOutputs: [],
+  activeBlock: null,
+  done: false,
 };
 
 function buildBlocks(commands: TLine[]): Block[] {
@@ -32,14 +36,14 @@ function buildBlocks(commands: TLine[]): Block[] {
   let i = 0;
   while (i < commands.length) {
     const line = commands[i];
-    if (line.kind === "command") {
+    if (line.kind === 'command') {
       const outputs: TLine[] = [];
       i++;
-      while (i < commands.length && commands[i].kind !== "command") {
+      while (i < commands.length && commands[i].kind !== 'command') {
         outputs.push(commands[i]);
         i++;
       }
-      blocks.push({ command: line as TLine & { kind: "command" }, outputs });
+      blocks.push({ command: line as TLine & { kind: 'command' }, outputs });
     } else {
       i++;
     }
@@ -49,20 +53,43 @@ function buildBlocks(commands: TLine[]): Block[] {
 
 // ─── Memoized done-block row (never re-renders once committed) ────────────────
 const DoneBlock = memo(function DoneBlock({
-  block, bi, color,
-}: { block: Block; bi: number; color: string }) {
+  block,
+  bi,
+  color,
+}: {
+  block: Block;
+  bi: number;
+  color: string;
+}) {
   return (
     <div>
-      <TerminalLine line={block.command} isActive={false} cursor={false} color={color} index={bi} />
+      <TerminalLine
+        line={block.command}
+        isActive={false}
+        cursor={false}
+        color={color}
+        index={bi}
+      />
       {block.outputs.map((out, oi) => (
-        <TerminalLine key={oi} line={out} isActive={false} cursor={false} color={color} index={oi} />
+        <TerminalLine
+          key={oi}
+          line={out}
+          isActive={false}
+          cursor={false}
+          color={color}
+          index={oi}
+        />
       ))}
     </div>
   );
 });
 
 // ─── TerminalView ─────────────────────────────────────────────────────────────
-export default function TerminalView({ skillName, commands, color }: TerminalViewProps) {
+export default function TerminalView({
+  skillName,
+  commands,
+  color,
+}: TerminalViewProps) {
   const [state, setState] = useState<DisplayState>(INIT_STATE);
   const [cursor, setCursor] = useState(true);
   const tlRef = useRef<gsap.core.Timeline | null>(null);
@@ -80,9 +107,15 @@ export default function TerminalView({ skillName, commands, color }: TerminalVie
   // scrollRef points to the content div; the scrollable container is its
   // .content-scrollbar ancestor in CodeCard.
   useEffect(() => {
-    const el = scrollRef.current?.closest(".content-scrollbar") as HTMLElement | null;
+    const el = scrollRef.current?.closest(
+      '.content-scrollbar'
+    ) as HTMLElement | null;
     if (el) el.scrollTop = el.scrollHeight;
-  }, [state.doneBlocks.length, state.activeOutputs.length, state.activeCommand]);
+  }, [
+    state.doneBlocks.length,
+    state.activeOutputs.length,
+    state.activeCommand,
+  ]);
 
   // ── Single-tween GSAP typewriter (O(1) tweens instead of O(N chars)) ────────
   useEffect(() => {
@@ -98,14 +131,26 @@ export default function TerminalView({ skillName, commands, color }: TerminalVie
       const cmdText = block.command.text;
 
       // Activate block
-      events.push({ time: t, fn: () => setState((p) => ({ ...p, activeBlock: block, activeCommand: "", activeOutputs: [] })) });
+      events.push({
+        time: t,
+        fn: () =>
+          setState((p) => ({
+            ...p,
+            activeBlock: block,
+            activeCommand: '',
+            activeOutputs: [],
+          })),
+      });
 
       // Type each character — accumulate timing, record ONE event per char
       for (let ci = 1; ci <= cmdText.length; ci++) {
         const ch = cmdText[ci - 1];
-        t += ch === " " ? 0.022 : 0.032 + Math.random() * 0.028;
+        t += ch === ' ' ? 0.022 : 0.032 + Math.random() * 0.028;
         const snap = cmdText.slice(0, ci);
-        events.push({ time: t, fn: () => setState((p) => ({ ...p, activeCommand: snap })) });
+        events.push({
+          time: t,
+          fn: () => setState((p) => ({ ...p, activeCommand: snap })),
+        });
       }
 
       // Enter pause, then reveal outputs
@@ -114,22 +159,27 @@ export default function TerminalView({ skillName, commands, color }: TerminalVie
         const snapOi = oi + 1;
         events.push({
           time: t,
-          fn: () => setState((p) => ({ ...p, activeOutputs: block.outputs.slice(0, snapOi) })),
+          fn: () =>
+            setState((p) => ({
+              ...p,
+              activeOutputs: block.outputs.slice(0, snapOi),
+            })),
         });
-        t += outLine.kind === "blank" ? 0.06 : 0.055;
+        t += outLine.kind === 'blank' ? 0.06 : 0.055;
       });
 
       // Commit block to done
       t += 0.22;
       events.push({
         time: t,
-        fn: () => setState((p) => ({
-          ...p,
-          doneBlocks: [...p.doneBlocks, block],
-          activeBlock: null,
-          activeCommand: "",
-          activeOutputs: [],
-        })),
+        fn: () =>
+          setState((p) => ({
+            ...p,
+            doneBlocks: [...p.doneBlocks, block],
+            activeBlock: null,
+            activeCommand: '',
+            activeOutputs: [],
+          })),
       });
 
       if (bi < blocks.length - 1) t += 0.35;
@@ -152,7 +202,7 @@ export default function TerminalView({ skillName, commands, color }: TerminalVie
     tl.to(progress, {
       value: totalDuration,
       duration: totalDuration,
-      ease: "none",
+      ease: 'none',
       onUpdate() {
         const now = progress.value;
         while (nextEvent < events.length && events[nextEvent].time <= now) {
@@ -169,7 +219,9 @@ export default function TerminalView({ skillName, commands, color }: TerminalVie
       },
     });
 
-    return () => { tl.kill(); };
+    return () => {
+      tl.kill();
+    };
   }, [skillName, blocks]);
 
   const { doneBlocks, activeBlock, activeCommand, activeOutputs, done } = state;
@@ -201,7 +253,14 @@ export default function TerminalView({ skillName, commands, color }: TerminalVie
             index={doneBlocks.length}
           />
           {activeOutputs.map((out, oi) => (
-            <TerminalLine key={oi} line={out} isActive={false} cursor={false} color={color} index={oi} />
+            <TerminalLine
+              key={oi}
+              line={out}
+              isActive={false}
+              cursor={false}
+              color={color}
+              index={oi}
+            />
           ))}
         </div>
       )}
@@ -212,12 +271,21 @@ export default function TerminalView({ skillName, commands, color }: TerminalVie
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           className="flex items-center"
-          style={{ minHeight: "1.6rem" }}
+          style={{ minHeight: '1.6rem' }}
         >
-          <span style={{ color }} className="text-[12.5px] font-bold mr-1.5 select-none">$</span>
+          <span
+            style={{ color }}
+            className="text-[12.5px] font-bold mr-1.5 select-none"
+          >
+            $
+          </span>
           <span
             className="inline-block w-[2px] h-[13px] align-middle"
-            style={{ background: color, opacity: cursor ? 1 : 0, transition: "opacity 0.08s" }}
+            style={{
+              background: color,
+              opacity: cursor ? 1 : 0,
+              transition: 'opacity 0.08s',
+            }}
           />
         </motion.div>
       )}

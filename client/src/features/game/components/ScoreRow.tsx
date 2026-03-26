@@ -1,6 +1,6 @@
-import { memo, useEffect, useRef } from "react";
-import { Badge, Table, Text } from "@radix-ui/themes";
-import type { ScoreRecord } from "../store/GameSetStore";
+import { memo, useEffect, useRef } from 'react';
+import { Badge, Table, Text } from '@radix-ui/themes';
+import type { ScoreRecord } from '../store/GameSetStore';
 
 interface ScoreRowProps {
   record: ScoreRecord;
@@ -32,13 +32,17 @@ function ScoreRow({
     <Table.Row
       style={{
         background:
-          record.result === "win"
-            ? "color-mix(in srgb, var(--green-a3) 60%, transparent)"
-            : "color-mix(in srgb, var(--red-a3) 60%, transparent)",
+          record.result === 'win'
+            ? 'color-mix(in srgb, var(--green-a3) 60%, transparent)'
+            : 'color-mix(in srgb, var(--red-a3) 60%, transparent)',
       }}
     >
       <Table.Cell>
-        <Text size="1" className="font-mono" style={{ color: "var(--gray-10)" }}>
+        <Text
+          size="1"
+          className="font-mono"
+          style={{ color: 'var(--gray-10)' }}
+        >
           {idx + 1}
         </Text>
       </Table.Cell>
@@ -54,27 +58,31 @@ function ScoreRow({
               else onCancel();
             }}
             onKeyDown={(e) => {
-              if (e.key === "Enter") onSave(e.currentTarget.value.trim());
-              if (e.key === "Escape") onCancel();
+              if (e.key === 'Enter') onSave(e.currentTarget.value.trim());
+              if (e.key === 'Escape') onCancel();
             }}
             className="w-full max-w-[120px] rounded px-2 py-0.5 text-xs text-center"
             style={{
-              background: "var(--gray-3)",
-              border: "1px solid var(--blue-7)",
-              color: "var(--gray-12)",
-              outline: "none",
+              background: 'var(--gray-3)',
+              border: '1px solid var(--blue-7)',
+              color: 'var(--gray-12)',
+              outline: 'none',
             }}
           />
         ) : (
           <Text
             size="1"
             weight="medium"
-            style={{ color: "var(--blue-11)", cursor: "pointer" }}
+            style={{ color: 'var(--blue-11)', cursor: 'pointer' }}
             onDoubleClick={onEdit}
             title="Double-click to edit name"
           >
             {record.name || (
-              <Text size="1" className="italic" style={{ color: "var(--gray-9)" }}>
+              <Text
+                size="1"
+                className="italic"
+                style={{ color: 'var(--gray-9)' }}
+              >
                 —
               </Text>
             )}
@@ -83,14 +91,14 @@ function ScoreRow({
       </Table.Cell>
 
       <Table.Cell>
-        <Text size="1" weight="bold" style={{ color: "var(--gray-12)" }}>
+        <Text size="1" weight="bold" style={{ color: 'var(--gray-12)' }}>
           {Math.round(record.score)}
         </Text>
       </Table.Cell>
 
       <Table.Cell>
         <Badge
-          color={record.result === "win" ? "green" : "red"}
+          color={record.result === 'win' ? 'green' : 'red'}
           variant="soft"
           radius="full"
           size="1"
@@ -100,7 +108,11 @@ function ScoreRow({
       </Table.Cell>
 
       <Table.Cell>
-        <Text size="1" className="font-mono" style={{ color: "var(--gray-10)" }}>
+        <Text
+          size="1"
+          className="font-mono"
+          style={{ color: 'var(--gray-10)' }}
+        >
           {record.difficultLevel}
         </Text>
       </Table.Cell>

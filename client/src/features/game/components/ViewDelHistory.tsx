@@ -1,6 +1,6 @@
-import { AlertDialog, Button, Flex } from "@radix-ui/themes";
-import useGameSet from "../store/GameSetStore";
-import { useGuessNum } from "../context/GuessNumContext";
+import { AlertDialog, Button, Flex } from '@radix-ui/themes';
+import useGameSet from '../store/GameSetStore';
+import { useGuessNum } from '../context/GuessNumContext';
 
 export default function ViewDelHistory() {
   const { scoreHistory } = useGameSet();
@@ -8,7 +8,10 @@ export default function ViewDelHistory() {
 
   if (scoreHistory.length === 0) {
     return (
-      <p className="text-center italic text-sm" style={{ color: "var(--gray-10)" }}>
+      <p
+        className="text-center italic text-sm"
+        style={{ color: 'var(--gray-10)' }}
+      >
         No history available.
       </p>
     );
@@ -27,16 +30,16 @@ export default function ViewDelHistory() {
         <AlertDialog.Content
           maxWidth="420px"
           style={{
-            background: "var(--gray-2)",
-            border: "1px solid var(--gray-5)",
+            background: 'var(--gray-2)',
+            border: '1px solid var(--gray-5)',
           }}
         >
-          <AlertDialog.Title style={{ color: "var(--gray-12)" }}>
+          <AlertDialog.Title style={{ color: 'var(--gray-12)' }}>
             Delete all history?
           </AlertDialog.Title>
-          <AlertDialog.Description style={{ color: "var(--gray-11)" }}>
-            This will permanently delete all game history. This action cannot
-            be undone.
+          <AlertDialog.Description style={{ color: 'var(--gray-11)' }}>
+            This will permanently delete all game history. This action cannot be
+            undone.
           </AlertDialog.Description>
 
           <Flex gap="3" justify="end" mt="4">
@@ -46,7 +49,11 @@ export default function ViewDelHistory() {
               </Button>
             </AlertDialog.Cancel>
             <AlertDialog.Action>
-              <Button variant="solid" color="red" onClick={clearAndReloadHistory}>
+              <Button
+                variant="solid"
+                color="red"
+                onClick={clearAndReloadHistory}
+              >
                 Yes, Delete
               </Button>
             </AlertDialog.Action>

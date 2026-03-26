@@ -16,11 +16,11 @@
  *  Bridge        → AuthProvider (this file)
  */
 
-import { useEffect } from "react";
-import { useQueryClient } from "@tanstack/react-query";
-import { api } from "@/shared/api/axios";
-import { useMe } from "../hooks/useMe";
-import { setQueryClient, useAuthStore } from "@/shared/store/useAuthStore";
+import { useEffect } from 'react';
+import { useQueryClient } from '@tanstack/react-query';
+import { api } from '@/shared/api/axios';
+import { useMe } from '../hooks/useMe';
+import { setQueryClient, useAuthStore } from '@/shared/store/useAuthStore';
 
 // ─── Logout API ───────────────────────────────────────────────────────────────
 
@@ -30,7 +30,7 @@ import { setQueryClient, useAuthStore } from "@/shared/store/useAuthStore";
  * Always call this BEFORE store.logout() so the cookie is gone first.
  */
 export const logoutApi = async (): Promise<void> => {
-  await api.post("/auth/logout");
+  await api.post('/auth/logout');
 };
 
 // ─── Provider ─────────────────────────────────────────────────────────────────
@@ -56,10 +56,12 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
     if (isSuccess && user) {
       setUser(user);
-    } else {
-      // /me failed or returned nothing — user is not authenticated
+    }
+    if (isError) {
       setUser(null);
     }
+
+    setLoading(false);
   }, [user, isLoading, isSuccess, isError, setUser, setLoading]);
 
   return <>{children}</>;
@@ -73,4 +75,4 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
  * @example
  * const { user, isAuthenticated, logout, hasRole } = useAuth()
  */
-export { useAuthStore as useAuth } from "@/shared/store/useAuthStore";
+export { useAuthStore as useAuth } from '@/shared/store/useAuthStore';

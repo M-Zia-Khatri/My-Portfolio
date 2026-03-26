@@ -4,11 +4,11 @@
  * File placement: src/app/App.tsx
  */
 
-import { RouterProvider } from "react-router";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { Theme } from "@radix-ui/themes";
-import { AppRouter } from "./routes/router";
-import { AuthProvider } from "@/features/auth/context/AuthContext";
+import { RouterProvider } from 'react-router';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { Theme } from '@radix-ui/themes';
+import { AppRouter } from './routes/router';
+import { AuthProvider } from '@/features/auth/context/AuthContext';
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -20,7 +20,6 @@ const queryClient = new QueryClient({
 });
 
 export default function App() {
-  
   return (
     <QueryClientProvider client={queryClient}>
       <Theme

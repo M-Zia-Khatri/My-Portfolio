@@ -1,26 +1,23 @@
-import { TextLoop } from "@/shared/components/motion-primitives/text-loop.tsx";
-import { cn } from "@/shared/utils/cn.ts"
-import BgScene from "./BgScene";
+import { TextLoop } from '@/shared/components/motion-primitives/text-loop.tsx';
+import { cn } from '@/shared/utils/cn.ts';
+import BgScene from './BgScene';
 
-const headingBaseStyling = 'font-black uppercase text-8xl/24 text-white w-full drop-shadow-[0_0_2.5px_color-mix(in_srgb,var(--blue-10)_80%,transparent),0_0_5px_color-mix(in_srgb,var(--blue-10)_90%,transparent)]'
+const headingBaseStyling = cn(
+  'font-black uppercase text-8xl/24 text-white w-full drop-shadow-[0_0_2.5px_color-mix(in_srgb,var(--blue-10)_80%,transparent),0_0_5px_color-mix(in_srgb,var(--blue-10)_90%,transparent)]'
+);
 
 export default function HeroSection() {
-
   return (
-    <div className='z-10 flex h-full w-full flex-col items-center justify-center text-center mt-23'>
-      <div className='absolute inset-0 left-0 -z-100 h-dvh w-screen bg-linear-to-t from-transparent to-(--blue-4)/50' />
+    <div className="z-10 flex h-full w-full flex-col items-center justify-center text-center mt-23">
+      <div className="absolute inset-0 left-0 -z-100 h-dvh w-screen bg-linear-to-t from-transparent to-(--blue-4)/50" />
       <BgScene />
 
       <div className={cn('relative z-20 w-full', 'space-y-6')}>
-        <h1 className={cn(headingBaseStyling)}>
-          BUILDING
-        </h1>
-        <h1 className={cn(headingBaseStyling)}>
-          MODERN WEB
-        </h1>
+        <h1 className={headingBaseStyling}>BUILDING</h1>
+        <h1 className={headingBaseStyling}>MODERN WEB</h1>
 
         <TextLoop
-          className='overflow-y-clip'
+          className="overflow-y-clip"
           transition={{
             type: 'spring',
             stiffness: 900,

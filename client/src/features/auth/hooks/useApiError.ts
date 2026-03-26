@@ -1,7 +1,7 @@
-import { useState, useCallback } from "react";
+import { useState, useCallback } from 'react';
 
 export function useApiError() {
-  const [error, setError] = useState("");
+  const [error, setError] = useState('');
 
   const handleError = useCallback((err: unknown, fallback: string) => {
     const axiosErr = err as {
@@ -9,11 +9,11 @@ export function useApiError() {
       message?: string;
     };
     setError(
-      axiosErr?.response?.data?.message ?? axiosErr?.message ?? fallback,
+      axiosErr?.response?.data?.message ?? axiosErr?.message ?? fallback
     );
   }, []);
 
-  const clearError = useCallback(() => setError(""), []);
+  const clearError = useCallback(() => setError(''), []);
 
   return { error, setError, handleError, clearError };
 }

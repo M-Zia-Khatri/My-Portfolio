@@ -1,23 +1,29 @@
-import { Badge, Flex, Text, AspectRatio, Heading } from "@radix-ui/themes";
-import { motion, useMotionValue, useTransform, animate, type Variants } from "motion/react";
-import { useRef, useState, useEffect, useCallback } from "react";
-import type { PortfolioItem } from "../types";
-import { BorderTrail } from "@/shared/components/motion-primitives/border-trail";
-import { cn } from "@/shared/utils/cn";
-import { HEADING, TEXT } from "@/shared/constants/style.constants";
-import { ArrowUpRight } from "lucide-react";
-import gsap from "gsap";
+import { Badge, Flex, Text, AspectRatio, Heading } from '@radix-ui/themes';
+import {
+  motion,
+  useMotionValue,
+  useTransform,
+  animate,
+  type Variants,
+} from 'motion/react';
+import { useRef, useState, useEffect, useCallback } from 'react';
+import type { PortfolioItem } from '../types';
+import { BorderTrail } from '@/shared/components/motion-primitives/border-trail';
+import { cn } from '@/shared/utils/cn';
+import { HEADING, TEXT } from '@/shared/constants/style.constants';
+import { ArrowUpRight } from 'lucide-react';
+import gsap from 'gsap';
 
 interface PortfolioItemCardProps {
   item: PortfolioItem;
 }
 
 const backItemVariants: Variants = {
-  hidden: { opacity: 0, y: 10, filter: "blur(4px)" },
+  hidden: { opacity: 0, y: 10, filter: 'blur(4px)' },
   visible: (i: number) => ({
     opacity: 1,
     y: 0,
-    filter: "blur(0px)",
+    filter: 'blur(0px)',
     transition: {
       delay: 0.18 + i * 0.08,
       duration: 0.45,
@@ -51,26 +57,41 @@ export function PortfolioItemCard({ item }: PortfolioItemCardProps) {
     baseTweenRef.current = gsap.to(base, {
       opacity: 0.18,
       duration: 2.5,
-      ease: "sine.inOut",
+      ease: 'sine.inOut',
       yoyo: true,
       repeat: -1,
     });
 
     // Shine sweep — starts paused, only plays when card is flipped
-    shineTlRef.current = gsap.timeline({ repeat: -1, repeatDelay: 3, paused: true })
+    shineTlRef.current = gsap
+      .timeline({ repeat: -1, repeatDelay: 3, paused: true })
       .fromTo(
         trail,
-        { backgroundPosition: "-180% -180%", opacity: 0 },
-        { backgroundPosition: "280% 280%", opacity: 1, duration: 3.6, ease: "none" },
+        { backgroundPosition: '-180% -180%', opacity: 0 },
+        {
+          backgroundPosition: '280% 280%',
+          opacity: 1,
+          duration: 3.6,
+          ease: 'none',
+        },
         0
       )
       .fromTo(
         lead,
-        { backgroundPosition: "-150% -150%", opacity: 0 },
-        { backgroundPosition: "250% 250%", opacity: 1, duration: 3, ease: "none" },
+        { backgroundPosition: '-150% -150%', opacity: 0 },
+        {
+          backgroundPosition: '250% 250%',
+          opacity: 1,
+          duration: 3,
+          ease: 'none',
+        },
         0.25
       )
-      .to([lead, trail], { opacity: 0, duration: 0.4, ease: "power2.in" }, "-=0.5");
+      .to(
+        [lead, trail],
+        { opacity: 0, duration: 0.4, ease: 'power2.in' },
+        '-=0.5'
+      );
 
     return () => {
       shineTlRef.current?.kill();
@@ -88,8 +109,16 @@ export function PortfolioItemCard({ item }: PortfolioItemCardProps) {
   }, [flipped]);
 
   // ── Flip ────────────────────────────────────────────────────
-  const frontOpacity = useTransform(rotateY, [0, 89, 90, 91, 180], [1, 1, 0, 0, 0]);
-  const backOpacity = useTransform(rotateY, [0, 89, 90, 91, 180], [0, 0, 0, 1, 1]);
+  const frontOpacity = useTransform(
+    rotateY,
+    [0, 89, 90, 91, 180],
+    [1, 1, 0, 0, 0]
+  );
+  const backOpacity = useTransform(
+    rotateY,
+    [0, 89, 90, 91, 180],
+    [0, 0, 0, 1, 1]
+  );
   const frontTransform = useTransform(rotateY, (v) => `rotateY(${v}deg)`);
   const backTransform = useTransform(rotateY, (v) => `rotateY(${v + 180}deg)`);
 
@@ -101,26 +130,33 @@ export function PortfolioItemCard({ item }: PortfolioItemCardProps) {
   const imgX = useTransform(mouseX, [-0.5, 0.5], [10, -10]);
   const imgY = useTransform(mouseY, [-0.5, 0.5], [10, -10]);
 
-  const handleMouseMove = useCallback((e: React.MouseEvent<HTMLDivElement>) => {
-    const rect = e.currentTarget.getBoundingClientRect();
-    mouseX.set((e.clientX - rect.left) / rect.width - 0.5);
-    mouseY.set((e.clientY - rect.top) / rect.height - 0.5);
-  }, [mouseX, mouseY]);
+  const handleMouseMove = useCallback(
+    (e: React.MouseEvent<HTMLDivElement>) => {
+      const rect = e.currentTarget.getBoundingClientRect();
+      mouseX.set((e.clientX - rect.left) / rect.width - 0.5);
+      mouseY.set((e.clientY - rect.top) / rect.height - 0.5);
+    },
+    [mouseX, mouseY]
+  );
 
   const handleMouseLeave = useCallback(() => {
-    animate(mouseX, 0, { type: "spring", stiffness: 180, damping: 22 });
-    animate(mouseY, 0, { type: "spring", stiffness: 180, damping: 22 });
+    animate(mouseX, 0, { type: 'spring', stiffness: 180, damping: 22 });
+    animate(mouseY, 0, { type: 'spring', stiffness: 180, damping: 22 });
   }, [mouseX, mouseY]);
 
   const flip = useCallback(() => {
     const next = !isFlipped.current;
     isFlipped.current = next;
     setFlipped(next);
-    animate(rotateY, next ? 180 : 0, { type: "spring", stiffness: 70, damping: 15 });
+    animate(rotateY, next ? 180 : 0, {
+      type: 'spring',
+      stiffness: 70,
+      damping: 15,
+    });
   }, [rotateY]);
 
   const faceBase =
-    "absolute inset-0 flex flex-col [backface-visibility:hidden] overflow-hidden rounded-xl";
+    'absolute inset-0 flex flex-col [backface-visibility:hidden] overflow-hidden rounded-xl';
 
   return (
     <motion.div
@@ -130,42 +166,55 @@ export function PortfolioItemCard({ item }: PortfolioItemCardProps) {
       onMouseLeave={handleMouseLeave}
       initial="idle"
       whileHover="hovered"
-      whileTap={{ scale: 0.975, transition: { type: "spring", stiffness: 400, damping: 20 } }}
+      whileTap={{
+        scale: 0.975,
+        transition: { type: 'spring', stiffness: 400, damping: 20 },
+      }}
       style={{
         rotateX: tiltX,
         rotateY: tiltY,
-        transformStyle: "preserve-3d",
-        willChange: "transform",
+        transformStyle: 'preserve-3d',
+        willChange: 'transform',
       }}
       variants={{
         idle: { y: 0 },
-        hovered: { y: -7, transition: { type: "spring", stiffness: 280, damping: 22 } },
+        hovered: {
+          y: -7,
+          transition: { type: 'spring', stiffness: 280, damping: 22 },
+        },
       }}
     >
       <AspectRatio ratio={16 / 9}>
         <div className="relative w-full h-full transform-3d">
-
           {/* ── FRONT ── */}
           <motion.div
             className={cn(faceBase)}
-            style={{ transform: frontTransform, opacity: frontOpacity, willChange: "transform, opacity" }}
+            style={{
+              transform: frontTransform,
+              opacity: frontOpacity,
+              willChange: 'transform, opacity',
+            }}
           >
             <motion.img
               className="absolute w-[110%] h-[110%] left-[0%] -top-[5%] object-cover"
               src={item.siteImageUrl}
               alt={item.siteName}
-              style={{ x: imgX, y: imgY, willChange: "transform" }}
+              style={{ x: imgX, y: imgY, willChange: 'transform' }}
             />
 
             <motion.div
               className="absolute inset-0 z-10 pointer-events-none"
               style={{
                 background:
-                  "linear-gradient(108deg, transparent 30%, rgba(255,255,255,0.08) 50%, transparent 70%)",
+                  'linear-gradient(108deg, transparent 30%, rgba(255,255,255,0.08) 50%, transparent 70%)',
               }}
               variants={{
-                idle: { x: "-110%", opacity: 0 },
-                hovered: { x: "110%", opacity: 1, transition: { duration: 0.7, ease: "easeInOut" } },
+                idle: { x: '-110%', opacity: 0 },
+                hovered: {
+                  x: '110%',
+                  opacity: 1,
+                  transition: { duration: 0.7, ease: 'easeInOut' },
+                },
               }}
             />
 
@@ -179,17 +228,22 @@ export function PortfolioItemCard({ item }: PortfolioItemCardProps) {
               className="absolute z-20 top-3 right-3 w-8 h-8 rounded-full border border-(--blue-12)/30 flex items-center justify-center bg-(--blue-12)/10 backdrop-blur-sm"
               variants={{
                 idle: { opacity: 0, scale: 0.75, y: -4 },
-                hovered: { opacity: 1, scale: 1, y: 0, transition: { duration: 0.22, delay: 0.04 } },
+                hovered: {
+                  opacity: 1,
+                  scale: 1,
+                  y: 0,
+                  transition: { duration: 0.22, delay: 0.04 },
+                },
               }}
               whileHover={{
                 scale: 1.18,
-                backgroundColor: "rgba(255,255,255,0.14)",
-                transition: { type: "spring", stiffness: 350, damping: 20 },
+                backgroundColor: 'rgba(255,255,255,0.14)',
+                transition: { type: 'spring', stiffness: 350, damping: 20 },
               }}
             >
               <motion.div
                 whileHover={{ rotate: 45 }}
-                transition={{ type: "spring", stiffness: 300, damping: 18 }}
+                transition={{ type: 'spring', stiffness: 300, damping: 18 }}
               >
                 <ArrowUpRight size={14} className="text-(--blue-12)/70" />
               </motion.div>
@@ -199,13 +253,24 @@ export function PortfolioItemCard({ item }: PortfolioItemCardProps) {
               className="absolute bottom-0 left-0 right-0 p-4"
               variants={{
                 idle: { y: 4, opacity: 0.85 },
-                hovered: { y: 0, opacity: 1, transition: { duration: 0.3, ease: [0.22, 1, 0.36, 1] } },
+                hovered: {
+                  y: 0,
+                  opacity: 1,
+                  transition: { duration: 0.3, ease: [0.22, 1, 0.36, 1] },
+                },
               }}
             >
-              <Heading as="h3" size={HEADING.h3.size} className="text-white font-bold leading-tight ml-2">
+              <Heading
+                as="h3"
+                size={HEADING.h3.size}
+                className="text-white font-bold leading-tight ml-2"
+              >
                 {item.siteName}
               </Heading>
-              <Badge size="3" className="inline-block text-[10px] font-semibold uppercase rounded-full mt-2">
+              <Badge
+                size="3"
+                className="inline-block text-[10px] font-semibold uppercase rounded-full mt-2"
+              >
                 {item.siteRole}
               </Badge>
             </motion.div>
@@ -216,8 +281,12 @@ export function PortfolioItemCard({ item }: PortfolioItemCardProps) {
 
           {/* ── BACK ── */}
           <motion.div
-            className={cn(faceBase, "bg-(--gray-2)")}
-            style={{ transform: backTransform, opacity: backOpacity, willChange: "transform, opacity" }}
+            className={cn(faceBase, 'bg-(--gray-2)')}
+            style={{
+              transform: backTransform,
+              opacity: backOpacity,
+              willChange: 'transform, opacity',
+            }}
           >
             {/* Base grid — breathes */}
             <div
@@ -226,8 +295,8 @@ export function PortfolioItemCard({ item }: PortfolioItemCardProps) {
               style={{
                 opacity: 0.08,
                 backgroundImage:
-                  "linear-gradient(rgba(99,179,237,1) 1px, transparent 1px), linear-gradient(90deg, rgba(99,179,237,1) 1px, transparent 1px)",
-                backgroundSize: "24px 24px",
+                  'linear-gradient(rgba(99,179,237,1) 1px, transparent 1px), linear-gradient(90deg, rgba(99,179,237,1) 1px, transparent 1px)',
+                backgroundSize: '24px 24px',
               }}
             />
 
@@ -237,16 +306,16 @@ export function PortfolioItemCard({ item }: PortfolioItemCardProps) {
               className="absolute inset-0 pointer-events-none"
               style={{
                 backgroundImage:
-                  "linear-gradient(135deg, transparent 44%, rgba(96,165,250,0.25) 50%, transparent 56%)",
-                backgroundSize: "350% 350%",
-                backgroundPosition: "-180% -180%",
+                  'linear-gradient(135deg, transparent 44%, rgba(96,165,250,0.25) 50%, transparent 56%)',
+                backgroundSize: '350% 350%',
+                backgroundPosition: '-180% -180%',
                 maskImage:
-                  "linear-gradient(black 1px, transparent 1px), linear-gradient(90deg, black 1px, transparent 1px)",
+                  'linear-gradient(black 1px, transparent 1px), linear-gradient(90deg, black 1px, transparent 1px)',
                 WebkitMaskImage:
-                  "linear-gradient(black 1px, transparent 1px), linear-gradient(90deg, black 1px, transparent 1px)",
-                maskSize: "24px 24px",
-                WebkitMaskSize: "24px 24px",
-                willChange: "background-position, opacity",
+                  'linear-gradient(black 1px, transparent 1px), linear-gradient(90deg, black 1px, transparent 1px)',
+                maskSize: '24px 24px',
+                WebkitMaskSize: '24px 24px',
+                willChange: 'background-position, opacity',
               }}
             />
 
@@ -256,54 +325,94 @@ export function PortfolioItemCard({ item }: PortfolioItemCardProps) {
               className="absolute inset-0 pointer-events-none"
               style={{
                 backgroundImage:
-                  "linear-gradient(135deg, transparent 48%, rgba(186,230,255,0.95) 50%, transparent 52%)",
-                backgroundSize: "300% 300%",
-                backgroundPosition: "-150% -150%",
+                  'linear-gradient(135deg, transparent 48%, rgba(186,230,255,0.95) 50%, transparent 52%)',
+                backgroundSize: '300% 300%',
+                backgroundPosition: '-150% -150%',
                 maskImage:
-                  "linear-gradient(black 1px, transparent 1px), linear-gradient(90deg, black 1px, transparent 1px)",
+                  'linear-gradient(black 1px, transparent 1px), linear-gradient(90deg, black 1px, transparent 1px)',
                 WebkitMaskImage:
-                  "linear-gradient(black 1px, transparent 1px), linear-gradient(90deg, black 1px, transparent 1px)",
-                maskSize: "24px 24px",
-                WebkitMaskSize: "24px 24px",
-                willChange: "background-position, opacity",
+                  'linear-gradient(black 1px, transparent 1px), linear-gradient(90deg, black 1px, transparent 1px)',
+                maskSize: '24px 24px',
+                WebkitMaskSize: '24px 24px',
+                willChange: 'background-position, opacity',
               }}
             />
 
             <div className="absolute top-0 left-0 right-0 h-0.5 bg-linear-to-r from-transparent via-(--blue-8) blur-[1.5px] to-transparent" />
 
             <div className="relative z-10 flex flex-col h-full p-4 gap-3">
-
-              <motion.div custom={0} variants={backItemVariants} animate={flipped ? "visible" : "hidden"}>
-                <Heading as="h4" size={HEADING.h4.size} className="text-white leading-tight">
+              <motion.div
+                custom={0}
+                variants={backItemVariants}
+                animate={flipped ? 'visible' : 'hidden'}
+              >
+                <Heading
+                  as="h4"
+                  size={HEADING.h4.size}
+                  className="text-white leading-tight"
+                >
                   {item.siteName}
                 </Heading>
-                <Text size={TEXT.sm.size} className="text-(--blue-10) uppercase tracking-widest font-semibold mt-1" as="p">
+                <Text
+                  size={TEXT.sm.size}
+                  className="text-(--blue-10) uppercase tracking-widest font-semibold mt-1"
+                  as="p"
+                >
                   {item.siteRole}
                 </Text>
               </motion.div>
 
-              <motion.div custom={1} variants={backItemVariants} animate={flipped ? "visible" : "hidden"} className="flex-1">
-                <Text size={TEXT.sm.size} className="text-white/60 leading-relaxed" as="p">
+              <motion.div
+                custom={1}
+                variants={backItemVariants}
+                animate={flipped ? 'visible' : 'hidden'}
+                className="flex-1"
+              >
+                <Text
+                  size={TEXT.sm.size}
+                  className="text-white/60 leading-relaxed"
+                  as="p"
+                >
                   {item.description}
                 </Text>
               </motion.div>
 
-              <motion.div custom={2} variants={backItemVariants} animate={flipped ? "visible" : "hidden"}>
+              <motion.div
+                custom={2}
+                variants={backItemVariants}
+                animate={flipped ? 'visible' : 'hidden'}
+              >
                 <Flex wrap="wrap" gap="2">
                   {item.useTech.map((tech, i) => (
                     <motion.div
                       key={tech}
                       initial={{ opacity: 0, scale: 0.7 }}
-                      animate={flipped ? { opacity: 1, scale: 1 } : { opacity: 0, scale: 0.7 }}
+                      animate={
+                        flipped
+                          ? { opacity: 1, scale: 1 }
+                          : { opacity: 0, scale: 0.7 }
+                      }
                       transition={{
                         delay: flipped ? 0.32 + i * 0.055 : 0,
-                        type: "spring",
+                        type: 'spring',
                         stiffness: 260,
                         damping: 18,
                       }}
-                      whileHover={{ scale: 1.12, y: -2, transition: { type: "spring", stiffness: 400, damping: 16 } }}
+                      whileHover={{
+                        scale: 1.12,
+                        y: -2,
+                        transition: {
+                          type: 'spring',
+                          stiffness: 400,
+                          damping: 16,
+                        },
+                      }}
                     >
-                      <Badge variant="surface" size="3" className="tracking-wide cursor-default">
+                      <Badge
+                        variant="surface"
+                        size="3"
+                        className="tracking-wide cursor-default"
+                      >
                         {tech}
                       </Badge>
                     </motion.div>
@@ -314,7 +423,6 @@ export function PortfolioItemCard({ item }: PortfolioItemCardProps) {
 
             <div className="absolute inset-0 rounded-xl ring-1 ring-white/5" />
           </motion.div>
-
         </div>
       </AspectRatio>
     </motion.div>

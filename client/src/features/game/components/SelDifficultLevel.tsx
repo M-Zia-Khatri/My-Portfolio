@@ -1,13 +1,16 @@
-import { useState } from "react";
-import { Select, Flex } from "@radix-ui/themes";
-import useGameSet from "../store/GameSetStore";
-import CustomLevelDialog from "./CustomLevelDialog";
+import { useState } from 'react';
+import { Select, Flex } from '@radix-ui/themes';
+import useGameSet from '../store/GameSetStore';
+import CustomLevelDialog from './CustomLevelDialog';
 
-const BUILTIN_PRESETS: Record<string, { max: number; limit: number; time: number }> = {
+const BUILTIN_PRESETS: Record<
+  string,
+  { max: number; limit: number; time: number }
+> = {
   easy: { max: 20, limit: 10, time: 180 },
   normal: { max: 20, limit: 7, time: 180 },
   hard: { max: 30, limit: 4, time: 120 },
-  "very-hard": { max: 30, limit: 1, time: 60 },
+  'very-hard': { max: 30, limit: 1, time: 60 },
 };
 
 export default function SelDifficultLevel() {
@@ -24,7 +27,7 @@ export default function SelDifficultLevel() {
 
   const handleChange = (val: string) => {
     // Special sentinel — open dialog instead of selecting
-    if (val === "__add_custom__") {
+    if (val === '__add_custom__') {
       setDialogOpen(true);
       return;
     }
@@ -53,7 +56,6 @@ export default function SelDifficultLevel() {
       <Select.Root value={difficultLevel} onValueChange={handleChange}>
         <Select.Trigger variant="surface" color="blue" style={{ width: 160 }} />
         <Select.Content color="blue" variant="soft">
-
           {/* Built-in levels */}
           <Select.Group>
             <Select.Label>Built-in</Select.Label>
@@ -79,11 +81,8 @@ export default function SelDifficultLevel() {
           {/* Add custom level trigger */}
           <Select.Separator />
           <Select.Group>
-            <Select.Item value="__add_custom__">
-              + Add Custom Level
-            </Select.Item>
+            <Select.Item value="__add_custom__">+ Add Custom Level</Select.Item>
           </Select.Group>
-
         </Select.Content>
       </Select.Root>
 

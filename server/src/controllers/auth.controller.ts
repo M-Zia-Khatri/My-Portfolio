@@ -1,36 +1,36 @@
 // src/controllers/auth.controller.ts
-import type { Request, Response } from "express";
-import bcrypt from "bcrypt";
-import { sendOtpEmail } from "../lib/utills/mailer";
+import type { Request, Response } from 'express';
+import bcrypt from 'bcrypt';
+import { sendOtpEmail } from '../lib/utills/mailer';
 import type {
   AuthRequest,
   LoginBody,
   VerifyOtpBody,
-} from "@/lib/types/auth.types";
-import prisma from "@/lib/prisma";
-import { generateOtp, verifyOtp } from "@/lib/services/otp.service";
-import { catchError } from "@/lib/utills/catch-error";
+} from '@/lib/types/auth.types';
+import prisma from '@/lib/prisma';
+import { generateOtp, verifyOtp } from '@/lib/services/otp.service';
+import { catchError } from '@/lib/utills/catch-error';
 import {
   revokeAllRefreshTokens,
   revokeRefreshToken,
   rotateRefreshToken,
   signAccessToken,
   signRefreshToken,
-} from "@/lib/services/jwt.service";
-import { send } from "@/lib/utills/send";
+} from '@/lib/services/jwt.service';
+import { send } from '@/lib/utills/send';
 
 // ─── Constants ────────────────────────────────────────────────────────────────
 
-const REFRESH_TOKEN_COOKIE = "refreshToken";
+const REFRESH_TOKEN_COOKIE = 'refreshToken';
 const REFRESH_TOKEN_MAX_AGE = 7 * 24 * 60 * 60 * 1_000; // 7 days in ms
 const ACCESS_TOKEN_EXPIRES_IN = 15 * 60; // 15 min in seconds
 
 const COOKIE_OPTIONS = {
   httpOnly: true,
-  secure: process.env.NODE_ENV === "production",
-  sameSite: "strict" as const,
+  secure: process.env.NODE_ENV === 'production',
+  sameSite: 'strict' as const,
   maxAge: REFRESH_TOKEN_MAX_AGE,
-  path: "/",
+  path: '/',
 };
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
@@ -40,7 +40,7 @@ function setRefreshCookie(res: Response, token: string): void {
 }
 
 function clearRefreshCookie(res: Response): void {
-  res.clearCookie(REFRESH_TOKEN_COOKIE, { path: "/" });
+  res.clearCookie(REFRESH_TOKEN_COOKIE, { path: '/' });
 }
 
 // ─── POST /auth/login ─────────────────────────────────────────────────────────
@@ -54,7 +54,7 @@ export async function login(req: Request, res: Response): Promise<void> {
       send(res, {
         success: false,
         status: 400,
-        message: "Validation error",
+        message: 'Validation error',
         error: { fields: { email: !email, password: !password } },
       });
       return;
@@ -73,7 +73,7 @@ export async function login(req: Request, res: Response): Promise<void> {
 
     // Constant-time response — prevents user enumeration via timing attack
     const dummyHash =
-      "$2b$10$invalidhashfortimingprotection0zia00khatri000000000";
+      '$2b$10$invalidhashfortimingprotection0zia00khatri000000000';
     const hashToCompare = admin?.passwordHash ?? dummyHash;
     const passwordMatch = await bcrypt.compare(password, hashToCompare);
 
@@ -81,7 +81,7 @@ export async function login(req: Request, res: Response): Promise<void> {
       send(res, {
         success: false,
         status: 401,
-        message: "Invalid credentials",
+        message: 'Invalid credentials',
       });
       return;
     }
@@ -92,7 +92,7 @@ export async function login(req: Request, res: Response): Promise<void> {
     send(res, {
       success: true,
       status: 200,
-      message: "OTP sent to your registered email",
+      message: 'OTP sent to your registered email',
       data: { email: admin.email },
     });
   } catch (err) {
@@ -107,7 +107,7 @@ export async function login(req: Request, res: Response): Promise<void> {
 
 export async function verifyOtpHandler(
   req: Request,
-  res: Response,
+  res: Response
 ): Promise<void> {
   try {
     const { email, otp } = req.body as VerifyOtpBody;
@@ -116,7 +116,7 @@ export async function verifyOtpHandler(
       send(res, {
         success: false,
         status: 400,
-        message: "Validation error",
+        message: 'Validation error',
         error: { fields: { email: !email, otp: !otp } },
       });
       return;
@@ -128,7 +128,7 @@ export async function verifyOtpHandler(
     });
 
     if (!admin || !admin.isActive) {
-      send(res, { success: false, status: 401, message: "Invalid request" });
+      send(res, { success: false, status: 401, message: 'Invalid request' });
       return;
     }
 
@@ -138,7 +138,7 @@ export async function verifyOtpHandler(
       send(res, {
         success: false,
         status: 401,
-        message: "Invalid or expired OTP",
+        message: 'Invalid or expired OTP',
       });
       return;
     }
@@ -152,10 +152,10 @@ export async function verifyOtpHandler(
     send(res, {
       success: true,
       status: 200,
-      message: "Login successful",
+      message: 'Login successful',
       data: {
         accessToken,
-        tokenType: "Bearer",
+        tokenType: 'Bearer',
         expiresIn: ACCESS_TOKEN_EXPIRES_IN,
       },
     });
@@ -173,7 +173,7 @@ export async function refresh(req: Request, res: Response): Promise<void> {
       req.cookies?.[REFRESH_TOKEN_COOKIE];
 
     if (!refreshToken) {
-      send(res, { success: false, status: 401, message: "No refresh token" });
+      send(res, { success: false, status: 401, message: 'No refresh token' });
       return;
     }
 
@@ -184,7 +184,7 @@ export async function refresh(req: Request, res: Response): Promise<void> {
       send(res, {
         success: false,
         status: 401,
-        message: "Invalid or expired refresh token",
+        message: 'Invalid or expired refresh token',
       });
       return;
     }
@@ -195,10 +195,10 @@ export async function refresh(req: Request, res: Response): Promise<void> {
     send(res, {
       success: true,
       status: 200,
-      message: "Token refreshed",
+      message: 'Token refreshed',
       data: {
         accessToken: tokens.accessToken,
-        tokenType: "Bearer",
+        tokenType: 'Bearer',
         expiresIn: ACCESS_TOKEN_EXPIRES_IN,
       },
     });
@@ -223,7 +223,7 @@ export async function logout(req: Request, res: Response): Promise<void> {
     send(res, {
       success: true,
       status: 200,
-      message: "Logged out successfully",
+      message: 'Logged out successfully',
     });
   } catch (err) {
     catchError(res, err);
@@ -235,13 +235,13 @@ export async function logout(req: Request, res: Response): Promise<void> {
 
 export async function logoutAll(
   req: AuthRequest,
-  res: Response,
+  res: Response
 ): Promise<void> {
   try {
     await revokeAllRefreshTokens(req.admin!.id);
     clearRefreshCookie(res);
 
-    send(res, { success: true, status: 200, message: "All sessions revoked" });
+    send(res, { success: true, status: 200, message: 'All sessions revoked' });
   } catch (err) {
     catchError(res, err);
   }
@@ -266,16 +266,16 @@ export async function me(req: AuthRequest, res: Response): Promise<void> {
     });
 
     if (!admin) {
-      send(res, { success: false, status: 404, message: "Admin not found" });
+      send(res, { success: false, status: 404, message: 'Admin not found' });
       return;
     }
 
     send(res, {
       success: true,
       status: 200,
-      message: "Data retrieved successfully",
+      message: 'Data retrieved successfully',
       // Hardcode role until a role column is added to the Admin model
-      data: { ...admin, role: "admin" as const },
+      data: { ...admin, role: 'admin' as const },
     });
   } catch (err) {
     catchError(res, err);

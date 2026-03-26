@@ -1,10 +1,10 @@
-import { create } from "zustand";
+import { create } from 'zustand';
 import {
   clearAccessToken,
   setAccessToken,
-} from "@/features/auth/utils/tokenManager";
-import type { AuthState, AuthUser } from "@/features/auth/types";
-import type { QueryClient } from "@tanstack/react-query";
+} from '@/features/auth/utils/tokenManager';
+import type { AuthState, AuthUser } from '@/features/auth/types';
+import type { QueryClient } from '@tanstack/react-query';
 
 // ─── QueryClient bridge ───────────────────────────────────────────────────────
 // Injected once at app boot (in AuthProvider) so logout() can clear the

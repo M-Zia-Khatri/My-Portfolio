@@ -3,9 +3,9 @@ import {
   clearAccessToken,
   getAccessToken,
   setAccessToken,
-} from "@/features/auth/utils/tokenManager";
-import { refreshTokenApi } from "@/features/auth/services/auth.api";
-import type { AxiosInstance, InternalAxiosRequestConfig } from "axios";
+} from '@/features/auth/utils/tokenManager';
+import { refreshTokenApi } from '@/features/auth/services/auth.api';
+import type { AxiosInstance, InternalAxiosRequestConfig } from 'axios';
 
 let isRefreshing = false;
 let failedQueue: Array<{
@@ -41,7 +41,8 @@ export const setupInterceptors = (api: AxiosInstance) => {
       if (
         error.response?.status !== 401 ||
         originalRequest._retry ||
-        originalRequest.url?.includes("/auth/refresh")
+        originalRequest.url?.includes('/auth/refresh') ||
+        originalRequest.url?.includes('/auth/verify-otp')
       ) {
         return Promise.reject(error);
       }
@@ -75,6 +76,6 @@ export const setupInterceptors = (api: AxiosInstance) => {
       } finally {
         isRefreshing = false;
       }
-    },
+    }
   );
 };

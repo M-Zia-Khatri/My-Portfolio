@@ -1,4 +1,7 @@
-export function getItem<T = unknown>(key: string, storage: Storage = localStorage): T | undefined {
+export function getItem<T = unknown>(
+  key: string,
+  storage: Storage = localStorage
+): T | undefined {
   const localData = storage.getItem(key);
   if (localData === null) return undefined;
   try {
@@ -8,8 +11,12 @@ export function getItem<T = unknown>(key: string, storage: Storage = localStorag
   }
 }
 
-export function setItem<T = unknown>(key: string, data: T, storage: Storage = localStorage): void {
-  storage.setItem(key, JSON.stringify(data ?? ""));
+export function setItem<T = unknown>(
+  key: string,
+  data: T,
+  storage: Storage = localStorage
+): void {
+  storage.setItem(key, JSON.stringify(data ?? ''));
 }
 
 export function removeItem(key: string, storage: Storage = localStorage): void {

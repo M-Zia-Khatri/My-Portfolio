@@ -17,7 +17,7 @@ export const TTL = {
 // Internal constants
 // ---------------------------------------------------------------------------
 
-export const CACHE_PREFIX = "app:cache";
+export const CACHE_PREFIX = 'app:cache';
 export const LOCK_TTL_SECONDS = 5;
 export const LOCK_RETRY_DELAY = 100;
 

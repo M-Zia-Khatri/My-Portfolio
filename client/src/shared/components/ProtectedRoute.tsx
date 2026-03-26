@@ -18,11 +18,11 @@
  *   </Route>
  */
 
-import { Navigate, Outlet, useLocation } from "react-router";
-import { motion, AnimatePresence } from "motion/react";
-import { cn } from "@/shared/utils/cn";
-import type { UserRole } from "@/features/auth/types";
-import { useAuthStore } from "../store/useAuthStore";
+import { Navigate, Outlet, useLocation } from 'react-router';
+import { motion, AnimatePresence } from 'motion/react';
+import { cn } from '@/shared/utils/cn';
+import type { UserRole } from '@/features/auth/types';
+import { useAuthStore } from '../store/useAuthStore';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -33,6 +33,8 @@ interface ProtectedRouteProps {
   redirectTo?: string;
   /** Where to redirect users who lack the required role. Defaults to "/". */
   unauthorizedRedirectTo?: string;
+
+  children?: React.ReactNode;
 }
 
 // ─── Loading Skeleton ─────────────────────────────────────────────────────────
@@ -44,26 +46,21 @@ const AuthLoadingScreen = () => (
     exit={{ opacity: 0 }}
     transition={{ duration: 0.2 }}
     className={cn(
-      "fixed inset-0 z-50 flex items-center justify-center",
-      "bg-(--color-background)",
+      'fixed inset-0 z-50 flex items-center justify-center',
+      'bg-(--color-background)'
     )}
   >
     {/* Pulsing ring that matches the blue theme from index.css */}
-    <div className={cn("relative flex items-center justify-center size-12")}>
+    <div className={cn('relative flex items-center justify-center size-12')}>
       <motion.span
         animate={{ scale: [1, 1.5, 1], opacity: [0.6, 0, 0.6] }}
-        transition={{ duration: 1.4, repeat: Infinity, ease: "easeInOut" }}
+        transition={{ duration: 1.4, repeat: Infinity, ease: 'easeInOut' }}
         className={cn(
-          "absolute inset-0 rounded-full",
-          "bg-(--blue-8) opacity-60",
+          'absolute inset-0 rounded-full',
+          'bg-(--blue-8) opacity-60'
         )}
       />
-      <span
-        className={cn(
-          "relative size-5 rounded-full",
-          "bg-(--blue-9)",
-        )}
-      />
+      <span className={cn('relative size-5 rounded-full', 'bg-(--blue-9)')} />
     </div>
   </motion.div>
 );
@@ -78,8 +75,9 @@ const UnauthorizedScreen = ({ redirectTo }: { redirectTo: string }) => {
 
 export const ProtectedRoute = ({
   allowedRoles,
-  redirectTo = "/",
-  unauthorizedRedirectTo = "/",
+  redirectTo = '/',
+  unauthorizedRedirectTo = '/',
+  children,
 }: ProtectedRouteProps) => {
   const { isAuthenticated, isLoading, hasRole } = useAuthStore();
   const location = useLocation();
@@ -117,10 +115,10 @@ export const ProtectedRoute = ({
         initial={{ opacity: 0, y: 6 }}
         animate={{ opacity: 1, y: 0 }}
         exit={{ opacity: 0, y: -6 }}
-        transition={{ duration: 0.18, ease: "easeOut" }}
-        className={cn("contents")}
+        transition={{ duration: 0.18, ease: 'easeOut' }}
+        className={cn('contents')}
       >
-        <Outlet />
+        {children ?? <Outlet />}
       </motion.div>
     </AnimatePresence>
   );

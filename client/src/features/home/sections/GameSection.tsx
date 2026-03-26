@@ -1,12 +1,19 @@
-import { Card, Heading } from "@radix-ui/themes";
-import { HEADING } from "@/shared/constants/style.constants";
-import SecComponent from "@/shared/components/SecContainer";
-import { GuessNumProvider } from "@/features/game/context/GuessNumContext";
-import { CheckHiddenNumber, Feedback, GuessResult, HiddenNumber, ScoreHistory, ViewDelHistory } from "@/features/game/components";
+import { Card, Heading } from '@radix-ui/themes';
+import { HEADING } from '@/shared/constants/style.constants';
+import SecComponent from '@/shared/components/SecContainer';
+import { GuessNumProvider } from '@/features/game/context/GuessNumContext';
+import {
+  CheckHiddenNumber,
+  Feedback,
+  GuessResult,
+  HiddenNumber,
+  ScoreHistory,
+  ViewDelHistory,
+} from '@/features/game/components';
 
 export default function GameSection() {
   return (
-    <SecComponent className="w-full h-dvh" height={{ lg: '100%' }} py={"8"} >
+    <SecComponent className="w-full h-dvh" height={{ lg: '100%' }} py={'8'}>
       <GuessNumProvider>
         <div className="w-full h-full flex flex-col lg:flex-row gap-6">
           {/* Left: Results Summary (desktop only) */}
@@ -14,10 +21,12 @@ export default function GameSection() {
             <Card
               size={'2'}
               className="w-full h-full flex flex-col"
-              style={{
-                // background: "var(--gray-2)",
-                // outlineWidth: "2px",
-              }}
+              style={
+                {
+                  // background: "var(--gray-2)",
+                  // outlineWidth: "2px",
+                }
+              }
             >
               <GuessResult />
             </Card>
@@ -29,26 +38,26 @@ export default function GameSection() {
           {/* Center: Game Area */}
           <section className="flex-1 flex flex-col gap-4">
             <Card size={'2'} className="w-full text-center">
-              <Heading as="h2" size={HEADING.h2.size} className="font-bold">Gess the number</Heading>
+              <Heading as="h2" size={HEADING.h2.size} className="font-bold">
+                Gess the number
+              </Heading>
             </Card>
 
             {/* Hidden Number + Timer */}
-            <Card size={'3'}
-            >
+            <Card size={'3'}>
               <HiddenNumber />
             </Card>
 
             {/* Guess Buttons */}
-            <Card size={"2"}
-              className="flex-1 overflow-auto"
-            >
+            <Card size={'2'} className="flex-1 overflow-auto">
               <CheckHiddenNumber />
             </Card>
           </section>
 
           {/* Right: Score History */}
           <aside className="w-full lg:w-1/3 ">
-            <Card size={'2'}
+            <Card
+              size={'2'}
               className="h-full flex flex-col justify-between gap-4"
             >
               <div className="flex-1 overflow-hidden">

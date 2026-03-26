@@ -1,6 +1,6 @@
-import { useRef, useEffect } from "react";
-import { motion, AnimatePresence } from "motion/react";
-import type { Skill } from "../types";
+import { useRef, useEffect } from 'react';
+import { motion, AnimatePresence } from 'motion/react';
+import type { Skill } from '../types';
 
 interface CodeTabBarProps {
   skill: Skill;
@@ -21,22 +21,24 @@ export default function CodeTabBar({
   useEffect(() => {
     const bar = tabBarRef.current;
     if (!bar) return;
-    bar
-      .querySelector<HTMLElement>("[data-active='true']")
-      ?.scrollIntoView({ behavior: "smooth", block: "nearest", inline: "nearest" });
+    bar.querySelector<HTMLElement>("[data-active='true']")?.scrollIntoView({
+      behavior: 'smooth',
+      block: 'nearest',
+      inline: 'nearest',
+    });
   }, [skill.name, openTabs.length]);
 
   return (
     <div
       className="flex items-stretch shrink-0"
       style={{
-        background: "rgba(0,0,0,0.5)",
-        borderBottom: "1px solid rgba(255,255,255,0.08)",
+        background: 'rgba(0,0,0,0.5)',
+        borderBottom: '1px solid rgba(255,255,255,0.08)',
       }}
     >
       {/* macOS window dots */}
       <div className="flex items-center gap-[6px] px-3 shrink-0">
-        {(["#ff5f57", "#febc2e", "#28c840"] as const).map((c, i) => (
+        {(['#ff5f57', '#febc2e', '#28c840'] as const).map((c, i) => (
           <motion.span
             key={i}
             whileHover={{ scale: 1.25 }}
@@ -60,17 +62,32 @@ export default function CodeTabBar({
               <motion.div
                 key={tab.name}
                 data-active={isActive}
-                initial={{ opacity: 0, maxWidth: 0, paddingLeft: 0, paddingRight: 0 }}
-                animate={{ opacity: 1, maxWidth: 200, paddingLeft: 12, paddingRight: 12 }}
-                exit={{ opacity: 0, maxWidth: 0, paddingLeft: 0, paddingRight: 0 }}
-                transition={{ duration: 0.22, ease: "easeInOut" }}
+                initial={{
+                  opacity: 0,
+                  maxWidth: 0,
+                  paddingLeft: 0,
+                  paddingRight: 0,
+                }}
+                animate={{
+                  opacity: 1,
+                  maxWidth: 200,
+                  paddingLeft: 12,
+                  paddingRight: 12,
+                }}
+                exit={{
+                  opacity: 0,
+                  maxWidth: 0,
+                  paddingLeft: 0,
+                  paddingRight: 0,
+                }}
+                transition={{ duration: 0.22, ease: 'easeInOut' }}
                 onClick={() => onTabClick(tab)}
                 className="relative flex items-center gap-[7px] text-[11px] leading-none
                            select-none cursor-pointer shrink-0 overflow-hidden group/tab"
                 style={{
-                  background: isActive ? `${tab.color}16` : "transparent",
-                  borderRight: "1px solid rgba(255,255,255,0.06)",
-                  color: isActive ? tab.color : "rgba(255,255,255,0.38)",
+                  background: isActive ? `${tab.color}16` : 'transparent',
+                  borderRight: '1px solid rgba(255,255,255,0.06)',
+                  color: isActive ? tab.color : 'rgba(255,255,255,0.38)',
                   paddingTop: 9,
                   paddingBottom: 9,
                 }}
@@ -81,14 +98,16 @@ export default function CodeTabBar({
                     layoutId="tab-underline"
                     className="absolute bottom-0 left-0 right-0 h-[2px]"
                     style={{ background: tab.color }}
-                    transition={{ type: "spring", stiffness: 340, damping: 28 }}
+                    transition={{ type: 'spring', stiffness: 340, damping: 28 }}
                   />
                 )}
 
                 {/* Icon wobble when tab becomes active */}
                 <motion.span
-                  animate={isActive ? { rotate: [0, 10, -8, 0] } : { rotate: 0 }}
-                  transition={{ duration: 0.45, ease: "easeInOut" }}
+                  animate={
+                    isActive ? { rotate: [0, 10, -8, 0] } : { rotate: 0 }
+                  }
+                  transition={{ duration: 0.45, ease: 'easeInOut' }}
                   className="shrink-0"
                 >
                   <tab.icon size={12} />
@@ -132,8 +151,10 @@ export default function CodeTabBar({
       </div>
 
       {/* Language badge — pinned right */}
-      <div className="px-4 flex items-center text-[10px] tracking-widest opacity-25
-                      text-white uppercase shrink-0">
+      <div
+        className="px-4 flex items-center text-[10px] tracking-widest opacity-25
+                      text-white uppercase shrink-0"
+      >
         {skill.lang}
       </div>
     </div>

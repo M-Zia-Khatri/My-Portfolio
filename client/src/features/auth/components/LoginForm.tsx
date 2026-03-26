@@ -1,39 +1,39 @@
-import { useState, useEffect, useRef, useCallback } from "react";
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { EyeIcon, EyeOffIcon } from "lucide-react";
-import { cn } from "@/shared/utils/cn";
-import { loginSchema, type LoginFields } from "../auth.schema";
-import { AUTH_CONFIG } from "../auth.config";
-import { useLogin } from "@/features/auth/hooks/useLogin";
-import { useApiError } from "../hooks/useApiError";
-import { DialogShell } from "./DialogShell";
-import { FieldError } from "./ui/FieldError";
-import { ApiErrorBanner } from "./ui/ApiErrorBanner";
-import { SubmitButton } from "./ui/SubmitButton";
+import { useState, useEffect, useRef, useCallback } from 'react';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { EyeIcon, EyeOffIcon } from 'lucide-react';
+import { cn } from '@/shared/utils/cn';
+import { loginSchema, type LoginFields } from '../auth.schema';
+import { AUTH_CONFIG } from '../auth.config';
+import { useLogin } from '@/features/auth/hooks/useLogin';
+import { useApiError } from '../hooks/useApiError';
+import { DialogShell } from './DialogShell';
+import { FieldError } from './ui/FieldError';
+import { ApiErrorBanner } from './ui/ApiErrorBanner';
+import { SubmitButton } from './ui/SubmitButton';
 
 // ─── SHARED INPUT HELPERS ─────────────────────────────────────────────────────
 
 function getInputStyle(hasError: boolean): React.CSSProperties {
   return {
-    background: "var(--gray-3)",
-    borderColor: hasError ? "var(--red-8, #b91c1c)" : "var(--gray-6)",
-    color: "var(--gray-12)",
-    boxShadow: "inset 0 1px 3px rgba(0,0,0,0.25)",
+    background: 'var(--gray-3)',
+    borderColor: hasError ? 'var(--red-8, #b91c1c)' : 'var(--gray-6)',
+    color: 'var(--gray-12)',
+    boxShadow: 'inset 0 1px 3px rgba(0,0,0,0.25)',
   };
 }
 
 function onFocus(e: React.FocusEvent<HTMLInputElement>) {
-  e.currentTarget.style.borderColor = "var(--blue-8)";
+  e.currentTarget.style.borderColor = 'var(--blue-8)';
   e.currentTarget.style.boxShadow =
-    "0 0 0 3px var(--blue-a4), inset 0 1px 3px rgba(0,0,0,0.25)";
+    '0 0 0 3px var(--blue-a4), inset 0 1px 3px rgba(0,0,0,0.25)';
 }
 
 function onBlur(e: React.FocusEvent<HTMLInputElement>, hasError: boolean) {
   e.currentTarget.style.borderColor = hasError
-    ? "var(--red-8, #b91c1c)"
-    : "var(--gray-6)";
-  e.currentTarget.style.boxShadow = "inset 0 1px 3px rgba(0,0,0,0.25)";
+    ? 'var(--red-8, #b91c1c)'
+    : 'var(--gray-6)';
+  e.currentTarget.style.boxShadow = 'inset 0 1px 3px rgba(0,0,0,0.25)';
 }
 
 // ─── LABEL ────────────────────────────────────────────────────────────────────
@@ -49,9 +49,9 @@ function Label({
     <label
       htmlFor={htmlFor}
       className={cn(
-        "block text-xs font-medium mb-1.5 tracking-wide select-none",
+        'block text-xs font-medium mb-1.5 tracking-wide select-none'
       )}
-      style={{ color: "var(--gray-11)" }}
+      style={{ color: 'var(--gray-11)' }}
     >
       {children}
     </label>
@@ -95,8 +95,8 @@ export function LoginForm({ open, onSuccess }: LoginFormProps) {
   // {...register("email")} would silently OVERWRITE RHF's ref, making RHF
   // unable to read the uncontrolled input's value → Zod receives `undefined`
   // → "Invalid input: expected string, received undefined".
-  const { ref: emailFormRef, ...emailRest } = register("email");
-  const { ref: passwordFormRef, ...passwordRest } = register("password");
+  const { ref: emailFormRef, ...emailRest } = register('email');
+  const { ref: passwordFormRef, ...passwordRest } = register('password');
 
   // Auto-focus first field on open
   useEffect(() => {
@@ -133,7 +133,7 @@ export function LoginForm({ open, onSuccess }: LoginFormProps) {
       await login(values);
       onSuccess(values.email);
     } catch (err) {
-      handleError(err, "Login failed. Please try again.");
+      handleError(err, 'Login failed. Please try again.');
     }
   }
 
@@ -141,7 +141,7 @@ export function LoginForm({ open, onSuccess }: LoginFormProps) {
     <DialogShell open={open} dialogKey="login" config={AUTH_CONFIG.login}>
       <form
         onSubmit={handleSubmit(onSubmit)}
-        className={cn("space-y-5")}
+        className={cn('space-y-5')}
         noValidate
       >
         <ApiErrorBanner message={error} />
@@ -161,8 +161,8 @@ export function LoginForm({ open, onSuccess }: LoginFormProps) {
               emailRef.current = el;
             }}
             className={cn(
-              "w-full rounded-xl px-4 py-2.5 text-sm outline-none",
-              "border font-mono placeholder:opacity-25 transition-none",
+              'w-full rounded-xl px-4 py-2.5 text-sm outline-none',
+              'border font-mono placeholder:opacity-25 transition-none'
             )}
             style={getInputStyle(!!errors.email)}
             onFocus={onFocus}
@@ -177,14 +177,14 @@ export function LoginForm({ open, onSuccess }: LoginFormProps) {
           <div className="relative">
             <input
               id="login-password"
-              type={showPassword ? "text" : "password"}
+              type={showPassword ? 'text' : 'password'}
               autoComplete="current-password"
               placeholder="••••••••"
               {...passwordRest}
               ref={passwordFormRef}
               className={cn(
-                "w-full rounded-xl px-4 py-2.5 pr-11 text-sm outline-none",
-                "border font-mono placeholder:opacity-40 transition-none",
+                'w-full rounded-xl px-4 py-2.5 pr-11 text-sm outline-none',
+                'border font-mono placeholder:opacity-40 transition-none'
               )}
               style={getInputStyle(!!errors.password)}
               onFocus={onFocus}
@@ -196,7 +196,7 @@ export function LoginForm({ open, onSuccess }: LoginFormProps) {
                   if (hideTimerRef.current) clearTimeout(hideTimerRef.current);
                   hideTimerRef.current = setTimeout(
                     () => setShowPassword(false),
-                    5_000,
+                    5_000
                   );
                 }
               }}
@@ -205,12 +205,12 @@ export function LoginForm({ open, onSuccess }: LoginFormProps) {
               type="button"
               tabIndex={-1}
               onClick={handleTogglePassword}
-              aria-label={showPassword ? "Hide password" : "Show password"}
+              aria-label={showPassword ? 'Hide password' : 'Show password'}
               className={cn(
-                "absolute right-3 top-1/2 -translate-y-1/2",
-                "transition-colors duration-150",
+                'absolute right-3 top-1/2 -translate-y-1/2',
+                'transition-colors duration-150'
               )}
-              style={{ color: "var(--gray-9)" }}
+              style={{ color: 'var(--gray-9)' }}
             >
               {showPassword ? <EyeOffIcon size={16} /> : <EyeIcon size={16} />}
             </button>
@@ -220,8 +220,8 @@ export function LoginForm({ open, onSuccess }: LoginFormProps) {
 
         {/* Divider */}
         <div
-          className={cn("h-px w-full")}
-          style={{ background: "var(--gray-4)" }}
+          className={cn('h-px w-full')}
+          style={{ background: 'var(--gray-4)' }}
         />
 
         <SubmitButton isPending={isPending} label="Continue →" />

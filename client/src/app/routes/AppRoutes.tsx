@@ -1,14 +1,14 @@
-import { Navigate, type RouteObject } from "react-router";
-import AppLayout from "@/shared/components/layout/AppLayout";
-import Home from "@/features/home/Home";
-import { AppNavigation } from "@/shared/constants/navigation.constants";
-import Dashboard from "@/features/dashboard/Dashboard";
-import ProtectedRoute from "@/shared/components/ProtectedRoute";
-import Auth from "@/features/auth/Auth";
+import { Navigate, type RouteObject } from 'react-router';
+import AppLayout from '@/shared/components/layout/AppLayout';
+import Home from '@/features/home/Home';
+import { AppNavigation } from '@/shared/constants/navigation.constants';
+import Dashboard from '@/features/dashboard/Dashboard';
+import ProtectedRoute from '@/shared/components/ProtectedRoute';
+import Auth from '@/features/auth/Auth';
 
 const AppRoutes: RouteObject[] = [
   {
-    path: "/",
+    path: '/',
     Component: AppLayout,
     children: [
       {
@@ -29,7 +29,7 @@ const AppRoutes: RouteObject[] = [
     path: AppNavigation.DASHBOARD,
     element: (
       <ProtectedRoute
-        allowedRoles={["admin"]}
+        allowedRoles={['admin']}
         redirectTo={AppNavigation.LOGIN}
         unauthorizedRedirectTo="/"
       >
@@ -39,7 +39,7 @@ const AppRoutes: RouteObject[] = [
     ),
   },
   {
-    path: "*",
+    path: '*',
     element: <Navigate to="/" />,
   },
 ];

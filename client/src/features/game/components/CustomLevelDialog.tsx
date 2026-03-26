@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState } from 'react';
 import {
   Dialog,
   Button,
@@ -9,7 +9,7 @@ import {
   IconButton,
   Badge,
   Callout,
-} from "@radix-ui/themes";
+} from '@radix-ui/themes';
 import {
   PlusIcon,
   TrashIcon,
@@ -17,9 +17,9 @@ import {
   CheckIcon,
   Cross2Icon,
   ExclamationTriangleIcon,
-} from "@radix-ui/react-icons";
-import useGameSet, { type CustomLevelPreset } from "../store/GameSetStore";
-import { generateId } from "../services/idGenerator";
+} from '@radix-ui/react-icons';
+import useGameSet, { type CustomLevelPreset } from '../store/GameSetStore';
+import { generateId } from '../services/idGenerator';
 
 interface Props {
   open: boolean;
@@ -27,11 +27,11 @@ interface Props {
 }
 
 const EMPTY_FORM = {
-  name: "",
-  maxNumber: "",
-  guessLimit: "",
-  timeMinutes: "",
-  timeSeconds: "",
+  name: '',
+  maxNumber: '',
+  guessLimit: '',
+  timeMinutes: '',
+  timeSeconds: '',
 };
 
 type FormState = typeof EMPTY_FORM;
@@ -39,21 +39,23 @@ type FormErrors = Partial<Record<keyof FormState, string>>;
 
 function validate(f: FormState): FormErrors {
   const errors: FormErrors = {};
-  if (!f.name.trim()) errors.name = "Name is required";
+  if (!f.name.trim()) errors.name = 'Name is required';
   const max = Number(f.maxNumber);
-  if (!f.maxNumber) errors.maxNumber = "Required";
-  else if (isNaN(max) || max < 2 || max > 100) errors.maxNumber = "Must be 2–100";
+  if (!f.maxNumber) errors.maxNumber = 'Required';
+  else if (isNaN(max) || max < 2 || max > 100)
+    errors.maxNumber = 'Must be 2–100';
   const limit = Number(f.guessLimit);
-  if (!f.guessLimit) errors.guessLimit = "Required";
-  else if (isNaN(limit) || limit < 1 || limit > 50) errors.guessLimit = "Must be 1–50";
+  if (!f.guessLimit) errors.guessLimit = 'Required';
+  else if (isNaN(limit) || limit < 1 || limit > 50)
+    errors.guessLimit = 'Must be 1–50';
   const mins = Number(f.timeMinutes);
-  if (f.timeMinutes === "") errors.timeMinutes = "Required";
-  else if (isNaN(mins) || mins < 0 || mins > 59) errors.timeMinutes = "0–59";
+  if (f.timeMinutes === '') errors.timeMinutes = 'Required';
+  else if (isNaN(mins) || mins < 0 || mins > 59) errors.timeMinutes = '0–59';
   const secs = Number(f.timeSeconds);
-  if (f.timeSeconds === "") errors.timeSeconds = "Required";
-  else if (isNaN(secs) || secs < 0 || secs > 59) errors.timeSeconds = "0–59";
+  if (f.timeSeconds === '') errors.timeSeconds = 'Required';
+  else if (isNaN(secs) || secs < 0 || secs > 59) errors.timeSeconds = '0–59';
   if (!errors.timeMinutes && !errors.timeSeconds && mins === 0 && secs === 0)
-    errors.timeMinutes = "Total time must be > 0";
+    errors.timeMinutes = 'Total time must be > 0';
   return errors;
 }
 
@@ -68,12 +70,12 @@ function FieldRow({
 }) {
   return (
     <Flex direction="column" gap="1" style={{ flex: 1 }}>
-      <Text size="2" weight="medium" style={{ color: "var(--gray-11)" }}>
+      <Text size="2" weight="medium" style={{ color: 'var(--gray-11)' }}>
         {label}
       </Text>
       {children}
       {error && (
-        <Text size="1" style={{ color: "var(--red-11)" }}>
+        <Text size="1" style={{ color: 'var(--red-11)' }}>
           {error}
         </Text>
       )}
@@ -155,21 +157,22 @@ export default function CustomLevelDialog({ open, onOpenChange }: Props) {
       <Dialog.Content
         maxWidth="480px"
         style={{
-          background: "var(--gray-2)",
-          border: "1px solid var(--gray-5)",
+          background: 'var(--gray-2)',
+          border: '1px solid var(--gray-5)',
         }}
       >
-        <Dialog.Title style={{ color: "var(--gray-12)" }}>
+        <Dialog.Title style={{ color: 'var(--gray-12)' }}>
           Custom Difficulty Levels
         </Dialog.Title>
-        <Dialog.Description size="2" style={{ color: "var(--gray-10)" }}>
-          Create your own difficulty presets. They'll appear in the level selector.
+        <Dialog.Description size="2" style={{ color: 'var(--gray-10)' }}>
+          Create your own difficulty presets. They'll appear in the level
+          selector.
         </Dialog.Description>
 
         {/* ── Saved levels list ── */}
         {customLevels.length > 0 && (
           <Flex direction="column" gap="2" mt="4">
-            <Text size="2" weight="medium" style={{ color: "var(--gray-11)" }}>
+            <Text size="2" weight="medium" style={{ color: 'var(--gray-11)' }}>
               Saved levels
             </Text>
             <Flex direction="column" gap="2">
@@ -185,10 +188,12 @@ export default function CustomLevelDialog({ open, onOpenChange }: Props) {
                     px="3"
                     py="2"
                     style={{
-                      background: isBeingEdited ? "var(--blue-a3)" : "var(--gray-3)",
-                      border: `1px solid ${isBeingEdited ? "var(--blue-7)" : "var(--gray-5)"}`,
+                      background: isBeingEdited
+                        ? 'var(--blue-a3)'
+                        : 'var(--gray-3)',
+                      border: `1px solid ${isBeingEdited ? 'var(--blue-7)' : 'var(--gray-5)'}`,
                       borderRadius: 8,
-                      transition: "background 0.2s, border-color 0.2s",
+                      transition: 'background 0.2s, border-color 0.2s',
                     }}
                   >
                     <Flex align="center" gap="2" wrap="wrap">
@@ -196,7 +201,9 @@ export default function CustomLevelDialog({ open, onOpenChange }: Props) {
                         size="2"
                         weight="bold"
                         style={{
-                          color: isBeingEdited ? "var(--blue-11)" : "var(--gray-12)",
+                          color: isBeingEdited
+                            ? 'var(--blue-11)'
+                            : 'var(--gray-12)',
                         }}
                       >
                         {lvl.name}
@@ -208,7 +215,8 @@ export default function CustomLevelDialog({ open, onOpenChange }: Props) {
                         {lvl.guessLimit} guesses
                       </Badge>
                       <Badge color="amber" variant="soft" size="1">
-                        {String(m).padStart(2, "0")}:{String(s).padStart(2, "0")}
+                        {String(m).padStart(2, '0')}:
+                        {String(s).padStart(2, '0')}
                       </Badge>
                     </Flex>
 
@@ -257,11 +265,11 @@ export default function CustomLevelDialog({ open, onOpenChange }: Props) {
           </Flex>
         )}
 
-        <Separator size="4" my="4" style={{ background: "var(--gray-5)" }} />
+        <Separator size="4" my="4" style={{ background: 'var(--gray-5)' }} />
 
         {/* ── Add / Edit form ── */}
-        <Text size="2" weight="medium" style={{ color: "var(--gray-11)" }}>
-          {editingId ? "✏️ Edit level" : "Add new level"}
+        <Text size="2" weight="medium" style={{ color: 'var(--gray-11)' }}>
+          {editingId ? '✏️ Edit level' : 'Add new level'}
         </Text>
 
         <Flex direction="column" gap="3" mt="2">
@@ -269,8 +277,8 @@ export default function CustomLevelDialog({ open, onOpenChange }: Props) {
             <TextField.Root
               placeholder="e.g. Insane"
               value={form.name}
-              onChange={(e) => setField("name", e.target.value)}
-              color={errors.name ? "red" : "blue"}
+              onChange={(e) => setField('name', e.target.value)}
+              color={errors.name ? 'red' : 'blue'}
             />
           </FieldRow>
 
@@ -282,8 +290,8 @@ export default function CustomLevelDialog({ open, onOpenChange }: Props) {
                 min={2}
                 max={100}
                 value={form.maxNumber}
-                onChange={(e) => setField("maxNumber", e.target.value)}
-                color={errors.maxNumber ? "red" : "blue"}
+                onChange={(e) => setField('maxNumber', e.target.value)}
+                color={errors.maxNumber ? 'red' : 'blue'}
               />
             </FieldRow>
             <FieldRow label="Guess limit (1–50)" error={errors.guessLimit}>
@@ -293,8 +301,8 @@ export default function CustomLevelDialog({ open, onOpenChange }: Props) {
                 min={1}
                 max={50}
                 value={form.guessLimit}
-                onChange={(e) => setField("guessLimit", e.target.value)}
-                color={errors.guessLimit ? "red" : "blue"}
+                onChange={(e) => setField('guessLimit', e.target.value)}
+                color={errors.guessLimit ? 'red' : 'blue'}
               />
             </FieldRow>
           </Flex>
@@ -307,8 +315,8 @@ export default function CustomLevelDialog({ open, onOpenChange }: Props) {
                 min={0}
                 max={59}
                 value={form.timeMinutes}
-                onChange={(e) => setField("timeMinutes", e.target.value)}
-                color={errors.timeMinutes ? "red" : "blue"}
+                onChange={(e) => setField('timeMinutes', e.target.value)}
+                color={errors.timeMinutes ? 'red' : 'blue'}
               />
             </FieldRow>
             <FieldRow label="Seconds (0–59)" error={errors.timeSeconds}>
@@ -318,18 +326,20 @@ export default function CustomLevelDialog({ open, onOpenChange }: Props) {
                 min={0}
                 max={59}
                 value={form.timeSeconds}
-                onChange={(e) => setField("timeSeconds", e.target.value)}
-                color={errors.timeSeconds ? "red" : "blue"}
+                onChange={(e) => setField('timeSeconds', e.target.value)}
+                color={errors.timeSeconds ? 'red' : 'blue'}
               />
             </FieldRow>
           </Flex>
 
-          {errors.timeMinutes === "Total time must be > 0" && (
+          {errors.timeMinutes === 'Total time must be > 0' && (
             <Callout.Root color="red" variant="soft" size="1">
               <Callout.Icon>
                 <ExclamationTriangleIcon />
               </Callout.Icon>
-              <Callout.Text>Total time must be greater than 0 seconds.</Callout.Text>
+              <Callout.Text>
+                Total time must be greater than 0 seconds.
+              </Callout.Text>
             </Callout.Root>
           )}
         </Flex>
@@ -353,11 +363,11 @@ export default function CustomLevelDialog({ open, onOpenChange }: Props) {
             </Dialog.Close>
             <Button
               variant="solid"
-              color={editingId ? "amber" : "blue"}
+              color={editingId ? 'amber' : 'blue'}
               onClick={handleSave}
             >
               {editingId ? <CheckIcon /> : <PlusIcon />}
-              {editingId ? "Save Changes" : "Add Level"}
+              {editingId ? 'Save Changes' : 'Add Level'}
             </Button>
           </Flex>
         </Flex>

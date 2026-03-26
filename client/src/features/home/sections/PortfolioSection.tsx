@@ -1,8 +1,8 @@
-import { PortfolioItemCard } from "@/features/portfolio/components/PortfolioItemCard";
-import type { PortfolioItem } from "@/features/portfolio/types";
-import SecComponent from "@/shared/components/SecContainer";
-import { Box, Heading } from "@radix-ui/themes";
-import { motion, type Variants } from "motion/react";
+import { PortfolioItemCard } from '@/features/portfolio/components/PortfolioItemCard';
+import type { PortfolioItem } from '@/features/portfolio/types';
+import SecComponent from '@/shared/components/SecContainer';
+import { Box, Heading } from '@radix-ui/themes';
+import { motion, type Variants } from 'motion/react';
 
 // ✅ Explicit typing
 const containerVariants: Variants = {
@@ -18,7 +18,7 @@ const cardVariants: Variants = {
     opacity: 1,
     y: 0,
     scale: 1,
-    transition: { type: "spring", stiffness: 80, damping: 18 },
+    transition: { type: 'spring', stiffness: 80, damping: 18 },
   },
 };
 
@@ -45,18 +45,18 @@ const lineVariants: Variants = {
 };
 
 // ✅ These are already correct
-const VIEWPORT_ONCE = { once: true, margin: "-60px" } as const;
-const VIEWPORT_GRID = { once: true, margin: "-80px" } as const;
+const VIEWPORT_ONCE = { once: true, margin: '-60px' } as const;
+const VIEWPORT_GRID = { once: true, margin: '-80px' } as const;
 
 const MOCK_ITEM: PortfolioItem = {
-  siteName: "xyz",
-  siteRole: "xyz role",
-  siteUrl: "https://www.google.com",
+  siteName: 'xyz',
+  siteRole: 'xyz role',
+  siteUrl: 'https://www.google.com',
   siteImageUrl:
-    "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSAyyRRzS5-kkk_Y5vm3O5MBZjWYsczQsR9qA&s",
-  useTech: ["react", "ts", "node.js"],
+    'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSAyyRRzS5-kkk_Y5vm3O5MBZjWYsczQsR9qA&s',
+  useTech: ['react', 'ts', 'node.js'],
   description:
-    "Lorem ipsum dolor sit amet consectetur adipisicing elit. Exercitationem enim at veritatis aut ipsum unde dolorum assumenda?",
+    'Lorem ipsum dolor sit amet consectetur adipisicing elit. Exercitationem enim at veritatis aut ipsum unde dolorum assumenda?',
 };
 
 const ITEMS = [1, 2, 3, 4, 5, 6];

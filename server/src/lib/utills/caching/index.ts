@@ -4,6 +4,6 @@ export {
   cachePut,
   cacheForget,
   cacheInvalidatePrefix,
-} from "./cache"
+} from './cache';
 
-export type { CacheOptions } from "./cache.types"
+export type { CacheOptions } from './cache.types';

@@ -1,7 +1,7 @@
-import { useState, useCallback } from "react";
-import { Table, Text } from "@radix-ui/themes";
-import MemoizedScoreRow from "./ScoreRow";
-import useGameSet from "../store/GameSetStore";
+import { useState, useCallback } from 'react';
+import { Table, Text } from '@radix-ui/themes';
+import MemoizedScoreRow from './ScoreRow';
+import useGameSet from '../store/GameSetStore';
 
 export default function ScoreHistory() {
   const { scoreHistory, setScoreRecords } = useGameSet();
@@ -22,9 +22,9 @@ export default function ScoreHistory() {
     return (
       <div
         className="p-6 text-center rounded-xl"
-        style={{ background: "var(--gray-3)" }}
+        style={{ background: 'var(--gray-3)' }}
       >
-        <Text size="2" style={{ color: "var(--gray-10)" }} className="italic">
+        <Text size="2" style={{ color: 'var(--gray-10)' }} className="italic">
           No games played yet.
         </Text>
       </div>
@@ -32,7 +32,10 @@ export default function ScoreHistory() {
   }
 
   return (
-    <div className="rounded-xl overflow-hidden" style={{ border: "1px solid var(--gray-5)" }}>
+    <div
+      className="rounded-xl overflow-hidden"
+      style={{ border: '1px solid var(--gray-5)' }}
+    >
       <div className="max-h-75 overflow-y-auto">
         <Table.Root size="1">
           <Table.Header>

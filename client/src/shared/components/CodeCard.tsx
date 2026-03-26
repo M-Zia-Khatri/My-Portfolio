@@ -1,15 +1,28 @@
-import { memo, useCallback, useEffect, useImperativeHandle, useMemo, useRef, useState, forwardRef } from "react";
-import { motion, AnimatePresence, useSpring, useTransform } from "motion/react";
-import gsap from "gsap";
-import type { Skill } from "@/features/skills/types";
-import TabScrollbarStyle from "@/shared/components/TabScrollbarStyle";
-import CodeTabBar from "@/features/skills/components/CodeTabBar";
-import TerminalView from "@/features/skills/components/TerminalView";
-import CodeEmptyState from "@/features/skills/components/CodeEmptyState";
-import CodeLine from "@/features/skills/components/CodeLine";
+import {
+  memo,
+  useCallback,
+  useEffect,
+  useImperativeHandle,
+  useMemo,
+  useRef,
+  useState,
+  forwardRef,
+} from 'react';
+import { motion, AnimatePresence, useSpring, useTransform } from 'motion/react';
+import gsap from 'gsap';
+import type { Skill } from '@/features/skills/types';
+import TabScrollbarStyle from '@/shared/components/TabScrollbarStyle';
+import CodeTabBar from '@/features/skills/components/CodeTabBar';
+import TerminalView from '@/features/skills/components/TerminalView';
+import CodeEmptyState from '@/features/skills/components/CodeEmptyState';
+import CodeLine from '@/features/skills/components/CodeLine';
 
 // Only re-renders when skill.color changes
-const ContentScrollbarStyle = memo(function ContentScrollbarStyle({ color }: { color: string }) {
+const ContentScrollbarStyle = memo(function ContentScrollbarStyle({
+  color,
+}: {
+  color: string;
+}) {
   return (
     <style>{`
       .content-scrollbar::-webkit-scrollbar { width: 3px; }
@@ -40,17 +53,20 @@ export interface CodeCardProps {
   started?: boolean;
 }
 
-const CodeCard = forwardRef<CodeCardHandle, CodeCardProps>(function CodeCard({
-  skill,
-  openTabs,
-  onTabClick,
-  onTabClose,
-  onTypingComplete,
-  started = true,
-}: CodeCardProps, ref) {
+const CodeCard = forwardRef<CodeCardHandle, CodeCardProps>(function CodeCard(
+  {
+    skill,
+    openTabs,
+    onTabClick,
+    onTabClose,
+    onTypingComplete,
+    started = true,
+  }: CodeCardProps,
+  ref
+) {
   // Split animation state — only used in "code" mode
   const [completedLines, setCompletedLines] = useState<string[]>([]);
-  const [currentLine, setCurrentLine] = useState("");
+  const [currentLine, setCurrentLine] = useState('');
   const [isTyping, setIsTyping] = useState(false);
   const [cursor, setCursor] = useState(true);
 
@@ -74,13 +90,13 @@ const CodeCard = forwardRef<CodeCardHandle, CodeCardProps>(function CodeCard({
   const mouseY = useSpring(0, { stiffness: 120, damping: 20 });
   const rotateX = useTransform(mouseY, [-0.5, 0.5], [4, -4]);
   const rotateY = useTransform(mouseX, [-0.5, 0.5], [-5, 5]);
-  const glowX = useTransform(mouseX, [-0.5, 0.5], ["20%", "80%"]);
-  const glowY = useTransform(mouseY, [-0.5, 0.5], ["20%", "80%"]);
+  const glowX = useTransform(mouseX, [-0.5, 0.5], ['20%', '80%']);
+  const glowY = useTransform(mouseY, [-0.5, 0.5], ['20%', '80%']);
 
   const spotlightBg = useTransform(
     [glowX, glowY],
     ([x, y]) =>
-      `radial-gradient(circle at ${x} ${y}, ${skill.color}18 0%, transparent 65%)`,
+      `radial-gradient(circle at ${x} ${y}, ${skill.color}18 0%, transparent 65%)`
   );
 
   const handleMouseMove = useCallback(
@@ -90,7 +106,7 @@ const CodeCard = forwardRef<CodeCardHandle, CodeCardProps>(function CodeCard({
       mouseX.set((e.clientX - rect.left) / rect.width - 0.5);
       mouseY.set((e.clientY - rect.top) / rect.height - 0.5);
     },
-    [mouseX, mouseY],
+    [mouseX, mouseY]
   );
 
   const handleMouseLeave = useCallback(() => {
@@ -100,19 +116,19 @@ const CodeCard = forwardRef<CodeCardHandle, CodeCardProps>(function CodeCard({
 
   // Blink cursor (code mode only)
   useEffect(() => {
-    if (skill.mode !== "code") return;
+    if (skill.mode !== 'code') return;
     const id = setInterval(() => setCursor((c) => !c), 530);
     return () => clearInterval(id);
   }, [skill.mode]);
 
   // Character-by-character GSAP typewriter (code mode only)
   useEffect(() => {
-    if (skill.mode !== "code") return;
+    if (skill.mode !== 'code') return;
     if (!started) return;
 
     tlRef.current?.kill();
     setCompletedLines([]);
-    setCurrentLine("");
+    setCurrentLine('');
     setIsTyping(true);
 
     const codeLines = skill.code;
@@ -125,7 +141,7 @@ const CodeCard = forwardRef<CodeCardHandle, CodeCardProps>(function CodeCard({
         steps.push({ li, ci, time: t });
         if (ci < line.length) {
           const ch = line[ci];
-          t += ch === " " ? 0.018 : 0.022 + Math.random() * 0.025;
+          t += ch === ' ' ? 0.018 : 0.022 + Math.random() * 0.025;
         }
       }
       t += 0.055;
@@ -135,34 +151,37 @@ const CodeCard = forwardRef<CodeCardHandle, CodeCardProps>(function CodeCard({
     const tween = gsap.to(progress, {
       value: steps.length - 1,
       duration: t,
-      ease: "none",
+      ease: 'none',
       onUpdate() {
-        const { li, ci } = steps[Math.round(progress.value)] ?? steps[steps.length - 1];
+        const { li, ci } =
+          steps[Math.round(progress.value)] ?? steps[steps.length - 1];
         setCompletedLines(codeLines.slice(0, li));
         setCurrentLine(codeLines[li].slice(0, ci));
       },
       onComplete() {
         setCompletedLines(codeLines);
-        setCurrentLine("");
+        setCurrentLine('');
         setIsTyping(false);
         onTypingComplete?.();
       },
     });
 
     tlRef.current = gsap.timeline().add(tween);
-    return () => { tlRef.current?.kill(); };
+    return () => {
+      tlRef.current?.kill();
+    };
   }, [skill, started]);
 
   // All lines to render (code mode)
   const allLines = useMemo(
     () => (isTyping ? [...completedLines, currentLine] : completedLines),
-    [completedLines, currentLine, isTyping],
+    [completedLines, currentLine, isTyping]
   );
   const activeLineI = isTyping ? allLines.length - 1 : -1;
 
   // Card background adapts to mode
-  const isTerminal = skill.mode === "terminal";
-  const cardBg = isTerminal ? "rgba(5, 10, 5, 0.97)" : "rgba(10, 14, 20, 0.95)";
+  const isTerminal = skill.mode === 'terminal';
+  const cardBg = isTerminal ? 'rgba(5, 10, 5, 0.97)' : 'rgba(10, 14, 20, 0.95)';
 
   return (
     <>
@@ -172,7 +191,12 @@ const CodeCard = forwardRef<CodeCardHandle, CodeCardProps>(function CodeCard({
       {/* Tilt wrapper */}
       <motion.div
         ref={cardRef}
-        style={{ rotateX, rotateY, transformStyle: "preserve-3d", perspective: 800 }}
+        style={{
+          rotateX,
+          rotateY,
+          transformStyle: 'preserve-3d',
+          perspective: 800,
+        }}
         onMouseMove={handleMouseMove}
         onMouseLeave={handleMouseLeave}
         className="relative"
@@ -189,7 +213,8 @@ const CodeCard = forwardRef<CodeCardHandle, CodeCardProps>(function CodeCard({
             background: cardBg,
             border: `1px solid ${skill.color}30`,
             boxShadow: `0 0 0 1px ${skill.color}18, 0 16px 48px rgba(0,0,0,0.55)`,
-            fontFamily: '"JetBrains Mono","Fira Code","Cascadia Code",ui-monospace,monospace',
+            fontFamily:
+              '"JetBrains Mono","Fira Code","Cascadia Code",ui-monospace,monospace',
             minHeight: 300,
           }}
         >
@@ -207,14 +232,14 @@ const CodeCard = forwardRef<CodeCardHandle, CodeCardProps>(function CodeCard({
             style={{
               minHeight: 260,
               maxHeight: 320,
-              overflowY: "auto",
-              overflowX: "hidden",
+              overflowY: 'auto',
+              overflowX: 'hidden',
             }}
           >
             <AnimatePresence mode="wait">
               {openTabs.length === 0 ? (
                 <CodeEmptyState key="empty" />
-              ) : skill.mode === "terminal" ? (
+              ) : skill.mode === 'terminal' ? (
                 /* ── Terminal mode ── */
                 <TerminalView
                   key={skill.name}
@@ -252,7 +277,7 @@ const CodeCard = forwardRef<CodeCardHandle, CodeCardProps>(function CodeCard({
             className="absolute bottom-0 left-0 right-0 h-12 pointer-events-none"
             style={{
               background:
-                "linear-gradient(to top, rgba(10,14,20,0.95) 0%, transparent 100%)",
+                'linear-gradient(to top, rgba(10,14,20,0.95) 0%, transparent 100%)',
             }}
           />
         </div>

@@ -1,4 +1,4 @@
-import { motion } from "motion/react";
+import { motion } from 'motion/react';
 
 export default function CodeEmptyState() {
   return (
@@ -7,13 +7,13 @@ export default function CodeEmptyState() {
       initial={{ opacity: 0, scale: 0.94 }}
       animate={{ opacity: 1, scale: 1 }}
       exit={{ opacity: 0, scale: 0.94 }}
-      transition={{ duration: 0.25, ease: "easeOut" }}
+      transition={{ duration: 0.25, ease: 'easeOut' }}
       className="flex flex-col items-center justify-center h-full gap-3 select-none"
       style={{ minHeight: 240 }}
     >
       <motion.div
         animate={{ y: [0, -4, 0] }}
-        transition={{ duration: 2.8, repeat: Infinity, ease: "easeInOut" }}
+        transition={{ duration: 2.8, repeat: Infinity, ease: 'easeInOut' }}
         className="text-4xl opacity-20"
       >
         📂
@@ -21,14 +21,14 @@ export default function CodeEmptyState() {
 
       <p
         className="text-[12px] tracking-widest uppercase opacity-25"
-        style={{ fontFamily: "ui-monospace, monospace" }}
+        style={{ fontFamily: 'ui-monospace, monospace' }}
       >
         No file open
       </p>
 
       <p
         className="text-[11px] opacity-15"
-        style={{ fontFamily: "ui-monospace, monospace" }}
+        style={{ fontFamily: 'ui-monospace, monospace' }}
       >
         Click a skill to open a tab
       </p>

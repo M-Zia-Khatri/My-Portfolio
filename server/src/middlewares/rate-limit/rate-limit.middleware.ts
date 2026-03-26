@@ -1,16 +1,16 @@
-import { Request, Response, NextFunction } from "express";
-import { redis } from "@/lib/utills/redis";
-import { RateLimitConfig } from "./rate-limit.types";
-import { SLIDING_WINDOW_SCRIPT } from "./rate-limit.script";
-import { fallbackCheck } from "./rate-limit.fallback";
+import { Request, Response, NextFunction } from 'express';
+import { redis } from '@/lib/utills/redis';
+import { RateLimitConfig } from './rate-limit.types';
+import { SLIDING_WINDOW_SCRIPT } from './rate-limit.script';
+import { fallbackCheck } from './rate-limit.fallback';
 import {
   buildRedisKey,
   getIp,
   uniqueRequestId,
   setRateLimitHeaders,
-} from "./rate-limit.helpers";
+} from './rate-limit.helpers';
 
-export type { Tier, RateLimitConfig } from "./rate-limit.types";
+export type { Tier, RateLimitConfig } from './rate-limit.types';
 
 // ─── Middleware Factory ────────────────────────────────────────────────────
 
@@ -19,21 +19,21 @@ export function rateLimit(config: RateLimitConfig) {
     action,
     tiers,
     keyResolver,
-    message = "Too many requests. Try again later.",
-    failBehavior = "open",
+    message = 'Too many requests. Try again later.',
+    failBehavior = 'open',
     skip,
   } = config;
 
   if (!action || !tiers?.length) {
     throw new Error(
-      `[rateLimit] "action" and at least one "tier" are required.`,
+      `[rateLimit] "action" and at least one "tier" are required.`
     );
   }
 
   return async (
     req: Request,
     res: Response,
-    next: NextFunction,
+    next: NextFunction
   ): Promise<void> => {
     if (skip?.(req)) return next();
 
@@ -65,7 +65,7 @@ export function rateLimit(config: RateLimitConfig) {
           String(interval), // ARGV[2]
           String(limit), // ARGV[3]
           String(weight), // ARGV[4]
-          requestId, // ARGV[5]
+          requestId // ARGV[5]
         )) as [number, number];
 
         const count = raw[0];
@@ -100,17 +100,17 @@ export function rateLimit(config: RateLimitConfig) {
         worstLimit,
         worstRemaining,
         worstResetAt,
-        worstInterval,
+        worstInterval
       );
       next();
     } catch (err) {
-      console.error("[rateLimit] Redis error:", err);
+      console.error('[rateLimit] Redis error:', err);
 
-      if (failBehavior === "closed") {
+      if (failBehavior === 'closed') {
         res.status(503).json({
           success: false,
           status: 503,
-          message: "Service temporarily unavailable.",
+          message: 'Service temporarily unavailable.',
         });
         return;
       }
@@ -124,7 +124,7 @@ export function rateLimit(config: RateLimitConfig) {
           `${action}:${identity}:${interval}`,
           interval,
           limit,
-          weight,
+          weight
         );
 
         if (!allowed) {

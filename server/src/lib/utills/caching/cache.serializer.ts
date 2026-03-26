@@ -1,9 +1,9 @@
-import type { CachePayload } from "./cache.types"
+import type { CachePayload } from './cache.types';
 
-const ISO_DATE_RE = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(\.\d+)?Z$/
+const ISO_DATE_RE = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(\.\d+)?Z$/;
 
 export function serialize<T>(payload: CachePayload<T>): string {
-  return JSON.stringify(payload)
+  return JSON.stringify(payload);
 }
 
 /**
@@ -12,9 +12,9 @@ export function serialize<T>(payload: CachePayload<T>): string {
  */
 export function deserialize<T>(raw: string): CachePayload<T> {
   return JSON.parse(raw, (_key, value) => {
-    if (typeof value === "string" && ISO_DATE_RE.test(value)) {
-      return new Date(value)
+    if (typeof value === 'string' && ISO_DATE_RE.test(value)) {
+      return new Date(value);
     }
-    return value
-  }) as CachePayload<T>
+    return value;
+  }) as CachePayload<T>;
 }

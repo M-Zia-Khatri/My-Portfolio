@@ -1,6 +1,6 @@
-import { memo, useMemo, useState } from "react";
-import { motion, AnimatePresence } from "motion/react";
-import { tokenise } from "./tokeniser";
+import { memo, useMemo, useState } from 'react';
+import { motion, AnimatePresence } from 'motion/react';
+import { tokenise } from './tokeniser';
 
 interface CodeLineProps {
   line: string;
@@ -26,13 +26,15 @@ const CodeLine = memo(function CodeLine({
 
   return (
     <motion.div
-      initial={isActiveLine && line.length <= 1 ? { opacity: 0, x: -10 } : false}
+      initial={
+        isActiveLine && line.length <= 1 ? { opacity: 0, x: -10 } : false
+      }
       animate={{ opacity: 1, x: 0 }}
       transition={{ duration: 0.12 }}
       onHoverStart={() => setHovered(true)}
       onHoverEnd={() => setHovered(false)}
       className="relative flex items-center"
-      style={{ minHeight: "1.6rem" }}
+      style={{ minHeight: '1.6rem' }}
     >
       {/* Hover highlight */}
       <AnimatePresence>
@@ -43,7 +45,10 @@ const CodeLine = memo(function CodeLine({
             exit={{ opacity: 0 }}
             transition={{ duration: 0.12 }}
             className="absolute inset-0 pointer-events-none"
-            style={{ background: `${color}0d`, borderLeft: `2px solid ${color}55` }}
+            style={{
+              background: `${color}0d`,
+              borderLeft: `2px solid ${color}55`,
+            }}
           />
         )}
       </AnimatePresence>
@@ -54,7 +59,10 @@ const CodeLine = memo(function CodeLine({
           className="absolute inset-0 pointer-events-none"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
-          style={{ background: `${color}08`, borderLeft: `2px solid ${color}44` }}
+          style={{
+            background: `${color}08`,
+            borderLeft: `2px solid ${color}44`,
+          }}
         />
       )}
 
@@ -67,7 +75,7 @@ const CodeLine = memo(function CodeLine({
             ? `${color}cc`
             : hovered
               ? `${color}88`
-              : "rgba(255,255,255,0.18)",
+              : 'rgba(255,255,255,0.18)',
         }}
       >
         {index + 1}
@@ -88,7 +96,7 @@ const CodeLine = memo(function CodeLine({
             style={{
               background: color,
               opacity: cursor ? 1 : 0,
-              transition: "opacity 0.08s",
+              transition: 'opacity 0.08s',
             }}
           />
         )}
