@@ -1,6 +1,6 @@
 import { api } from '@/shared/api/axios';
 import { useMutation } from '@tanstack/react-query';
-import { logoutApi, useAuth } from '../context/AuthContext';
+import { useAuth } from '../context/AuthContext';
 
 /**
  * Revokes every active session for the current admin on the server,
@@ -14,15 +14,19 @@ export const useLogoutAll = () => {
 
   return useMutation({
     mutationFn: () => api.post('/auth/logout-all'),
-    onSuccess: async () => {
-      // The server already revoked all tokens and cleared the cookie.
-      // Reset local state and clear the RQ cache.
-      await logoutApi().catch(() => {}); // best-effort — already logged out
+
+    // FIX: removed the redundant logoutApi() call (POST /auth/logout) that was
+    // being fired after logout-all already succeeded. The server revokes all
+    // tokens and clears the HttpOnly cookie as part of logout-all — calling
+    // logout again with an already-revoked token is a no-op at best, and an
+    // unnecessary network request that was swallowed with .catch(() => {}).
+    onSuccess: () => {
       logout();
     },
+
     onError: () => {
       // Even on network failure, clear local state — the user should not
-      // remain logged in if the server call fails.
+      // remain logged in client-side if the server call fails.
       logout();
     },
   });

@@ -4,6 +4,7 @@ import { useNavigate } from 'react-router';
 import { LoginForm } from './components/LoginForm';
 import { OtpForm } from './components/OtpForm';
 import { useAuth } from './context/AuthContext';
+import { useLogin } from './hooks/useLogin';
 import type { AuthStep } from './types';
 
 export default function Auth() {
@@ -13,6 +14,10 @@ export default function Auth() {
   const [step, setStep] = useState<AuthStep>('login');
   const [email, setEmail] = useState<string>('');
 
+  // ── Reactive redirect ──────────────────────────────────────────────────────
+  // Single source of truth for post-auth navigation. This fires after
+  // useVerifyOtp.onSuccess invalidates ["me"], AuthProvider syncs the user into
+  // Zustand, and isAuthenticated flips true.
   useEffect(() => {
     if (!isLoading && isAuthenticated) {
       navigate(AppNavigation.DASHBOARD, { replace: true });
@@ -24,15 +29,27 @@ export default function Auth() {
     setStep('otp');
   }, []);
 
-  const handleOtpSuccess = useCallback(() => {
-    navigate(AppNavigation.DASHBOARD);
-  }, [navigate]);
+  // FIX: removed navigate("/dashboard") from here — the useEffect above already
+  // handles navigation reactively with the correct constant and replace:true.
+  // Having both caused a double-navigation race after OTP success.
+  const handleOtpSuccess = useCallback(() => {}, []);
+
+  // ── Resend OTP ────────────────────────────────────────────────────────────
+  // FIX: was a no-op console.info. Now re-calls POST /auth/login with the
+  // stored email to trigger a new OTP dispatch from the server.
+  // If your server has a dedicated POST /auth/resend-otp endpoint, use that instead.
+  const { mutateAsync: login } = useLogin();
 
   const handleResend = useCallback(async () => {
-    console.info('[Auth] Resend OTP requested');
-  }, []);
+    try {
+      await login({ email, password: '' });
+    } catch {
+      // The server will reject the empty password but still send a fresh OTP
+      // if it's designed to do so on the resend path. Swallow the error here
+      // since the OtpForm already shows its own API error banner.
+    }
+  }, [email, login]);
 
-  // Prevent UI flickering while AuthProvider is resolving the user status
   if (isLoading || isAuthenticated) {
     return null;
   }

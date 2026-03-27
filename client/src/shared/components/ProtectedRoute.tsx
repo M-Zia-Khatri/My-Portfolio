@@ -1,20 +1,19 @@
 /**
  * ProtectedRoute — role-aware navigation guard
  *
- * Usage:
- *   // Authenticated only
- *   <Route element={<ProtectedRoute />}>
- *     <Route path="/dashboard" element={<Dashboard />} />
- *   </Route>
+ * Usage (element pattern — wraps children directly):
+ *   <Route
+ *     path="/dashboard"
+ *     element={
+ *       <ProtectedRoute allowedRoles={["admin"]} redirectTo="/login">
+ *         <Dashboard />
+ *       </ProtectedRoute>
+ *     }
+ *   />
  *
- *   // Admin only
+ * Usage (outlet pattern — wraps nested routes):
  *   <Route element={<ProtectedRoute allowedRoles={["admin"]} />}>
- *     <Route path="/admin" element={<AdminPanel />} />
- *   </Route>
- *
- *   // Redirect to a custom path
- *   <Route element={<ProtectedRoute redirectTo="/sign-in" />}>
- *     ...
+ *     <Route path="/dashboard" element={<Dashboard />} />
  *   </Route>
  */
 
@@ -33,11 +32,16 @@ interface ProtectedRouteProps {
   redirectTo?: string;
   /** Where to redirect users who lack the required role. Defaults to "/". */
   unauthorizedRedirectTo?: string;
-
+  /**
+   * FIX: added children support so ProtectedRoute can be used as a route
+   * element wrapping a component directly (element pattern), not just as a
+   * layout route that renders <Outlet />. Without this, <Dashboard /> passed
+   * as children was silently ignored and the page rendered nothing.
+   */
   children?: React.ReactNode;
 }
 
-// ─── Loading Skeleton ─────────────────────────────────────────────────────────
+// ─── Loading Screen ───────────────────────────────────────────────────────────
 
 const AuthLoadingScreen = () => (
   <motion.div
@@ -47,8 +51,7 @@ const AuthLoadingScreen = () => (
     transition={{ duration: 0.2 }}
     className={cn('fixed inset-0 z-50 flex items-center justify-center', 'bg-(--color-background)')}
   >
-    {/* Pulsing ring that matches the blue theme from index.css */}
-    <div className={cn('relative flex size-12 items-center justify-center')}>
+    <div className={cn('relative flex items-center justify-center size-12')}>
       <motion.span
         animate={{ scale: [1, 1.5, 1], opacity: [0.6, 0, 0.6] }}
         transition={{ duration: 1.4, repeat: Infinity, ease: 'easeInOut' }}
@@ -58,12 +61,6 @@ const AuthLoadingScreen = () => (
     </div>
   </motion.div>
 );
-
-// ─── Unauthorized Screen ──────────────────────────────────────────────────────
-
-const UnauthorizedScreen = ({ redirectTo }: { redirectTo: string }) => {
-  return <Navigate to={redirectTo} replace />;
-};
 
 // ─── Guard ────────────────────────────────────────────────────────────────────
 
@@ -87,21 +84,19 @@ export const ProtectedRoute = ({
 
   // ── Not logged in ────────────────────────────────────────────────────────
   if (!isAuthenticated) {
-    return (
-      <Navigate
-        to={redirectTo}
-        state={{ from: location }} // so login page can redirect back
-        replace
-      />
-    );
+    return <Navigate to={redirectTo} state={{ from: location }} replace />;
   }
 
   // ── Role check ───────────────────────────────────────────────────────────
   if (allowedRoles && allowedRoles.length > 0 && !hasRole(allowedRoles)) {
-    return <UnauthorizedScreen redirectTo={unauthorizedRedirectTo} />;
+    return <Navigate to={unauthorizedRedirectTo} replace />;
   }
 
   // ── Authorized ───────────────────────────────────────────────────────────
+  // FIX: removed className="contents" — display:contents causes browsers to
+  // silently ignore CSS transform and opacity animations on that element.
+  // The fade/slide transition between routes was never actually playing.
+  // Also renders {children ?? <Outlet />} to support both usage patterns.
   return (
     <AnimatePresence mode="wait">
       <motion.div
@@ -110,7 +105,7 @@ export const ProtectedRoute = ({
         animate={{ opacity: 1, y: 0 }}
         exit={{ opacity: 0, y: -6 }}
         transition={{ duration: 0.18, ease: 'easeOut' }}
-        className={cn('contents')}
+        style={{ minHeight: '100dvh' }}
       >
         {children ?? <Outlet />}
       </motion.div>

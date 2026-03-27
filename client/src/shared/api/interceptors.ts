@@ -21,6 +21,17 @@ function processQueue(error: unknown, token: string | null): void {
   failedQueue = [];
 }
 
+// Auth endpoints that must never trigger a silent token refresh on 401.
+// FIX: added /auth/login — a wrong password returns 401, which was previously
+// causing a pointless POST /auth/refresh attempt (no cookie exists yet at
+// login time), adding a wasted round-trip before the error reached the UI.
+const REFRESH_EXCLUDED_URLS = ['/auth/refresh', '/auth/login', '/auth/verify-otp'];
+
+function isExcluded(url: string | undefined): boolean {
+  if (!url) return false;
+  return REFRESH_EXCLUDED_URLS.some((path) => url.includes(path));
+}
+
 export const setupInterceptors = (api: AxiosInstance) => {
   // ── Request — attach access token ──────────────────────────────────────────
   api.interceptors.request.use((config: InternalAxiosRequestConfig) => {
@@ -37,12 +48,10 @@ export const setupInterceptors = (api: AxiosInstance) => {
     async (error) => {
       const originalRequest = error.config;
 
-      // Ensure we don't loop on /auth/refresh or non-401 errors
       if (
         error.response?.status !== 401 ||
         originalRequest._retry ||
-        originalRequest.url?.includes('/auth/refresh') ||
-        originalRequest.url?.includes('/auth/verify-otp')
+        isExcluded(originalRequest.url)
       ) {
         return Promise.reject(error);
       }
@@ -62,7 +71,7 @@ export const setupInterceptors = (api: AxiosInstance) => {
       isRefreshing = true;
 
       try {
-        const data = await refreshTokenApi(); // Note: ensure this doesn't cause a loop
+        const data = await refreshTokenApi();
 
         setAccessToken(data.accessToken);
         processQueue(null, data.accessToken);

@@ -7,6 +7,8 @@ import { useForm } from 'react-hook-form';
 import { AUTH_CONFIG } from '../auth.config';
 import { loginSchema, type LoginFields } from '../auth.schema';
 import { useApiError } from '../hooks/useApiError';
+// FIX: import the existing useAutoFocus hook instead of duplicating its logic
+import { useAutoFocus } from '../hooks/useAutoFocus';
 import { DialogShell } from './DialogShell';
 import { ApiErrorBanner } from './ui/ApiErrorBanner';
 import { FieldError } from './ui/FieldError';
@@ -39,7 +41,7 @@ function Label({ htmlFor, children }: { htmlFor: string; children: React.ReactNo
   return (
     <label
       htmlFor={htmlFor}
-      className={cn('mb-1.5 block text-xs font-medium tracking-wide select-none')}
+      className={cn('block text-xs font-medium mb-1.5 tracking-wide select-none')}
       style={{ color: 'var(--gray-11)' }}
     >
       {children}
@@ -57,8 +59,11 @@ interface LoginFormProps {
 // ─── COMPONENT ───────────────────────────────────────────────────────────────
 
 export function LoginForm({ open, onSuccess }: LoginFormProps) {
-  // ── local refs
-  const emailRef = useRef<HTMLInputElement | null>(null);
+  // FIX: replaced the manual useRef + useEffect + setTimeout focus logic with
+  // the existing useAutoFocus hook that does the same thing. The hook was
+  // already written and tested but never imported by either form.
+  const emailAutoFocusRef = useAutoFocus<HTMLInputElement>(open);
+
   const hideTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   // ── UI state
@@ -78,23 +83,18 @@ export function LoginForm({ open, onSuccess }: LoginFormProps) {
     resolver: zodResolver(loginSchema),
   });
 
-  // ─── BUG FIX #1 ────────────────────────────────────────────────────────────
-  // Destructure RHF's ref out of register() so we can merge it with our local
-  // emailRef for auto-focus. Passing ref={emailRef} after spreading
-  // {...register("email")} would silently OVERWRITE RHF's ref, making RHF
-  // unable to read the uncontrolled input's value → Zod receives `undefined`
-  // → "Invalid input: expected string, received undefined".
+  // Destructure RHF's ref so we can merge it with our auto-focus ref.
+  // Passing ref={emailAutoFocusRef} after spreading {...register("email")}
+  // would silently OVERWRITE RHF's ref → Zod receives undefined on submit.
   const { ref: emailFormRef, ...emailRest } = register('email');
   const { ref: passwordFormRef, ...passwordRest } = register('password');
 
-  // Auto-focus first field on open
+  // Reset form + clear errors when the dialog opens
   useEffect(() => {
     if (!open) return;
     clearError();
     reset();
     setShowPassword(false);
-    const id = setTimeout(() => emailRef.current?.focus(), 80);
-    return () => clearTimeout(id);
   }, [open]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // Cleanup auto-hide timer on unmount
@@ -141,13 +141,13 @@ export function LoginForm({ open, onSuccess }: LoginFormProps) {
             placeholder="admin@example.com"
             {...emailRest}
             ref={(el) => {
-              // Merge RHF ref + local ref
+              // Merge RHF ref + useAutoFocus ref
               emailFormRef(el);
-              emailRef.current = el;
+              (emailAutoFocusRef as React.MutableRefObject<HTMLInputElement | null>).current = el;
             }}
             className={cn(
               'w-full rounded-xl px-4 py-2.5 text-sm outline-none',
-              'border font-mono transition-none placeholder:opacity-25',
+              'border font-mono placeholder:opacity-25 transition-none',
             )}
             style={getInputStyle(!!errors.email)}
             onFocus={onFocus}
@@ -169,14 +169,13 @@ export function LoginForm({ open, onSuccess }: LoginFormProps) {
               ref={passwordFormRef}
               className={cn(
                 'w-full rounded-xl px-4 py-2.5 pr-11 text-sm outline-none',
-                'border font-mono transition-none placeholder:opacity-40',
+                'border font-mono placeholder:opacity-40 transition-none',
               )}
               style={getInputStyle(!!errors.password)}
               onFocus={onFocus}
               onBlur={(e) => onBlur(e, !!errors.password)}
               onChange={(e) => {
                 passwordRest.onChange(e);
-                // Reset auto-hide timer on every keystroke when visible
                 if (showPassword) {
                   if (hideTimerRef.current) clearTimeout(hideTimerRef.current);
                   hideTimerRef.current = setTimeout(() => setShowPassword(false), 5_000);
@@ -189,7 +188,7 @@ export function LoginForm({ open, onSuccess }: LoginFormProps) {
               onClick={handleTogglePassword}
               aria-label={showPassword ? 'Hide password' : 'Show password'}
               className={cn(
-                'absolute top-1/2 right-3 -translate-y-1/2',
+                'absolute right-3 top-1/2 -translate-y-1/2',
                 'transition-colors duration-150',
               )}
               style={{ color: 'var(--gray-9)' }}

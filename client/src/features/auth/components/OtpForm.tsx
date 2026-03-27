@@ -1,12 +1,14 @@
 import { useVerifyOtp } from '@/features/auth/hooks/useVerifyOtp';
 import { cn } from '@/shared/utils/cn';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { useEffect, useRef } from 'react';
+import { useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { AUTH_CONFIG, OTP_RESEND_COOLDOWN } from '../auth.config';
 import { otpSchema, type OtpFields } from '../auth.schema';
 import { useApiError } from '../hooks/useApiError';
 import { useCooldown } from '../hooks/useCooldown';
+// FIX: import the existing useAutoFocus hook instead of duplicating its logic
+import { useAutoFocus } from '../hooks/useAutoFocus';
 import { DialogShell } from './DialogShell';
 import { ApiErrorBanner } from './ui/ApiErrorBanner';
 import { FieldError } from './ui/FieldError';
@@ -24,7 +26,9 @@ interface OtpFormProps {
 // ─── COMPONENT ───────────────────────────────────────────────────────────────
 
 export function OtpForm({ open, email, onSuccess, onResend }: OtpFormProps) {
-  const otpRef = useRef<HTMLInputElement | null>(null);
+  // FIX: replaced the manual useRef + useEffect + setTimeout focus logic with
+  // the existing useAutoFocus hook.
+  const otpAutoFocusRef = useAutoFocus<HTMLInputElement>(open);
 
   // ── API
   const { mutateAsync: verifyOtp, isPending } = useVerifyOtp();
@@ -43,21 +47,14 @@ export function OtpForm({ open, email, onSuccess, onResend }: OtpFormProps) {
     resolver: zodResolver(otpSchema),
   });
 
-  // ─── BUG FIX #2 ────────────────────────────────────────────────────────────
-  // The original code called `codeRest.onChange(...)` inside the onChange
-  // handler, but `codeRest` was never declared — it was a reference to a
-  // non-existent variable (ReferenceError at runtime). The fix: destructure
-  // register("code") exactly like the password field, then merge the RHF ref
-  // with our local otpRef for auto-focus, and call `codeRest.onChange` safely.
+  // Destructure RHF's ref so we can merge it with our auto-focus ref.
   const { ref: codeFormRef, ...codeRest } = register('code');
 
-  // Auto-focus on open
+  // Reset form + clear errors when the dialog opens
   useEffect(() => {
     if (!open) return;
     clearError();
     reset();
-    const id = setTimeout(() => otpRef.current?.focus(), 80);
-    return () => clearTimeout(id);
   }, [open]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // ── Handlers
@@ -86,7 +83,7 @@ export function OtpForm({ open, email, onSuccess, onResend }: OtpFormProps) {
         <div>
           <label
             htmlFor="otp-code"
-            className={cn('mb-1.5 block text-xs font-medium tracking-wide select-none')}
+            className={cn('block text-xs font-medium mb-1.5 tracking-wide select-none')}
             style={{ color: 'var(--gray-11)' }}
           >
             One-time password
@@ -100,15 +97,15 @@ export function OtpForm({ open, email, onSuccess, onResend }: OtpFormProps) {
             placeholder="000000"
             {...codeRest}
             ref={(el) => {
-              // Merge RHF ref + local ref (same pattern as email in LoginForm)
+              // Merge RHF ref + useAutoFocus ref
               codeFormRef(el);
-              otpRef.current = el;
+              (otpAutoFocusRef as React.MutableRefObject<HTMLInputElement | null>).current = el;
             }}
             className={cn(
               'w-full rounded-xl px-4 py-3.5 outline-none',
               'border font-mono transition-none',
               'text-center text-2xl tracking-[0.7em]',
-              'placeholder:tracking-[0.6em] placeholder:opacity-20',
+              'placeholder:opacity-20 placeholder:tracking-[0.6em]',
             )}
             style={{
               background: 'var(--gray-3)',
@@ -130,7 +127,7 @@ export function OtpForm({ open, email, onSuccess, onResend }: OtpFormProps) {
             onChange={(e) => {
               // Strip non-digits before RHF sees the value
               e.target.value = e.target.value.replace(/\D/g, '');
-              codeRest.onChange(e); // now safe — codeRest is properly declared above
+              codeRest.onChange(e);
             }}
           />
           <FieldError message={errors.code?.message} />

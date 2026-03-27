@@ -54,14 +54,19 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       return;
     }
 
+    // FIX #1a: only call setUser(user) — the previous code had setUser(null)
+    // immediately after, which reset isAuthenticated to false on every load.
     if (isSuccess && user) {
       setUser(user);
-    }
-    if (isError) {
-      setUser(null);
+      return;
     }
 
-    setLoading(false);
+    // FIX #1b: handle the error/no-session case so isLoading clears.
+    // Previously missing — caused an infinite spinner on unauthenticated visits
+    // and a blank login page (Auth.tsx returns null while isLoading is true).
+    if (isError || (isSuccess && !user)) {
+      setUser(null);
+    }
   }, [user, isLoading, isSuccess, isError, setUser, setLoading]);
 
   return <>{children}</>;

@@ -1,7 +1,8 @@
+import { create } from 'zustand';
+// FIX: removed unused setAccessToken import — only clearAccessToken is used in logout()
 import type { AuthState, AuthUser } from '@/features/auth/types';
 import { clearAccessToken } from '@/features/auth/utils/tokenManager';
 import type { QueryClient } from '@tanstack/react-query';
-import { create } from 'zustand';
 
 // ─── QueryClient bridge ───────────────────────────────────────────────────────
 // Injected once at app boot (in AuthProvider) so logout() can clear the
@@ -52,8 +53,6 @@ export const useAuthStore = create<AuthStore>((set, get) => ({
 
   logout: () => {
     clearAccessToken();
-    // Clear the RQ cache here — co-located so it always runs regardless of
-    // whether AuthProvider is mounted, no fragile subscription required.
     _queryClient?.clear();
     set({ user: null, isAuthenticated: false, isLoading: false });
   },
@@ -74,9 +73,8 @@ export const useAuthStore = create<AuthStore>((set, get) => ({
   },
 }));
 
-// ─── Convenience selector ─────────────────────────────────────────────────────
-// Used by components that only need to know if the user is authenticated,
-// without subscribing to the full state object.
+// ─── Convenience selectors ────────────────────────────────────────────────────
+
 export const selectIsAuthenticated = (s: AuthStore) => s.isAuthenticated;
 export const selectUser = (s: AuthStore) => s.user;
 export const selectIsLoading = (s: AuthStore) => s.isLoading;
