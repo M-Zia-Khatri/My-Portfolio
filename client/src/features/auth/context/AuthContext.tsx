@@ -1,26 +1,10 @@
-/**
- * AuthProvider — React Query + Zustand bridge
- *
- * Responsibilities:
- *  1. Injects the React Query client into useAuthStore once at mount so
- *     store.logout() can clear the cache without relying on a subscription.
- *  2. On mount → useMe fetches GET /auth/me. If the access token is expired
- *     the axios interceptor silently refreshes it via the HttpOnly cookie
- *     before useMe sees a 401.
- *  3. Syncs the useMe result into useAuthStore so any component can read
- *     auth state without prop-drilling or useContext.
- *
- * Pattern:
- *  Server state  → React Query  (useMe, useLogin, useVerifyOtp …)
- *  Client state  → Zustand      (useAuthStore)
- *  Bridge        → AuthProvider (this file)
- */
-
 import { api } from '@/shared/api/axios';
 import { setQueryClient, useAuthStore } from '@/shared/store/useAuthStore';
 import { useQueryClient } from '@tanstack/react-query';
 import { useEffect } from 'react';
 import { useMe } from '../hooks/useMe';
+import { clearTokens } from '../utils/tokenManager';
+import { useAutoRefresh } from '../utils/useAutoRefresh';
 
 // ─── Logout API ───────────────────────────────────────────────────────────────
 
@@ -37,12 +21,21 @@ export const logoutApi = async (): Promise<void> => {
 
 export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const { data: user, isLoading, isSuccess, isError } = useMe();
-  const { setUser, setLoading } = useAuthStore();
+  const { setUser, setLoading, logout: logoutStore } = useAuthStore();
   const queryClient = useQueryClient();
 
-  // ── Inject queryClient into the store once ──────────────────────────────
-  // This allows store.logout() to clear the RQ cache directly, avoiding the
-  // fragile subscription pattern that only worked while this component was mounted.
+  useAutoRefresh();
+
+  const handleLogout = async () => {
+    try {
+      await api.post('/auth/logout');
+    } finally {
+      clearTokens();
+      queryClient.clear();
+      logoutStore();
+    }
+  };
+
   useEffect(() => {
     setQueryClient(queryClient);
   }, [queryClient]);

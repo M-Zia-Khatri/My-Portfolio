@@ -1,41 +1,35 @@
-// ─── tokenManager.ts ──────────────────────────────────────────────────────────
-//
-// Manages the short-lived access token on the client.
-//
-// Storage strategy
-// ┌─────────────────────┬────────────────────────────────────────────────────┐
-// │ access_token cookie │ Regular (JS-readable), Secure, SameSite=Strict,   │
-// │                     │ max-age=900 (15 min). Read by the axios interceptor│
-// │                     │ and attached as the Authorization: Bearer header.  │
-// ├─────────────────────┼────────────────────────────────────────────────────┤
-// │ refresh_token cookie│ HttpOnly (server-set). Never accessible from JS.   │
-// │                     │ Sent automatically on POST /auth/refresh.           │
-// └─────────────────────┴────────────────────────────────────────────────────┘
-//
-// Why a cookie instead of a JS variable?
-//  - In-memory variables vanish on every page refresh, forcing a round-trip to
-//    /auth/refresh before any protected request can fire.
-//  - localStorage survives refreshes but is accessible to any script on the
-//    page — a larger XSS target.
-//  - A non-HttpOnly cookie with SameSite=Strict survives refreshes, is scoped
-//    to the origin, and carries no CSRF risk because all state-changing
-//    endpoints also require a valid access token in the Authorization header.
-
 import { clearCookie, getCookie, setCookie } from './cookieManager';
 
-const ACCESS_TOKEN_COOKIE = 'access_token';
-const ACCESS_TOKEN_MAX_AGE = 15 * 60; // 15 minutes — matches JWT expiry
+const ACCESS_TOKEN_KEY = 'access_token';
+const REFRESH_TOKEN_KEY = 'refresh_token';
 
-// ─── API ──────────────────────────────────────────────────────────────────────
+// Durations (matching backend JWT expiries)
+const ACCESS_MAX_AGE = 15 * 60; // 15 Minutes
+const REFRESH_MAX_AGE = 7 * 24 * 60 * 60; // 7 Days
 
+export function setTokens(access: string, refresh?: string): void {
+  setCookie(ACCESS_TOKEN_KEY, access, { maxAge: ACCESS_MAX_AGE });
+  if (refresh) {
+    setCookie(REFRESH_TOKEN_KEY, refresh, { maxAge: REFRESH_MAX_AGE });
+  }
+}
 export function setAccessToken(token: string): void {
-  setCookie(ACCESS_TOKEN_COOKIE, token, { maxAge: ACCESS_TOKEN_MAX_AGE });
+  setCookie(ACCESS_TOKEN_KEY, token, { maxAge: ACCESS_MAX_AGE });
 }
 
 export function getAccessToken(): string | null {
-  return getCookie(ACCESS_TOKEN_COOKIE);
+  return getCookie(ACCESS_TOKEN_KEY);
+}
+// ADD THIS FUNCTION
+export function clearAccessToken(): void {
+  clearCookie(ACCESS_TOKEN_KEY);
 }
 
-export function clearAccessToken(): void {
-  clearCookie(ACCESS_TOKEN_COOKIE);
+export function getRefreshToken(): string | null {
+  return getCookie(REFRESH_TOKEN_KEY);
+}
+
+export function clearTokens(): void {
+  clearCookie(ACCESS_TOKEN_KEY);
+  clearCookie(REFRESH_TOKEN_KEY);
 }

@@ -4,6 +4,7 @@ interface RefreshResponse {
   accessToken: string;
   tokenType: string;
   expiresIn: number;
+  refreshToken: string;
 }
 
 // The HttpOnly refresh token cookie is sent automatically by the browser
