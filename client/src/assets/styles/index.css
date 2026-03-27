@@ -155,14 +155,16 @@
   }
 
   html {
-    scroll-behavior: smooth;
-    -ms-overflow-style: none;
-    scrollbar-width: none;
+    /* scroll-behavior: smooth; */
+    /* -ms-overflow-style: none; */
+    /* scrollbar-width: none; */
   }
 
   body {
     @apply m-0 p-0;
-    scroll-snap-type: y mandatory;
+    height: auto;
+  overflow: hidden;
+    /* scroll-snap-type: y mandatory; */
   }
 }
 

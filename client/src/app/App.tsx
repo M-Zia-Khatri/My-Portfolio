@@ -5,6 +5,7 @@
  */
 
 import { AuthProvider } from '@/features/auth/context/AuthContext';
+import { LenisProvider } from '@/shared/providers/LenisProvider';
 import { Theme } from '@radix-ui/themes';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { RouterProvider } from 'react-router';
@@ -30,9 +31,11 @@ export default function App() {
         scaling="100%"
         className="overflow-hidden bg-(--color-background)"
       >
-        <AuthProvider>
-          <RouterProvider router={AppRouter} />
-        </AuthProvider>
+        <LenisProvider>
+          <AuthProvider>
+            <RouterProvider router={AppRouter} />
+          </AuthProvider>
+        </LenisProvider>
       </Theme>
     </QueryClientProvider>
   );

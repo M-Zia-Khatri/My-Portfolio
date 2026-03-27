@@ -1,3 +1,5 @@
+import { sections } from '@/features/home/Home.config';
+import { useLenisSnap } from '@/features/home/hooks/useLenisSnap';
 import { AppNavigation } from '@/shared/constants/navigation.constants';
 import { TEXT } from '@/shared/constants/style.constants';
 import { useNavigationStore } from '@/shared/store/navigation.store';
@@ -19,6 +21,7 @@ const navItems = [
 const HIDE_DELAY_MS = 4000;
 
 export default function TopBar() {
+  const { snapTo } = useLenisSnap();
   const { activeHash, setActiveHash } = useNavigationStore();
 
   // ── scroll-hide logic ─────────────────────────────────────────────────────
@@ -149,7 +152,12 @@ export default function TopBar() {
                             whileHover="hover"
                             className="relative list-none"
                             variants={itemVariants}
-                            onClick={() => setActiveHash(item.href)}
+                            onClick={() => {
+                              if (item.href.startsWith('#')) {
+                                const index = sections.findIndex((s) => `#${s.id}` === item.href);
+                                snapTo(index);
+                              }
+                            }}
                           >
                             <Link asChild underline="none">
                               {isRoute ? (
@@ -170,6 +178,13 @@ export default function TopBar() {
                               ) : (
                                 <a
                                   href={item.href}
+                                  onClick={(e) => {
+                                    e.preventDefault();
+                                    const index = sections.findIndex(
+                                      (s) => `#${s.id}` === item.href,
+                                    );
+                                    snapTo(index);
+                                  }}
                                   className="relative inline-flex items-center pb-1"
                                 >
                                   <Text size={TEXT.base.size} className="text-white">
