@@ -85,7 +85,7 @@
 }
 
 .radix-themes {
-  --heading-font-size-adjust: 1.1;
+  --heading-font-size-adjust: 1;
 }
 
 @supports (color: color(display-p3 1 1 1)) {

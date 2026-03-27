@@ -10,9 +10,12 @@ export default function SecComponent({ className, children, ...props }: SecCompo
   return (
     <Container
       size={{ initial: '1', sm: '2', md: '3', lg: '4' }}
-      width={{ xl: '84rem' }}
+      // min-width={{ xl: '96rem' }}
       // my={{ lg: '6' }}
-      // py={{ lg: '6' }}
+      style={{
+        
+      }}
+      px={{ initial: '4', md: '0' }}
       className={cn('justify-center', className)}
       {...props}
     >

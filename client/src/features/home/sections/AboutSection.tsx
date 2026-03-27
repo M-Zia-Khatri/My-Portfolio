@@ -12,10 +12,10 @@ export default function AboutSection() {
   return (
     <SecComponent>
       <Grid
-        columns={{ lg: '3' }}
-        rows={{ lg: '1' }}
+        columns={{ sm: '3' }}
+        rows={{ sm: '1' }}
         // flow={{ initial: "column", lg: "row" }}
-        gap={{ initial: '4', md: '5', lg: '6' }}
+        gap={{ initial: '6', sm: '4', lg: '6' }}
       >
         {/* Image */}
         <MotionBox
@@ -23,7 +23,7 @@ export default function AboutSection() {
           whileInView={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6 }}
           viewport={{ once: true }}
-          className="order-2"
+          className="order-2 px-4 md:px-0"
         >
           <AspectRatio ratio={4 / 5}>
             <motion.img
@@ -40,7 +40,7 @@ export default function AboutSection() {
 
         {/* Text */}
         <MotionBox
-          className="order-1 flex flex-col justify-center space-y-4 text-center lg:order-3 lg:col-span-2"
+          className="order-1 flex flex-col justify-center text-center md:order-3 md:col-span-2 md:text-start"
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, delay: 0.1 }}
@@ -49,6 +49,7 @@ export default function AboutSection() {
           <MotionHeading
             as="h2"
             size={HEADING.h2.size}
+            mb={{initial: '3', sm: '4'}}
             initial={{ opacity: 0, y: 10 }}
             whileInView={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.4 }}
