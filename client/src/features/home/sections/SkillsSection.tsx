@@ -4,8 +4,8 @@ import type { Skill } from '@/features/skills/types';
 import CodeCard from '@/shared/components/CodeCard';
 import { BorderTrail } from '@/shared/components/motion-primitives/border-trail';
 import SecComponent from '@/shared/components/SecContainer';
-import { HEADING } from '@/shared/constants/style.constants';
-import { Box, Heading } from '@radix-ui/themes';
+import { HEADING, TEXT } from '@/shared/constants/style.constants';
+import { Box, Heading, Text } from '@radix-ui/themes';
 import { motion } from 'motion/react';
 import { useCallback, useMemo, useState } from 'react';
 
@@ -46,7 +46,7 @@ export default function SkillsSection() {
 
   return (
     <SecComponent>
-      <Box className="mx-auto flex w-full max-w-xl flex-col items-center gap-8">
+      <Box className="mx-auto flex w-full max-w-xs sm:max-w-xl flex-col items-center gap-8">
         {/* Heading */}
         <motion.div
           initial={{ opacity: 0, y: 14 }}
@@ -55,10 +55,10 @@ export default function SkillsSection() {
           transition={{ duration: 0.45 }}
           className="text-center"
         >
-          <Heading as="h2" size={HEADING.h2.size}>
+          <Heading as="h2" size={HEADING.h2.size} className="font-bold">
             Tech Stack
           </Heading>
-          <p className="mt-1 text-sm tracking-wide opacity-40">select a skill to explore</p>
+          <Text size={TEXT.base.size}>select a skill to explore</Text>
         </motion.div>
 
         {/* Skill chips */}

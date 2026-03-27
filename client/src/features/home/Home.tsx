@@ -27,7 +27,7 @@ export default function Home() {
               }}
               className={
                 index === 0
-                  ? 'mb-5 flex h-[calc(100dvh-5rem)] scroll-mt-24 flex-col justify-center'
+                  ? 'mb-5 flex h-[calc(100dvh)] scroll-mt-24 flex-col justify-center'
                   : sectionClassName
               }
               animate={{

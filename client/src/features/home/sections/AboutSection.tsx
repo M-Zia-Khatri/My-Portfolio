@@ -30,7 +30,7 @@ export default function AboutSection() {
               initial={{ scale: 0.95 }}
               whileInView={{ scale: 1 }}
               transition={{ duration: 0.6 }}
-              className="h-full w-full drop-shadow-[0_0_15px_color-mix(in_srgb,var(--blue-3),transparent_10%)]"
+              className="h-full  w-full drop-shadow-[0_0_15px_color-mix(in_srgb,var(--blue-3),transparent_10%)]"
               src={ziaImg}
               title="My picture"
               alt="my image"
@@ -49,7 +49,8 @@ export default function AboutSection() {
           <MotionHeading
             as="h2"
             size={HEADING.h2.size}
-            mb={{initial: '3', sm: '4'}}
+            className="font-bold"
+            mb={{ initial: '3', sm: '4' }}
             initial={{ opacity: 0, y: 10 }}
             whileInView={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.4 }}

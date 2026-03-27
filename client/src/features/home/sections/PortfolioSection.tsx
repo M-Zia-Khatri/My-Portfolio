@@ -1,7 +1,8 @@
 import { PortfolioItemCard } from '@/features/portfolio/components/PortfolioItemCard';
 import type { PortfolioItem } from '@/features/portfolio/types';
 import SecComponent from '@/shared/components/SecContainer';
-import { Box, Heading } from '@radix-ui/themes';
+import { TEXT } from '@/shared/constants/style.constants';
+import { Box, Heading, Text } from '@radix-ui/themes';
 import { motion, type Variants } from 'motion/react';
 
 // ✅ Explicit typing
@@ -28,19 +29,6 @@ const headingVariants: Variants = {
     opacity: 1,
     y: 0,
     transition: { duration: 0.6, ease: [0.22, 1, 0.36, 1] },
-  },
-};
-
-const lineVariants: Variants = {
-  hidden: { scaleX: 0, opacity: 0 },
-  visible: {
-    scaleX: 1,
-    opacity: 1,
-    transition: {
-      duration: 0.6,
-      delay: 0.3,
-      ease: [0.22, 1, 0.36, 1],
-    },
   },
 };
 
@@ -72,25 +60,17 @@ export default function PortfolioSection() {
           whileInView="visible"
           viewport={VIEWPORT_ONCE}
         >
-          <span className="text-[11px] font-semibold tracking-[0.22em] text-(--blue-10) uppercase">
-            Selected Work
-          </span>
-
-          <Heading as="h2" className="font-bold text-white">
+          <Heading as="h2" className="font-bold">
             Portfolio
           </Heading>
 
-          <motion.div
-            className="mt-1 h-0.5 w-12 rounded-full bg-linear-to-r from-transparent via-(--blue-7) to-transparent"
-            variants={lineVariants}
-            initial="hidden"
-            whileInView="visible"
-            viewport={VIEWPORT_ONCE}
-          />
+          <Text size={TEXT.sm.size} color="blue">
+            Selected Work
+          </Text>
         </motion.div>
 
         <motion.div
-          className="grid w-full grid-cols-2 gap-5"
+          className="grid w-full grid-cols-1 gap-5"
           variants={containerVariants}
           initial="hidden"
           whileInView="visible"
