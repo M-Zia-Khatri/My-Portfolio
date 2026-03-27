@@ -9,4 +9,7 @@ export const AppNavigation = {
   ADMIN: '/admin',
   AUTH: '/auth',
   DASHBOARD: '/dashboard',
+  A_SKILLS: '/dashboard/skills',
+  A_CONTACT: '/dashboard/contact',
+  A_PORTFOLIO: '/dashboard/portfolio',
 } as const;
