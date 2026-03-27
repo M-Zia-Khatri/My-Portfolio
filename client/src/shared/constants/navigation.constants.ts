@@ -7,7 +7,6 @@ export const AppNavigation = {
   TESTIMONIALS: '#testimonials',
   CONTACT: '#contact',
   ADMIN: '/admin',
-  LOGIN: '/login',
-  OTPVERIFY: '/otp-verify',
+  AUTH: '/auth',
   DASHBOARD: '/dashboard',
 } as const;

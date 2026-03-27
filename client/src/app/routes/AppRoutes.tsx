@@ -18,19 +18,20 @@ const AppRoutes: RouteObject[] = [
     ],
   },
   {
-    path: AppNavigation.LOGIN,
+    path: AppNavigation.AUTH,
     Component: Auth,
   },
+  { path: '/login', element: <Navigate to={AppNavigation.AUTH} /> },
   {
-    path: AppNavigation.OTPVERIFY,
-    Component: Auth,
+    path: '/admin',
+    element: <Navigate to={AppNavigation.DASHBOARD} />,
   },
   {
     path: AppNavigation.DASHBOARD,
     element: (
       <ProtectedRoute
         allowedRoles={['admin']}
-        redirectTo={AppNavigation.LOGIN}
+        redirectTo={AppNavigation.AUTH}
         unauthorizedRedirectTo="/"
       >
         {/* Add the children here */}
