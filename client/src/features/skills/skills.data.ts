@@ -4,10 +4,12 @@ import { FaCss3Alt, FaHtml5, FaLaravel, FaNodeJs, FaPhp, FaReact } from 'react-i
 import { SiDocker, SiExpress, SiGit, SiGithub, SiMongodb, SiMysql } from 'react-icons/si';
 import type { Skill } from './types';
 
+// B4 fixed: static skills now use `iconComponent` (the resolved React component),
+// matching the runtime `Skill` type. SkillChip and CodeTabBar both read `iconComponent`.
 export const skills: Skill[] = [
   {
     name: 'HTML 5',
-    icon: FaHtml5,
+    iconComponent: FaHtml5,
     fileName: 'index.html',
     lang: 'html',
     color: '#e44d26',
@@ -27,7 +29,7 @@ export const skills: Skill[] = [
   },
   {
     name: 'CSS',
-    icon: FaCss3Alt,
+    iconComponent: FaCss3Alt,
     fileName: 'styles.css',
     lang: 'css',
     color: '#264de4',
@@ -47,7 +49,7 @@ export const skills: Skill[] = [
   },
   {
     name: 'TypeScript',
-    icon: BsTypescript,
+    iconComponent: BsTypescript,
     fileName: 'utils.ts',
     lang: 'typescript',
     color: '#3178c6',
@@ -67,7 +69,7 @@ export const skills: Skill[] = [
   },
   {
     name: 'React',
-    icon: FaReact,
+    iconComponent: FaReact,
     fileName: 'App.tsx',
     lang: 'tsx',
     color: '#61dafb',
@@ -90,7 +92,7 @@ export const skills: Skill[] = [
   },
   {
     name: 'Node.js',
-    icon: FaNodeJs,
+    iconComponent: FaNodeJs,
     fileName: 'server.js',
     lang: 'javascript',
     color: '#8cc84b',
@@ -114,7 +116,7 @@ export const skills: Skill[] = [
   },
   {
     name: 'Express',
-    icon: SiExpress,
+    iconComponent: SiExpress,
     fileName: 'app.js',
     lang: 'javascript',
     color: '#eeeeee',
@@ -137,7 +139,7 @@ export const skills: Skill[] = [
   },
   {
     name: 'MySQL',
-    icon: SiMysql,
+    iconComponent: SiMysql,
     fileName: 'queries.sql',
     lang: 'sql',
     color: '#00758f',
@@ -158,7 +160,7 @@ export const skills: Skill[] = [
   },
   {
     name: 'MongoDB',
-    icon: SiMongodb,
+    iconComponent: SiMongodb,
     fileName: 'queries.ts',
     lang: 'typescript',
     color: '#4db33d',
@@ -179,7 +181,7 @@ export const skills: Skill[] = [
   },
   {
     name: 'PHP',
-    icon: FaPhp,
+    iconComponent: FaPhp,
     fileName: 'api.php',
     lang: 'php',
     color: '#777bb4',
@@ -198,7 +200,7 @@ export const skills: Skill[] = [
   },
   {
     name: 'Laravel',
-    icon: FaLaravel,
+    iconComponent: FaLaravel,
     fileName: 'UserController.php',
     lang: 'php',
     color: '#ff2d20',
@@ -217,10 +219,9 @@ export const skills: Skill[] = [
       `}`,
     ],
   },
-  // ── Terminal skills ─────────────────────────────────────────────────────────
   {
     name: 'Git',
-    icon: SiGit,
+    iconComponent: SiGit,
     fileName: 'terminal',
     lang: 'bash',
     color: '#f05032',
@@ -231,24 +232,15 @@ export const skills: Skill[] = [
       { kind: 'output', text: 'Initialized empty Git repository in .git/' },
       { kind: 'blank' },
       { kind: 'command', text: 'git commit -m "feat: initial commit"' },
-      {
-        kind: 'output',
-        text: '[main (root-commit) a1b2c3d] feat: initial commit',
-      },
+      { kind: 'output', text: '[main (root-commit) a1b2c3d] feat: initial commit' },
       { kind: 'output', text: ' 3 files changed, 42 insertions(+)' },
       { kind: 'blank' },
       { kind: 'comment', text: '# Branch, merge & rebase' },
       { kind: 'command', text: 'git checkout -b feat/skills-section' },
-      {
-        kind: 'output',
-        text: "Switched to a new branch 'feat/skills-section'",
-      },
+      { kind: 'output', text: "Switched to a new branch 'feat/skills-section'" },
       { kind: 'blank' },
       { kind: 'command', text: 'git rebase main' },
-      {
-        kind: 'output',
-        text: 'Successfully rebased and updated refs/heads/feat/skills-section.',
-      },
+      { kind: 'output', text: 'Successfully rebased and updated refs/heads/feat/skills-section.' },
       { kind: 'blank' },
       { kind: 'comment', text: '# Stash work in progress' },
       { kind: 'command', text: "git stash push -m 'wip: half-done navbar'" },
@@ -264,7 +256,7 @@ export const skills: Skill[] = [
   },
   {
     name: 'GitHub',
-    icon: SiGithub,
+    iconComponent: SiGithub,
     fileName: 'terminal',
     lang: 'bash',
     color: '#e0e0e0',
@@ -276,14 +268,8 @@ export const skills: Skill[] = [
       { kind: 'output', text: '✓ Pushed commits to github.com/user/portfolio' },
       { kind: 'blank' },
       { kind: 'comment', text: '# Open a pull request' },
-      {
-        kind: 'command',
-        text: 'gh pr create --title "feat: skills section" --fill',
-      },
-      {
-        kind: 'output',
-        text: 'Creating pull request for feat/skills into main',
-      },
+      { kind: 'command', text: 'gh pr create --title "feat: skills section" --fill' },
+      { kind: 'output', text: 'Creating pull request for feat/skills into main' },
       { kind: 'output', text: 'https://github.com/user/portfolio/pull/7' },
       { kind: 'blank' },
       { kind: 'comment', text: '# List & merge open PRs' },
@@ -297,15 +283,12 @@ export const skills: Skill[] = [
       { kind: 'blank' },
       { kind: 'comment', text: '# Trigger a workflow' },
       { kind: 'command', text: 'gh workflow run deploy.yml' },
-      {
-        kind: 'output',
-        text: '✓ Created workflow_dispatch event for deploy.yml',
-      },
+      { kind: 'output', text: '✓ Created workflow_dispatch event for deploy.yml' },
     ],
   },
   {
     name: 'Docker',
-    icon: SiDocker,
+    iconComponent: SiDocker,
     fileName: 'terminal',
     lang: 'bash',
     color: '#2496ed',
@@ -314,28 +297,13 @@ export const skills: Skill[] = [
       { kind: 'comment', text: '# Build the image' },
       { kind: 'command', text: 'docker build -t portfolio:latest .' },
       { kind: 'output', text: '[+] Building 11.4s (9/9) FINISHED' },
-      {
-        kind: 'output',
-        text: ' => [1/4] FROM node:20-alpine              2.1s',
-      },
-      {
-        kind: 'output',
-        text: ' => [2/4] COPY package*.json ./            0.0s',
-      },
-      {
-        kind: 'output',
-        text: ' => [3/4] RUN npm ci                       8.6s',
-      },
-      {
-        kind: 'output',
-        text: ' => exporting to image                     0.3s',
-      },
+      { kind: 'output', text: ' => [1/4] FROM node:20-alpine              2.1s' },
+      { kind: 'output', text: ' => [2/4] COPY package*.json ./            0.0s' },
+      { kind: 'output', text: ' => [3/4] RUN npm ci                       8.6s' },
+      { kind: 'output', text: ' => exporting to image                     0.3s' },
       { kind: 'blank' },
       { kind: 'comment', text: '# Run detached & check logs' },
-      {
-        kind: 'command',
-        text: 'docker run -d -p 3000:3000 --name app portfolio:latest',
-      },
+      { kind: 'command', text: 'docker run -d -p 3000:3000 --name app portfolio:latest' },
       { kind: 'output', text: 'a1b2c3d4e5f67890a1b2c3d4e5f67890' },
       { kind: 'blank' },
       { kind: 'command', text: 'docker logs app --tail 5' },
@@ -348,27 +316,18 @@ export const skills: Skill[] = [
       { kind: 'output', text: ' ✔ Container nginx  Started    0.7s' },
       { kind: 'blank' },
       { kind: 'command', text: 'docker ps' },
-      {
-        kind: 'output',
-        text: 'CONTAINER   IMAGE              STATUS        PORTS',
-      },
-      {
-        kind: 'output',
-        text: 'nginx       nginx:alpine       Up 2 seconds  0.0.0.0:80->80/tcp',
-      },
+      { kind: 'output', text: 'CONTAINER   IMAGE              STATUS        PORTS' },
+      { kind: 'output', text: 'nginx       nginx:alpine       Up 2 seconds  0.0.0.0:80->80/tcp' },
       {
         kind: 'output',
         text: 'app         portfolio:latest   Up 2 seconds  0.0.0.0:3000->3000/tcp',
       },
-      {
-        kind: 'output',
-        text: 'db          mysql:8            Up 2 seconds  3306/tcp',
-      },
+      { kind: 'output', text: 'db          mysql:8            Up 2 seconds  3306/tcp' },
     ],
   },
   {
     name: 'Linux',
-    icon: FaLinux,
+    iconComponent: FaLinux,
     fileName: 'terminal',
     lang: 'bash',
     color: '#fcc624',
@@ -377,14 +336,8 @@ export const skills: Skill[] = [
       { kind: 'comment', text: '# Explore the file system' },
       { kind: 'command', text: 'ls -la' },
       { kind: 'output', text: 'drwxr-xr-x  8 user user 4096 Mar 16 03:42 .' },
-      {
-        kind: 'output',
-        text: '-rw-r--r--  1 user user  220 Mar 16 03:42 .bashrc',
-      },
-      {
-        kind: 'output',
-        text: '-rwxr-xr-x  1 user user  512 Mar 16 03:42 deploy.sh',
-      },
+      { kind: 'output', text: '-rw-r--r--  1 user user  220 Mar 16 03:42 .bashrc' },
+      { kind: 'output', text: '-rwxr-xr-x  1 user user  512 Mar 16 03:42 deploy.sh' },
       { kind: 'blank' },
       { kind: 'comment', text: '# Permissions & execution' },
       { kind: 'command', text: 'chmod +x deploy.sh && ./deploy.sh' },
@@ -398,17 +351,11 @@ export const skills: Skill[] = [
       { kind: 'blank' },
       { kind: 'command', text: 'lsof -i :3000' },
       { kind: 'output', text: 'COMMAND  PID  USER  TYPE  NODE  NAME' },
-      {
-        kind: 'output',
-        text: 'node    1234  user  IPv4  TCP   *:3000 (LISTEN)',
-      },
+      { kind: 'output', text: 'node    1234  user  IPv4  TCP   *:3000 (LISTEN)' },
       { kind: 'blank' },
       { kind: 'comment', text: '# System resources' },
       { kind: 'command', text: 'df -h / && free -h' },
-      {
-        kind: 'output',
-        text: 'Filesystem  Size  Used  Avail  Use%  Mounted on',
-      },
+      { kind: 'output', text: 'Filesystem  Size  Used  Avail  Use%  Mounted on' },
       { kind: 'output', text: '/dev/sda1    50G   18G    32G   36%  /' },
       { kind: 'output', text: '              total   used   free' },
       { kind: 'output', text: 'Mem:           16G   5.2G   9.4G' },

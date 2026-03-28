@@ -12,7 +12,6 @@ interface CodeTabBarProps {
 export default function CodeTabBar({ skill, openTabs, onTabClick, onTabClose }: CodeTabBarProps) {
   const tabBarRef = useRef<HTMLDivElement>(null);
 
-  // Auto-scroll the active tab into view whenever it changes
   useEffect(() => {
     const bar = tabBarRef.current;
     if (!bar) return;
@@ -50,28 +49,15 @@ export default function CodeTabBar({ skill, openTabs, onTabClick, onTabClose }: 
         <AnimatePresence initial={false}>
           {openTabs.map((tab) => {
             const isActive = tab.name === skill.name;
+            // B4 fixed: read iconComponent (the resolved React component) instead of icon.
+            const TabIcon = tab.iconComponent;
             return (
               <motion.div
                 key={tab.name}
                 data-active={isActive}
-                initial={{
-                  opacity: 0,
-                  maxWidth: 0,
-                  paddingLeft: 0,
-                  paddingRight: 0,
-                }}
-                animate={{
-                  opacity: 1,
-                  maxWidth: 200,
-                  paddingLeft: 12,
-                  paddingRight: 12,
-                }}
-                exit={{
-                  opacity: 0,
-                  maxWidth: 0,
-                  paddingLeft: 0,
-                  paddingRight: 0,
-                }}
+                initial={{ opacity: 0, maxWidth: 0, paddingLeft: 0, paddingRight: 0 }}
+                animate={{ opacity: 1, maxWidth: 200, paddingLeft: 12, paddingRight: 12 }}
+                exit={{ opacity: 0, maxWidth: 0, paddingLeft: 0, paddingRight: 0 }}
                 transition={{ duration: 0.22, ease: 'easeInOut' }}
                 onClick={() => onTabClick(tab)}
                 className="group/tab relative flex shrink-0 cursor-pointer items-center gap-[7px] overflow-hidden text-[11px] leading-none select-none"
@@ -83,7 +69,6 @@ export default function CodeTabBar({ skill, openTabs, onTabClick, onTabClose }: 
                   paddingBottom: 9,
                 }}
               >
-                {/* Sliding active underline */}
                 {isActive && (
                   <motion.span
                     layoutId="tab-underline"
@@ -93,18 +78,17 @@ export default function CodeTabBar({ skill, openTabs, onTabClick, onTabClose }: 
                   />
                 )}
 
-                {/* Icon wobble when tab becomes active */}
                 <motion.span
                   animate={isActive ? { rotate: [0, 10, -8, 0] } : { rotate: 0 }}
                   transition={{ duration: 0.45, ease: 'easeInOut' }}
                   className="shrink-0"
                 >
-                  <tab.icon size={12} />
+                  {/* B4 fixed: was tab.icon — now tab.iconComponent */}
+                  <TabIcon size={12} />
                 </motion.span>
 
                 <span className="font-medium tracking-tight whitespace-nowrap">{tab.fileName}</span>
 
-                {/* Close button: idle dot → ✕ on hover */}
                 <motion.button
                   onClick={(e) => {
                     e.stopPropagation();
@@ -136,7 +120,7 @@ export default function CodeTabBar({ skill, openTabs, onTabClick, onTabClose }: 
         </AnimatePresence>
       </div>
 
-      {/* Language badge — pinned right */}
+      {/* Language badge */}
       <div className="flex shrink-0 items-center px-4 text-[10px] tracking-widest text-white uppercase opacity-25">
         {skill.lang}
       </div>

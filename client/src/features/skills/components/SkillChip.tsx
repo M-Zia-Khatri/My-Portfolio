@@ -10,7 +10,7 @@ interface SkillChipProps {
 }
 
 const SkillChip = memo(function SkillChip({ skill, active, onClick }: SkillChipProps) {
-  const Icon = skill.icon;
+  const Icon = skill.iconComponent;
   const [ripples, setRipples] = useState<{ id: number; x: number; y: number }[]>([]);
 
   const handleClick = (e: React.MouseEvent<HTMLButtonElement>) => {
