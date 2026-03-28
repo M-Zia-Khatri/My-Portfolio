@@ -92,19 +92,12 @@ export default function Skills() {
   //         plain command lines; the kind is always 'command' by design.
   //         Extend to a structured editor if richer kinds are needed.
   const onFormSubmit = async (values: SkillFormValues) => {
-    const { content, mode, ...rest } = values;
+    const { content, mode, commands, ...rest } = values;
 
     const payload =
       mode === 'code'
-        ? { ...rest, mode, code: content.split('\n') }
-        : {
-            ...rest,
-            mode,
-            commands: content.split('\n').map((line) => ({
-              kind: 'command' as const,
-              text: line,
-            })),
-          };
+        ? { ...rest, mode, code: content?.split('\n') || [] }
+        : { ...rest, mode, commands: commands || [] };
 
     // B10 fixed: mutateAsync errors are caught here so the dialog stays open on failure.
     // The onError callback on the mutation handles user-facing feedback.
