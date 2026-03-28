@@ -1,6 +1,14 @@
 import prisma from '@/lib/prisma';
 import { CreatePortfolioDto, UpdatePortfolioDto } from '@/lib/types/portfolio.types';
-import { cacheForget, cacheInvalidatePrefix, cacheRemember, TTL } from '@/lib/utills/caching';
+import {
+  cacheForget,
+  cacheInvalidatePrefix,
+  cachePut,
+  cacheRemember,
+  cacheRememberConditional,
+  generateETag,
+  TTL,
+} from '@/lib/utills/caching';
 import type { Request, Response } from 'express';
 import { catchError } from '../lib/utills/catch-error';
 import { send } from '../lib/utills/send';
@@ -70,23 +78,33 @@ function validateUpdate(body: UpdatePortfolioDto): string | null {
 
 // ─── GET /api/portfolio ──────────────────────────────────────────────────────
 
-export async function getAllPortfolioItems(_req: Request, res: Response): Promise<void> {
+export async function getAllPortfolioItems(req: Request, res: Response): Promise<void> {
   try {
-    const items = await cacheRemember(CACHE_KEYS.all, {
+    const clientETag = req.headers['if-none-match'] as string | undefined;
+
+    const result = await cacheRememberConditional(CACHE_KEYS.all, {
       ttl: TTL.ONE_DAY,
       staleTtl: TTL.ONE_WEEK,
+      ifNoneMatch: clientETag,
       callback: () =>
         prisma.portfolio_item.findMany({
           orderBy: { created_at: 'desc' },
         }),
     });
 
+    res.setHeader('ETag', result.etag);
+    res.setHeader('Cache-Control', 'private, must-revalidate');
+
+    if (result.status === 304) {
+      return send(res, { success: true, status: 304, message: 'Data not modified' });
+    }
+
     send(res, {
       success: true,
       status: 200,
       message: 'Portfolio items retrieved successfully',
-      data: items.map(parseItem),
-      meta: { total: items.length },
+      data: result.data?.map(parseItem),
+      meta: { total: result.data?.length },
     });
   } catch (err) {
     catchError(res, err);
@@ -98,28 +116,36 @@ export async function getAllPortfolioItems(_req: Request, res: Response): Promis
 export async function getPortfolioItemById(req: Request, res: Response): Promise<void> {
   try {
     const { id } = req.params;
+    const clientETag = req.headers['if-none-match'] as string | undefined;
 
-    const item = await cacheRemember(CACHE_KEYS.one(id), {
+    const result = await cacheRememberConditional(CACHE_KEYS.one(id), {
       ttl: TTL.ONE_DAY,
       staleTtl: TTL.ONE_WEEK,
+      ifNoneMatch: clientETag,
       callback: () => prisma.portfolio_item.findUnique({ where: { id } }),
     });
 
-    if (!item) {
-      send(res, {
+    res.setHeader('ETag', result.etag);
+    res.setHeader('Cache-Control', 'private, must-revalidate');
+
+    if (result.status === 304) {
+      return send(res, { success: true, status: 304, message: 'Data not modified' });
+    }
+
+    if (!result.data) {
+      return send(res, {
         success: false,
         status: 404,
         message: 'Portfolio item not found',
         error: { detail: `No item with id "${id}"` },
       });
-      return;
     }
 
     send(res, {
       success: true,
       status: 200,
       message: 'Portfolio item retrieved successfully',
-      data: parseItem(item),
+      data: parseItem(result.data),
     });
   } catch (err) {
     catchError(res, err);
@@ -157,8 +183,12 @@ export async function createPortfolioItem(req: Request, res: Response): Promise<
       },
     });
 
+    // Warm the single item cache (instant consistency for GET /:id)
+    await cachePut(CACHE_KEYS.one(newItem.id), newItem, TTL.ONE_DAY);
+    // Only invalidate the list
     await cacheInvalidatePrefix(CACHE_KEYS.prefix);
 
+    res.setHeader('ETag', generateETag(newItem));
     send(res, {
       success: true,
       status: 201,
@@ -176,16 +206,39 @@ export async function updatePortfolioItem(req: Request, res: Response): Promise<
   try {
     const { id } = req.params;
     const body = req.body as UpdatePortfolioDto;
+    const clientETag = req.headers['if-match'] as string | undefined;
 
-    const existing = await prisma.portfolio_item.findUnique({ where: { id } });
-    if (!existing) {
-      send(res, {
+    if (!clientETag) {
+      return send(res, {
+        success: false,
+        status: 428,
+        message: 'If-Match header required for optimistic locking',
+      });
+    }
+
+    // Check existence + optimistic locking via cache
+    const cached = await cacheRememberConditional(CACHE_KEYS.one(id), {
+      ttl: TTL.ONE_DAY,
+      ifMatch: clientETag, // 412 if modified
+      callback: () => prisma.portfolio_item.findUnique({ where: { id } }),
+    });
+
+    if (cached.status === 412) {
+      return send(res, {
+        success: false,
+        status: 412,
+        message: 'Resource modified by another request',
+        error: { currentETag: cached.etag },
+      });
+    }
+
+    if (!cached.data) {
+      return send(res, {
         success: false,
         status: 404,
         message: 'Portfolio item not found',
         error: { detail: `No item with id "${id}"` },
       });
-      return;
     }
 
     const validationError = validateUpdate(body);
@@ -212,9 +265,13 @@ export async function updatePortfolioItem(req: Request, res: Response): Promise<
         ...(description !== undefined && { description }),
       },
     });
+    // Warm cache with new value, invalidate list
+    await Promise.all([
+      cachePut(CACHE_KEYS.one(id), updatedItem, TTL.ONE_DAY),
+      cacheInvalidatePrefix(CACHE_KEYS.prefix),
+    ]);
 
-    await Promise.all([cacheForget(CACHE_KEYS.one(id)), cacheInvalidatePrefix(CACHE_KEYS.prefix)]);
-
+    res.setHeader('ETag', generateETag(updatedItem));
     send(res, {
       success: true,
       status: 200,
@@ -232,15 +289,23 @@ export async function deletePortfolioItem(req: Request, res: Response): Promise<
   try {
     const { id } = req.params;
 
-    const existing = await prisma.portfolio_item.findUnique({ where: { id } });
-    if (!existing) {
-      send(res, {
+    // Fast existence check via cache
+    const cached = await cacheRemember(CACHE_KEYS.one(id), {
+      ttl: TTL.ONE_DAY,
+      callback: () =>
+        prisma.portfolio_item.findUnique({
+          where: { id },
+          select: { id: true },
+        }),
+    });
+
+    if (!cached) {
+      return send(res, {
         success: false,
         status: 404,
         message: 'Portfolio item not found',
         error: { detail: `No item with id "${id}"` },
       });
-      return;
     }
 
     await prisma.portfolio_item.delete({ where: { id } });

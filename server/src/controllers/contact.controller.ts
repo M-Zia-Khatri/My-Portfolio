@@ -1,5 +1,11 @@
 import prisma from '@/lib/prisma';
-import { cacheInvalidatePrefix, cacheRemember, TTL } from '@/lib/utills/caching';
+import {
+  cacheForget,
+  cacheInvalidatePrefix,
+  cacheRemember,
+  cacheRememberConditional,
+  TTL,
+} from '@/lib/utills/caching';
 import type { Request, Response } from 'express';
 import { catchError } from '../lib/utills/catch-error';
 import { sendContactEmail } from '../lib/utills/mailer';
@@ -11,7 +17,6 @@ const CACHE_KEYS = {
 };
 
 // ─── SUBMIT CONTACT FORM (Public) ─────────────────────────────────────────────
-
 export async function submitContact(req: Request, res: Response): Promise<void> {
   try {
     const { fullName, email, message } = req.body;
@@ -43,16 +48,17 @@ export async function submitContact(req: Request, res: Response): Promise<void> 
 }
 
 // ─── GET ALL MESSAGES (Admin only) ────────────────────────────────────────────
-
 export async function getContacts(req: Request, res: Response): Promise<void> {
   try {
     const page = Math.max(1, Number(req.query.page) || 1);
     const pageSize = Math.min(50, Number(req.query.pageSize) || 20);
     const skip = (page - 1) * pageSize;
+    const clientETag = req.headers['if-none-match'] as string | undefined;
 
-    const { items, total } = await cacheRemember(CACHE_KEYS.list(page, pageSize), {
+    const result = await cacheRememberConditional(CACHE_KEYS.list(page, pageSize), {
       ttl: TTL.ONE_DAY,
       staleTtl: TTL.ONE_WEEK,
+      ifNoneMatch: clientETag,
       callback: async () => {
         const [items, total] = await Promise.all([
           prisma.contactMessage.findMany({
@@ -62,21 +68,31 @@ export async function getContacts(req: Request, res: Response): Promise<void> {
           }),
           prisma.contactMessage.count(),
         ]);
-
         return { items, total };
       },
     });
+
+    res.setHeader('ETag', result.etag);
+    res.setHeader('Cache-Control', 'private, must-revalidate');
+
+    if (result.status === 304) {
+      return send(res, {
+        success: true,
+        status: 304,
+        message: 'Data not modified',
+      });
+    }
 
     send(res, {
       success: true,
       status: 200,
       message: 'Data retrieved successfully',
-      data: items,
+      data: result.data?.items,
       meta: {
-        total,
+        total: result.data?.total || 0,
         page,
         pageSize,
-        totalPages: Math.ceil(total / pageSize),
+        totalPages: Math.ceil(result.data?.total || 0 / pageSize),
       },
     });
   } catch (err) {
@@ -85,25 +101,31 @@ export async function getContacts(req: Request, res: Response): Promise<void> {
 }
 
 // ─── DELETE MESSAGE (Admin only) ──────────────────────────────────────────────
-
 export async function deleteContact(req: Request, res: Response): Promise<void> {
   try {
     const { id } = req.params;
 
-    const existing = await prisma.contactMessage.findUnique({ where: { id } });
+    // Try cache first for existence check (may be stale but that's ok for auth check)
+    const cached = await cacheRemember(`contact:${id}`, {
+      ttl: TTL.ONE_DAY,
+      callback: () =>
+        prisma.contactMessage.findUnique({
+          where: { id },
+          select: { id: true },
+        }),
+    });
 
-    if (!existing) {
-      send(res, {
+    if (!cached) {
+      return send(res, {
         success: false,
         status: 404,
         message: 'Message not found',
       });
-      return;
     }
 
     await prisma.contactMessage.delete({ where: { id } });
 
-    await cacheInvalidatePrefix(CACHE_KEYS.prefix);
+    await Promise.all([cacheForget(`contact:${id}`), cacheInvalidatePrefix(CACHE_KEYS.prefix)]);
 
     send(res, {
       success: true,
