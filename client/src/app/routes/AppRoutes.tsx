@@ -1,7 +1,7 @@
 import Auth from '@/features/auth/Auth';
+import ContactPage from '@/features/contact/admin/ContactPage';
 import Dashboard from '@/features/dashboard/Dashboard';
 import DashboardLayout from '@/features/dashboard/layout/DashboardLayout';
-import Contact from '@/features/contact/admin/ContactPage';
 import Portfolio from '@/features/dashboard/pages/portfolio/Portfolio';
 import Skills from '@/features/dashboard/pages/skills/Skills';
 import Home from '@/features/home/Home';
@@ -47,7 +47,7 @@ const AppRoutes: RouteObject[] = [
       },
       {
         path: AppNavigation.A_CONTACT,
-        Component: Contact,
+        Component: ContactPage,
       },
     ],
   },

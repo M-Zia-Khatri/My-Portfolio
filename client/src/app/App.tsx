@@ -14,7 +14,8 @@ import { AppRouter } from './routes/router';
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
-      staleTime: 1000 * 60 * 5, // 5 min
+      staleTime: 1000 * 60 * 7.5, // 10 min
+      gcTime: 1000 * 60 * 15, // 20 min
       retry: false,
     },
   },

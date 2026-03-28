@@ -16,14 +16,19 @@ export default function ContactPage() {
 
   // Client-side filtering
   const filteredContacts = useMemo(() => {
-    if (!contacts) return [];
+    if (!contacts || !Array.isArray(contacts)) return [];
+
     const q = search.toLowerCase();
-    return contacts.filter(
-      (c) =>
-        c.name.toLowerCase().includes(q) ||
-        c.email.toLowerCase().includes(q) ||
-        c.message.toLowerCase().includes(q),
-    );
+    if (!q) return contacts;
+
+    return contacts.filter((c) => {
+      // Add null-checks for individual fields to be extra safe
+      const name = c.name?.toLowerCase() || '';
+      const email = c.email?.toLowerCase() || '';
+      const message = c.message?.toLowerCase() || '';
+
+      return name.includes(q) || email.includes(q) || message.includes(q);
+    });
   }, [contacts, search]);
 
   const handleDelete = async (id: string) => {
