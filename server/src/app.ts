@@ -2,6 +2,8 @@ import cors from 'cors';
 import express from 'express';
 import './lib/utills/redis.ts';
 import routes from './routes/index.ts';
+import cookieParser from 'cookie-parser';
+
 
 const app = express();
 
@@ -13,6 +15,7 @@ app.use(
 );
 
 app.use(express.json());
+app.use(cookieParser());
 app.use(express.urlencoded({ extended: true }));
 
 app.use('/api', routes);

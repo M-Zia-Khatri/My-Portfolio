@@ -161,7 +161,7 @@ export async function verifyOtpHandler(req: Request, res: Response): Promise<voi
 
 export async function refresh(req: Request, res: Response): Promise<void> {
   try {
-    const refreshToken: string | undefined = req.cookies?.[REFRESH_TOKEN_COOKIE];
+    const refreshToken = req.cookies?.[REFRESH_TOKEN_COOKIE];
 
     if (!refreshToken) {
       send(res, { success: false, status: 401, message: 'No refresh token' });
