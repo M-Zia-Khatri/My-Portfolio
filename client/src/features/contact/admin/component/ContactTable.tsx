@@ -14,7 +14,6 @@ export const ContactTable = ({ contacts, onSelect }: Props) => {
           <Table.Row>
             <Table.ColumnHeaderCell>Name</Table.ColumnHeaderCell>
             <Table.ColumnHeaderCell>Email</Table.ColumnHeaderCell>
-            <Table.ColumnHeaderCell>Subject</Table.ColumnHeaderCell>
             <Table.ColumnHeaderCell>Date</Table.ColumnHeaderCell>
           </Table.Row>
         </Table.Header>
@@ -23,9 +22,7 @@ export const ContactTable = ({ contacts, onSelect }: Props) => {
           {contacts.length === 0 ? (
             <Table.Row>
               <Table.Cell colSpan={4} align="center">
-                <Text color="gray" py="4">
-                  No contacts found.
-                </Text>
+                <Text color="gray">No contacts found.</Text>
               </Table.Cell>
             </Table.Row>
           ) : (
@@ -33,16 +30,11 @@ export const ContactTable = ({ contacts, onSelect }: Props) => {
               <Table.Row
                 key={contact.id}
                 onClick={() => onSelect(contact)}
-                className="cursor-pointer hover:bg-gray-50 transition-colors"
+                className="cursor-pointer hover:bg-(--blue-2)/50 transition-colors"
               >
-                <Table.RowHeaderCell>{contact.name}</Table.RowHeaderCell>
+                <Table.RowHeaderCell>{contact.full_name}</Table.RowHeaderCell>
                 <Table.Cell>{contact.email}</Table.Cell>
-                <Table.Cell>
-                  <Text truncate style={{ maxWidth: '200px' }}>
-                    {contact.subject}
-                  </Text>
-                </Table.Cell>
-                <Table.Cell>{new Date(contact.createdAt).toLocaleDateString()}</Table.Cell>
+                <Table.Cell>{new Date(contact.created_at).toLocaleDateString()}</Table.Cell>
               </Table.Row>
             ))
           )}

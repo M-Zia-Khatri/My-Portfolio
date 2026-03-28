@@ -1,10 +1,9 @@
 export interface Contact {
   id: string;
-  name: string;
+  full_name: string;
   email: string;
-  subject: string;
   message: string;
-  createdAt: string;
+  created_at: string;
 }
 
 export interface ContactFilters {
