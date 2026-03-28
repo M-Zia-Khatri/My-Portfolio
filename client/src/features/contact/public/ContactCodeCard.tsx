@@ -19,14 +19,14 @@
  * CodeCard: `onTypingComplete` prop and the imperative `pause/resume` ref).
  */
 
+import { skills } from '@/features/skills/skills.data';
+import type { Skill } from '@/features/skills/types';
 import type { CodeCardHandle } from '@/shared/components/CodeCard';
 import CodeCard from '@/shared/components/CodeCard';
 import { BorderTrail } from '@/shared/components/motion-primitives/border-trail';
+import TabScrollbarStyle from '@/shared/components/TabScrollbarStyle';
 import { AnimatePresence, motion } from 'motion/react';
 import { useCallback, useEffect, useRef, useState } from 'react';
-import TabScrollbarStyle from '../../shared/components/TabScrollbarStyle';
-import { skills } from '../skills/skills.data';
-import type { Skill } from '../skills/types';
 
 // ── Curated list: code-only skills so the typewriter always fires ─────────────
 const CONTACT_SKILLS = skills.filter(

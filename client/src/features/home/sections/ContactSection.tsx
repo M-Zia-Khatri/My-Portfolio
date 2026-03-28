@@ -1,9 +1,9 @@
+import ContactCodeCard from '@/features/contact/public/ContactCodeCard';
+import ContactForm from '@/features/contact/public/ContactForm';
 import SecComponent from '@/shared/components/SecContainer';
 import { HEADING } from '@/shared/constants/style.constants';
 import { Flex, Heading } from '@radix-ui/themes';
 import { motion } from 'motion/react';
-import ContactCodeCard from '../../contact/ContactCodeCard';
-import ContactForm from '../../contact/ContactForm';
 
 export default function ContactSection() {
   return (
