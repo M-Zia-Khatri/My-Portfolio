@@ -10,12 +10,12 @@ export interface CacheOptions<T> {
   ttl: number;
   staleTtl?: number;
   callback: () => Promise<T>;
-  timeoutMs?: number;  // Callback timeout
+  timeoutMs?: number; // Callback timeout
 }
 
 export interface CacheConditionalOptions<T> extends CacheOptions<T> {
-  ifNoneMatch?: string;  // For 304 Not Modified
-  ifMatch?: string;      // For optimistic locking (412 Precondition Failed)
+  ifNoneMatch?: string; // For 304 Not Modified
+  ifMatch?: string; // For optimistic locking (412 Precondition Failed)
 }
 
 export interface CacheResult<T> {

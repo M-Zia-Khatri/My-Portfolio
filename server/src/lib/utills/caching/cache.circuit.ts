@@ -34,7 +34,7 @@ function setState(newState: CircuitState): void {
 
 function cleanupOldFailures(): void {
   const cutoff = Date.now() - RECOVERY_WINDOW_MS;
-  circuit.failures = circuit.failures.filter(t => t > cutoff);
+  circuit.failures = circuit.failures.filter((t) => t > cutoff);
 }
 
 export function recordSuccess(): void {
@@ -49,11 +49,11 @@ export function recordFailure(err: unknown, context: string): void {
   const now = Date.now();
   circuit.lastFailure = now;
   circuit.failures.push(now);
-  
+
   cleanupOldFailures();
-  
+
   console.error(`[cache] Redis error in ${context}:`, err);
-  
+
   if (circuit.failures.length >= FAILURE_THRESHOLD && circuit.state === 'CLOSED') {
     setState('OPEN');
     circuit.openedAt = now;
@@ -63,15 +63,15 @@ export function recordFailure(err: unknown, context: string): void {
 
 export function isCircuitOpen(): boolean {
   if (circuit.state === 'CLOSED') return false;
-  
+
   const now = Date.now();
-  
+
   if (circuit.state === 'OPEN' && now >= circuit.openedAt + RECOVERY_WINDOW_MS) {
     setState('HALF_OPEN');
     console.info('[cache] Circuit HALF-OPEN — probing Redis');
     return false;
   }
-  
+
   return circuit.state === 'OPEN';
 }
 

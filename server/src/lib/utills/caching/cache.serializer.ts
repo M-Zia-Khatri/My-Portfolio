@@ -1,8 +1,8 @@
 // cache.serializer.ts
 import { promisify } from 'util';
-import { gzip, gunzip } from 'zlib';
+import { gunzip, gzip } from 'zlib';
+import { COMPRESSION_THRESHOLD_BYTES, MAX_PAYLOAD_BYTES } from './cache.constants';
 import type { CachePayload } from './cache.types';
-import { MAX_PAYLOAD_BYTES, COMPRESSION_THRESHOLD_BYTES } from './cache.constants';
 
 const gzipAsync = promisify(gzip);
 const gunzipAsync = promisify(gunzip);
@@ -15,35 +15,32 @@ export interface SerializationResult {
 }
 
 export async function serialize<T>(
-  payload: CachePayload<T>, 
-  enableCompression = false
+  payload: CachePayload<T>,
+  enableCompression = false,
 ): Promise<SerializationResult> {
   const json = JSON.stringify(payload);
   const originalSize = Buffer.byteLength(json);
-  
+
   if (originalSize > MAX_PAYLOAD_BYTES) {
     throw new Error(`Cache payload exceeds ${MAX_PAYLOAD_BYTES} bytes (${originalSize})`);
   }
-  
+
   if (enableCompression && originalSize > COMPRESSION_THRESHOLD_BYTES) {
     const compressed = await gzipAsync(Buffer.from(json));
     return {
       data: compressed.toString('base64'),
       compressed: true,
-      originalSize
+      originalSize,
     };
   }
-  
+
   return { data: json, compressed: false, originalSize };
 }
 
-export async function deserialize<T>(
-  raw: string, 
-  compressed = false
-): Promise<CachePayload<T>> {
+export async function deserialize<T>(raw: string, compressed = false): Promise<CachePayload<T>> {
   try {
     let json: string;
-    
+
     if (compressed) {
       const buffer = Buffer.from(raw, 'base64');
       const decompressed = await gunzipAsync(buffer);
@@ -51,7 +48,7 @@ export async function deserialize<T>(
     } else {
       json = raw;
     }
-    
+
     return JSON.parse(json, (_key, value) => {
       if (typeof value === 'string' && ISO_DATE_RE.test(value)) {
         return new Date(value);
@@ -59,6 +56,8 @@ export async function deserialize<T>(
       return value;
     }) as CachePayload<T>;
   } catch (err) {
-    throw new Error(`Failed to deserialize cache payload: ${err instanceof Error ? err.message : 'Unknown error'}`);
+    throw new Error(
+      `Failed to deserialize cache payload: ${err instanceof Error ? err.message : 'Unknown error'}`,
+    );
   }
 }
