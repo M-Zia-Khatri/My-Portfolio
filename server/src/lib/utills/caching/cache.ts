@@ -1,35 +1,93 @@
+// cache.ts
 import { redis } from '../redis';
+import { EventEmitter } from 'events';
 import { isCircuitOpen, recordFailure, recordSuccess } from './cache.circuit';
-import { CACHE_PREFIX, LOCK_RETRY_DELAY } from './cache.constants';
+import { 
+  CACHE_PREFIX, 
+  SCAN_BATCH_SIZE, 
+  DEFAULT_CONFIG,
+  LOCK_RETRY_DELAY,
+  MAX_CALLBACK_DURATION_MS 
+} from './cache.constants';
 import { buildKey, buildLockKey } from './cache.keys';
-import { acquireLock, releaseLock, sleep } from './cache.lock';
-import { deserialize, serialize } from './cache.serializer';
-import type { CacheOptions, CachePayload } from './cache.types';
+import { acquireLock, releaseLock, sleep, acquireLockWithBackoff } from './cache.lock';
+import { serialize, deserialize } from './cache.serializer';
+import { generateETag, matchETag } from './cache.etag';
+import type { 
+  CacheOptions, 
+  CacheConditionalOptions, 
+  CacheResult, 
+  CachePayload,
+  CacheConfig,
+  CacheMetrics 
+} from './cache.types';
 
 export { TTL } from './cache.constants';
-export type { CacheOptions } from './cache.types';
+export type { CacheOptions, CacheResult, CacheConfig, CacheMetrics } from './cache.types';
 
-// ---------------------------------------------------------------------------
-// Internal write helper
-// ---------------------------------------------------------------------------
+let config: CacheConfig = DEFAULT_CONFIG;
+let metrics: CacheMetrics | null = null;
+const events = new EventEmitter();
+
+export function configureCache(userConfig: Partial<CacheConfig>): void {
+  config = { ...DEFAULT_CONFIG, ...userConfig };
+}
+
+export function setCacheMetrics(m: CacheMetrics): void {
+  metrics = m;
+}
+
+function withTimeout<T>(promise: Promise<T>, ms: number, context: string): Promise<T> {
+  return Promise.race([
+    promise,
+    new Promise<never>((_, reject) => 
+      setTimeout(() => reject(new Error(`${context} timeout after ${ms}ms`)), ms)
+    )
+  ]);
+}
 
 async function writeToCache<T>(
   redisKey: string,
   data: T,
   ttl: number,
   staleTtl: number,
+  etag?: string
 ): Promise<void> {
+  const startTime = Date.now();
   const payload: CachePayload<T> = {
     data,
-    expiry: Date.now() + ttl * 1_000,
+    expiry: Date.now() + ttl * 1000,
+    etag: etag || generateETag(data),
+    lastModified: Date.now(),
   };
-  await redis.set(redisKey, serialize(payload), 'EX', ttl + staleTtl);
+  
+  const { data: serialized, compressed, originalSize } = await serialize(payload, config.enableCompression);
+  
+  await redis.set(
+    redisKey, 
+    serialized, 
+    'EX', 
+    ttl + staleTtl
+  );
+  
   recordSuccess();
+  
+  if (metrics) {
+    metrics.recordLatency('write', Date.now() - startTime);
+    if (compressed) {
+      metrics.recordBytesSaved(originalSize - Buffer.byteLength(serialized));
+    }
+  }
 }
 
-// ---------------------------------------------------------------------------
-// Internal: background stale revalidation (fire-and-forget)
-// ---------------------------------------------------------------------------
+async function readFromCache<T>(redisKey: string): Promise<CachePayload<T> | null> {
+  const raw = await redis.get(redisKey);
+  if (!raw) return null;
+  
+  // Detect compression by checking if it's valid JSON (compressed is base64)
+  const isCompressed = raw[0] !== '{';
+  return deserialize<T>(raw, isCompressed);
+}
 
 function revalidateInBackground<T>(
   redisKey: string,
@@ -37,124 +95,231 @@ function revalidateInBackground<T>(
   ttl: number,
   staleTtl: number,
   callback: () => Promise<T>,
+  currentEtag?: string
 ): void {
-  Promise.resolve()
-    .then(async () => {
-      const acquired = await acquireLock(lockKey);
-      if (!acquired) return;
-
-      try {
-        const fresh = await callback();
-        await writeToCache(redisKey, fresh, ttl, staleTtl);
-        console.debug(`[cache] Background revalidated: ${redisKey}`);
-      } finally {
-        await releaseLock(lockKey);
+  Promise.resolve().then(async () => {
+    const acquired = await acquireLock(lockKey);
+    if (!acquired) return;
+    
+    try {
+      const fresh = await withTimeout(
+        callback(), 
+        config.maxCallbackDurationMs, 
+        'background-revalidation'
+      );
+      
+      const newEtag = generateETag(fresh);
+      
+      // Skip write if content unchanged (ETag optimization)
+      if (currentEtag && currentEtag === newEtag) {
+        await redis.expire(redisKey, ttl + staleTtl);
+        events.emit('revalidate:unchanged', redisKey);
+        return;
       }
-    })
-    .catch((err) => recordFailure(err, `background revalidation of "${redisKey}"`));
+      
+      await writeToCache(redisKey, fresh, ttl, staleTtl, newEtag);
+      events.emit('revalidate:updated', redisKey);
+    } catch (err) {
+      recordFailure(err, `background revalidation "${redisKey}"`);
+    } finally {
+      await releaseLock(lockKey);
+    }
+  }).catch(() => undefined);
 }
 
-// ---------------------------------------------------------------------------
-// cacheRemember
-// ---------------------------------------------------------------------------
-
-/**
- * Returns a cached value when fresh, or calls `callback` on a miss and
- * stores the result.
- *
- * Stampede protection  — only the first concurrent request acquires an NX
- * lock and runs `callback`; all others wait briefly and read the freshly
- * written value.
- *
- * Stale-while-revalidate — when `staleTtl` is provided, expired-but-stored
- * data is returned instantly while a background refresh runs silently.
- *
- * @example
- * const skills = await cacheRemember("skills", {
- *   ttl:      TTL.FIVE_MINUTES,
- *   staleTtl: TTL.ONE_MINUTE,
- *   callback: () => db.skill.findMany(),
- * })
- */
-export async function cacheRemember<T>(key: string, options: CacheOptions<T>): Promise<T> {
+export async function cacheRemember<T>(
+  key: string, 
+  options: CacheOptions<T>
+): Promise<T> {
   const { ttl, staleTtl = 0, callback } = options;
   const redisKey = buildKey(key);
   const lockKey = buildLockKey(redisKey);
-
+  
   if (isCircuitOpen()) {
     console.warn(`[cache] BYPASS (circuit open): ${redisKey}`);
-    return callback();
+    return withTimeout(callback(), options.timeoutMs || MAX_CALLBACK_DURATION_MS, 'callback');
   }
-
+  
+  const startTime = Date.now();
+  
   try {
-    const raw = await redis.get(redisKey);
-    recordSuccess();
-
-    if (raw !== null) {
-      const payload = deserialize<T>(raw);
-
+    const payload = await readFromCache<T>(redisKey);
+    
+    if (metrics) metrics.recordLatency('read', Date.now() - startTime);
+    
+    if (payload) {
       if (payload.expiry > Date.now()) {
         console.debug(`[cache] HIT (fresh): ${redisKey}`);
+        if (metrics) metrics.recordHit(redisKey, false);
         return payload.data;
       }
-
+      
       if (staleTtl > 0) {
-        console.debug(`[cache] HIT (stale — revalidating in background): ${redisKey}`);
-        revalidateInBackground(redisKey, lockKey, ttl, staleTtl, callback);
+        console.debug(`[cache] HIT (stale): ${redisKey}`);
+        if (metrics) metrics.recordHit(redisKey, true);
+        revalidateInBackground(redisKey, lockKey, ttl, staleTtl, callback, payload.etag);
         return payload.data;
       }
-    } else {
-      console.debug(`[cache] MISS: ${redisKey}`);
     }
+    
+    console.debug(`[cache] MISS: ${redisKey}`);
+    if (metrics) metrics.recordMiss(redisKey);
   } catch (err) {
-    recordFailure(err, `GET "${redisKey}"`);
+    if (err instanceof Error && err.message.includes('deserialize')) {
+      // Corruption recovery
+      console.error(`[cache] Corruption detected in ${redisKey}, purging`);
+      if (metrics) metrics.recordCorruption(redisKey);
+      await redis.del(redisKey).catch(() => undefined);
+    } else {
+      recordFailure(err, `GET "${redisKey}"`);
+    }
   }
-
-  const acquired = await acquireLock(lockKey).catch(() => false);
-
+  
+  // Cache miss or corrupted - acquire lock and compute
+  const acquired = await acquireLockWithBackoff(lockKey);
+  
   if (acquired) {
     try {
-      const data = await callback();
-      writeToCache(redisKey, data, ttl, staleTtl).catch((err) =>
-        recordFailure(err, `SET "${redisKey}"`),
+      // Double-check after acquiring lock
+      const retry = await readFromCache<T>(redisKey);
+      if (retry && retry.expiry > Date.now()) {
+        console.debug(`[cache] HIT (post-lock): ${redisKey}`);
+        return retry.data;
+      }
+      
+      const data = await withTimeout(
+        callback(), 
+        options.timeoutMs || MAX_CALLBACK_DURATION_MS, 
+        'callback'
       );
+      
+      writeToCache(redisKey, data, ttl, staleTtl).catch(err => 
+        recordFailure(err, `SET "${redisKey}"`)
+      );
+      
       return data;
     } finally {
       await releaseLock(lockKey);
     }
   }
-
+  
+  // Failed to acquire lock, wait and retry read
   await sleep(LOCK_RETRY_DELAY);
-
+  
   try {
-    const retry = await redis.get(redisKey);
-    recordSuccess();
-    if (retry !== null) {
-      console.debug(`[cache] HIT (post-lock retry): ${redisKey}`);
-      return deserialize<T>(retry).data;
+    const retry = await readFromCache<T>(redisKey);
+    if (retry) {
+      console.debug(`[cache] HIT (retry): ${redisKey}`);
+      return retry.data;
     }
   } catch (err) {
     recordFailure(err, `GET retry "${redisKey}"`);
   }
-
-  return callback();
+  
+  // Final fallback
+  return withTimeout(callback(), options.timeoutMs || MAX_CALLBACK_DURATION_MS, 'callback');
 }
 
-// ---------------------------------------------------------------------------
-// cachePut
-// ---------------------------------------------------------------------------
+export async function cacheRememberConditional<T>(
+  key: string,
+  options: CacheConditionalOptions<T>
+): Promise<CacheResult<T>> {
+  const { ifNoneMatch, ifMatch, ttl, staleTtl = 0, callback } = options;
+  const redisKey = buildKey(key);
+  const lockKey = buildLockKey(redisKey);
+  
+  if (isCircuitOpen()) {
+    const data = await withTimeout(
+      callback(), 
+      options.timeoutMs || MAX_CALLBACK_DURATION_MS, 
+      'callback'
+    );
+    return {
+      data,
+      etag: generateETag(data),
+      status: 200,
+      hit: false,
+      stale: false
+    };
+  }
+  
+  try {
+    const payload = await readFromCache<T>(redisKey);
+    
+    if (payload) {
+      // Optimistic locking check
+      if (ifMatch && !matchETag(ifMatch, payload.etag)) {
+        return { etag: payload.etag, status: 412, hit: true, stale: false };
+      }
+      
+      // 304 Not Modified check (fresh cache)
+      if (payload.expiry > Date.now()) {
+        if (ifNoneMatch && matchETag(ifNoneMatch, payload.etag)) {
+          return { etag: payload.etag, status: 304, hit: true, stale: false };
+        }
+        
+        return {
+          data: payload.data,
+          etag: payload.etag,
+          status: 200,
+          hit: true,
+          stale: false
+        };
+      }
+      
+      // Stale-while-revalidate
+      if (staleTtl > 0) {
+        // Only revalidate if client doesn't have current version
+        if (!ifNoneMatch || !matchETag(ifNoneMatch, payload.etag)) {
+          revalidateInBackground(redisKey, lockKey, ttl, staleTtl, callback, payload.etag);
+        }
+        
+        return {
+          data: payload.data,
+          etag: payload.etag,
+          status: 200,
+          hit: true,
+          stale: true
+        };
+      }
+    }
+  } catch (err) {
+    if (err instanceof Error && err.message.includes('deserialize')) {
+      await redis.del(redisKey).catch(() => undefined);
+    } else {
+      recordFailure(err, `GET conditional "${redisKey}"`);
+    }
+  }
+  
+  // Compute fresh value
+  const data = await withTimeout(
+    callback(), 
+    options.timeoutMs || MAX_CALLBACK_DURATION_MS, 
+    'callback'
+  );
+  const newEtag = generateETag(data);
+  
+  await writeToCache(redisKey, data, ttl, staleTtl, newEtag).catch(err => 
+    recordFailure(err, `SET conditional "${redisKey}"`)
+  );
+  
+  return {
+    data,
+    etag: newEtag,
+    status: 200,
+    hit: false,
+    stale: false
+  };
+}
 
-/**
- * Explicitly writes `value` into the cache under `key` for `ttl` seconds.
- * Use after a mutation to keep the cache warm.
- *
- * @example
- * await cachePut("skills:detail:42", updatedSkill, TTL.ONE_HOUR)
- */
-export async function cachePut<T>(key: string, value: T, ttl: number): Promise<void> {
+export async function cachePut<T>(
+  key: string, 
+  value: T, 
+  ttl: number
+): Promise<void> {
   if (isCircuitOpen()) return;
   const redisKey = buildKey(key);
-
+  
   try {
     await writeToCache(redisKey, value, ttl, 0);
     console.info(`[cache] PUT: ${redisKey}`);
@@ -163,20 +328,10 @@ export async function cachePut<T>(key: string, value: T, ttl: number): Promise<v
   }
 }
 
-// ---------------------------------------------------------------------------
-// cacheForget
-// ---------------------------------------------------------------------------
-
-/**
- * Removes a single key from the cache.
- *
- * @example
- * await cacheForget("skills:detail:42")
- */
 export async function cacheForget(key: string): Promise<void> {
   if (isCircuitOpen()) return;
   const redisKey = buildKey(key);
-
+  
   try {
     await redis.del(redisKey);
     recordSuccess();
@@ -186,47 +341,46 @@ export async function cacheForget(key: string): Promise<void> {
   }
 }
 
-// ---------------------------------------------------------------------------
-// cacheInvalidatePrefix
-// ---------------------------------------------------------------------------
-
-/**
- * Deletes every cache key that starts with the given logical namespace prefix.
- *
- * Uses cursor-based `SCAN` (never `KEYS`) — safe under production load on
- * large Redis instances because it never blocks the server for O(N) time.
- *
- * @param prefix - Logical prefix without the `app:cache:` root.
- *                 Internally expanded to `"app:cache:<prefix>:*"`.
- *
- * @example
- * await cacheInvalidatePrefix("skills")
- * await cacheInvalidatePrefix("portfolio:item")
- */
-export async function cacheInvalidatePrefix(prefix: string): Promise<void> {
-  if (isCircuitOpen()) return;
-
+export async function cacheInvalidatePrefix(prefix: string): Promise<number> {
+  if (isCircuitOpen()) return 0;
+  
   const pattern = `${CACHE_PREFIX}:${prefix}:*`;
   let cursor = '0';
-  const keysToDelete: string[] = [];
-
+  let totalDeleted = 0;
+  
   try {
     do {
-      const [nextCursor, keys] = await redis.scan(cursor, 'MATCH', pattern, 'COUNT', 100);
-      cursor = nextCursor;
-      keysToDelete.push(...keys);
-    } while (cursor !== '0');
-
-    if (keysToDelete.length > 0) {
-      await redis.del(...keysToDelete);
-      recordSuccess();
-      console.info(
-        `[cache] Invalidated prefix "${prefix}": ${keysToDelete.length} key(s) removed.`,
+      const [nextCursor, keys] = await redis.scan(
+        cursor, 
+        'MATCH', 
+        pattern, 
+        'COUNT', 
+        SCAN_BATCH_SIZE
       );
-    } else {
-      console.debug(`[cache] Invalidate prefix "${prefix}": nothing to delete.`);
-    }
+      
+      cursor = nextCursor;
+      
+      if (keys.length > 0) {
+        // Stream deletes in batches to avoid memory buildup
+        const pipeline = redis.pipeline();
+        keys.forEach(k => pipeline.del(k));
+        await pipeline.exec();
+        totalDeleted += keys.length;
+      }
+    } while (cursor !== '0');
+    
+    console.info(`[cache] Invalidated prefix "${prefix}": ${totalDeleted} key(s)`);
+    recordSuccess();
+    return totalDeleted;
   } catch (err) {
     recordFailure(err, `cacheInvalidatePrefix "${prefix}"`);
+    return 0;
   }
+}
+
+export function onCacheEvent(
+  event: 'revalidate:unchanged' | 'revalidate:updated',
+  handler: (key: string) => void
+): void {
+  events.on(event, handler);
 }
