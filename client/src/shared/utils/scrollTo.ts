@@ -1,4 +1,4 @@
-import { useLenis } from "@/shared/providers/LenisProvider";
+import { useLenis } from '@/shared/providers/LenisProvider';
 
 export const useScrollTo = () => {
   const { lenis } = useLenis();

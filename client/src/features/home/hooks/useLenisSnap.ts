@@ -1,7 +1,7 @@
-import { useEffect, useRef } from "react";
-import { useLenis } from "@/shared/providers/LenisProvider";
-import { sections } from "../Home.config";
-import { useNavigationStore } from "@/shared/store/navigation.store";
+import { useLenis } from '@/shared/providers/LenisProvider';
+import { useNavigationStore } from '@/shared/store/navigation.store';
+import { useEffect, useRef } from 'react';
+import { sections } from '../Home.config';
 
 const WHEEL_THRESHOLD = 18;
 const COOLDOWN_MS = 900;
@@ -13,8 +13,7 @@ export const useLenisSnap = () => {
   const isLocked = useRef(false);
   const wheelAccum = useRef(0);
 
-  const getCurrentIndex = () =>
-    sections.findIndex((s) => `#${s.id}` === activeHash);
+  const getCurrentIndex = () => sections.findIndex((s) => `#${s.id}` === activeHash);
 
   const snapTo = (index: number) => {
     if (!lenis) return;
@@ -54,9 +53,9 @@ export const useLenisSnap = () => {
       wheelAccum.current = 0;
     };
 
-    window.addEventListener("wheel", onWheel, { passive: true });
+    window.addEventListener('wheel', onWheel, { passive: true });
 
-    return () => window.removeEventListener("wheel", onWheel);
+    return () => window.removeEventListener('wheel', onWheel);
   }, [lenis, activeHash]);
 
   return { snapTo };

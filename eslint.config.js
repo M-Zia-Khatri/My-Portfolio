@@ -1,14 +1,14 @@
+import { fixupConfigRules, fixupPluginRules } from '@eslint/compat'; //
 import js from '@eslint/js';
 import pluginReact from 'eslint-plugin-react';
 import pluginReactHooks from 'eslint-plugin-react-hooks';
 import globals from 'globals';
 import tseslint from 'typescript-eslint';
-import { fixupConfigRules, fixupPluginRules } from '@eslint/compat'; //
 
 export default tseslint.config(
   js.configs.recommended,
   ...tseslint.configs.recommended,
-  
+
   // Apply compatibility fix to the React flat config
   ...fixupConfigRules(pluginReact.configs.flat.recommended),
 
@@ -22,7 +22,7 @@ export default tseslint.config(
     settings: {
       react: {
         // Explicitly setting the version can also bypass the crashing auto-detection
-        version: "detect", 
+        version: 'detect',
       },
     },
   },
@@ -43,5 +43,5 @@ export default tseslint.config(
     rules: {
       'no-console': 'off',
     },
-  }
+  },
 );

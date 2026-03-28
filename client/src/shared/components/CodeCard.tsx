@@ -220,7 +220,6 @@ const CodeCard = forwardRef<CodeCardHandle, CodeCardProps>(function CodeCard(
               maxHeight: 320,
               overflowY: 'auto',
               overflowX: 'hidden',
-              
             }}
           >
             <AnimatePresence mode="wait">

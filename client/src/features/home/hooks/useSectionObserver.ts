@@ -1,16 +1,16 @@
-import { useEffect } from "react";
-import { useNavigationStore } from "@/shared/store/navigation.store";
+import { useNavigationStore } from '@/shared/store/navigation.store';
+import { useEffect } from 'react';
 
 export const useSectionObserver = () => {
   const setActiveHash = useNavigationStore((s) => s.setActiveHash);
 
   useEffect(() => {
-    const sections = document.querySelectorAll("section");
+    const sections = document.querySelectorAll('section');
 
     const observer = new IntersectionObserver(
       (entries) => {
         let maxRatio = 0;
-        let activeId = "";
+        let activeId = '';
 
         entries.forEach((entry) => {
           if (entry.intersectionRatio > maxRatio) {
@@ -25,7 +25,7 @@ export const useSectionObserver = () => {
       },
       {
         threshold: [0.3, 0.6, 0.8],
-      }
+      },
     );
 
     sections.forEach((sec) => observer.observe(sec));

@@ -1,9 +1,8 @@
+import cookieParser from 'cookie-parser';
 import cors from 'cors';
 import express from 'express';
 import './lib/utills/redis.ts';
 import routes from './routes/index.ts';
-import cookieParser from 'cookie-parser';
-
 
 const app = express();
 

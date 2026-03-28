@@ -100,10 +100,7 @@ export default function SkillDialog({
                 <Text as="label" size="2" weight="bold">
                   Icon
                 </Text>
-                <Select.Root
-                  value={watch('icon')}
-                  onValueChange={(v) => setValue('icon', v)}
-                >
+                <Select.Root value={watch('icon')} onValueChange={(v) => setValue('icon', v)}>
                   <Select.Trigger className="w-full" />
                   <Select.Content>
                     {/* B7 fixed: ICON_OPTIONS is now a real import, not a ReferenceError */}

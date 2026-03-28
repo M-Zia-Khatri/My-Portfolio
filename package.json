@@ -15,6 +15,11 @@
     "check": "pnpm lint && pnpm format:check",
     "prepare": "husky install"
   },
+  "commitlint": {
+    "extends": [
+      "@commitlint/config-conventional"
+    ]
+  },
   "lint-staged": {
     "*.{js,ts,jsx,tsx}": [
       "eslint --fix",

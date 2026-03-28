@@ -1,21 +1,18 @@
 import ProtectedRoute from '@/shared/components/ProtectedRoute';
 import { AppNavigation } from '@/shared/constants/navigation.constants';
+import { AnimatePresence, motion } from 'motion/react';
 import { Outlet, useLocation } from 'react-router';
 import Topbar from './topbar/Topbar';
-import { motion, AnimatePresence } from 'motion/react';
 
 export default function DashboardLayout() {
   const location = useLocation();
 
   return (
-    <ProtectedRoute
-      allowedRoles={['admin']}
-      redirectTo={AppNavigation.AUTH}
-    >
+    <ProtectedRoute allowedRoles={['admin']} redirectTo={AppNavigation.AUTH}>
       <div className="flex min-h-screen flex-col bg-(--color-background)">
         {/* Topbar stays OUTSIDE the animated div */}
         <Topbar />
-        
+
         <main className="flex-1 relative">
           <AnimatePresence mode="wait">
             <motion.div

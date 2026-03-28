@@ -1,7 +1,6 @@
+import { motion } from 'motion/react';
 import { Navigate, Outlet, useLocation } from 'react-router';
 import { useAuthStore } from '../store/useAuthStore';
-import { motion, AnimatePresence } from 'motion/react';
-import { cn } from '@/shared/utils/cn';
 
 const AuthLoadingScreen = () => (
   <div className="fixed inset-0 z-50 flex items-center justify-center bg-(--color-background)">
