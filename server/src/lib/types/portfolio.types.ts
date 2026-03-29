@@ -11,11 +11,11 @@ export interface PortfolioItem {
 }
 
 export interface CreatePortfolioDto {
-  siteName: string;
-  siteRole: string;
-  siteUrl: string;
-  siteImageUrl: string;
-  useTech: string[];
+  site_name: string;
+  site_role: string;
+  site_url: string;
+  site_image_url: string;
+  use_tech: string[];
   description: string;
 }
 

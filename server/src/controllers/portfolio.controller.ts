@@ -9,6 +9,7 @@ import {
   generateETag,
   TTL,
 } from '@/lib/utills/caching';
+import { deleteFromCloudinary } from '@/lib/utills/cloudinary';
 import type { Request, Response } from 'express';
 import { catchError } from '../lib/utills/catch-error';
 import { send } from '../lib/utills/send';
@@ -30,47 +31,42 @@ function isValidUrl(value: string): boolean {
   }
 }
 
-function parseItem(item: Record<string, unknown>) {
-  return {
-    ...item,
-    useTech: JSON.parse(item.use_tech as string),
-  };
-}
-
 function validateCreate(body: Partial<CreatePortfolioDto>): string | null {
-  const { siteName, siteRole, siteUrl, siteImageUrl, useTech, description } = body;
+  const { site_name, site_role, site_url, site_image_url, use_tech, description } = body;
 
-  if (!siteName?.trim()) return 'siteName is required';
-  if (!siteRole?.trim()) return 'siteRole is required';
-  if (!siteUrl?.trim()) return 'siteUrl is required';
-  if (!isValidUrl(siteUrl)) return 'siteUrl must be a valid URL';
-  if (!siteImageUrl?.trim()) return 'siteImageUrl is required';
-  if (!isValidUrl(siteImageUrl)) return 'siteImageUrl must be a valid URL';
+  if (!site_name?.trim()) return 'site_name is required';
+  if (!site_role?.trim()) return 'site_role is required';
+  if (!site_url?.trim()) return 'site_url is required';
+  if (!isValidUrl(site_url)) return 'site_url must be a valid URL';
+  if (!site_image_url?.trim()) return 'site_image_url is required';
+  if (!isValidUrl(site_image_url)) return 'site_image_url must be a valid URL';
   if (!description?.trim()) return 'description is required';
-  if (!Array.isArray(useTech) || useTech.length === 0) return 'useTech must be a non-empty array';
-  if (useTech.some((t) => typeof t !== 'string' || !t.trim()))
-    return 'useTech must contain non-empty strings';
+  if (!Array.isArray(use_tech) || use_tech.length === 0)
+    return 'use_tech must be a non-empty array';
+  if (use_tech.some((t) => typeof t !== 'string' || !t.trim()))
+    return 'use_tech must contain non-empty strings';
 
   return null;
 }
 
 function validateUpdate(body: UpdatePortfolioDto): string | null {
-  const { siteUrl, siteImageUrl, useTech } = body;
+  const { site_url, site_image_url, use_tech } = body;
 
-  if (siteUrl !== undefined) {
-    if (!siteUrl.trim()) return 'siteUrl must not be empty';
-    if (!isValidUrl(siteUrl)) return 'siteUrl must be a valid URL';
+  if (site_url !== undefined) {
+    if (!site_url.trim()) return 'site_url must not be empty';
+    if (!isValidUrl(site_url)) return 'site_url must be a valid URL';
   }
 
-  if (siteImageUrl !== undefined) {
-    if (!siteImageUrl.trim()) return 'siteImageUrl must not be empty';
-    if (!isValidUrl(siteImageUrl)) return 'siteImageUrl must be a valid URL';
+  if (site_image_url !== undefined) {
+    if (!site_image_url.trim()) return 'site_image_url must not be empty';
+    if (!isValidUrl(site_image_url)) return 'site_image_url must be a valid URL';
   }
 
-  if (useTech !== undefined) {
-    if (!Array.isArray(useTech) || useTech.length === 0) return 'useTech must be a non-empty array';
-    if (useTech.some((t) => typeof t !== 'string' || !t.trim()))
-      return 'useTech must contain non-empty strings';
+  if (use_tech !== undefined) {
+    if (!Array.isArray(use_tech) || use_tech.length === 0)
+      return 'use_tech must be a non-empty array';
+    if (use_tech.some((t) => typeof t !== 'string' || !t.trim()))
+      return 'use_tech must contain non-empty strings';
   }
 
   return null;
@@ -103,7 +99,7 @@ export async function getAllPortfolioItems(req: Request, res: Response): Promise
       success: true,
       status: 200,
       message: 'Portfolio items retrieved successfully',
-      data: result.data?.map(parseItem),
+      data: result.data,
       meta: { total: result.data?.length },
     });
   } catch (err) {
@@ -145,7 +141,7 @@ export async function getPortfolioItemById(req: Request, res: Response): Promise
       success: true,
       status: 200,
       message: 'Portfolio item retrieved successfully',
-      data: parseItem(result.data),
+      data: result.data,
     });
   } catch (err) {
     catchError(res, err);
@@ -160,6 +156,7 @@ export async function createPortfolioItem(req: Request, res: Response): Promise<
 
     const validationError = validateCreate(body);
     if (validationError) {
+      await deleteFromCloudinary(req.body.site_image_url);
       send(res, {
         success: false,
         status: 400,
@@ -169,16 +166,16 @@ export async function createPortfolioItem(req: Request, res: Response): Promise<
       return;
     }
 
-    const { siteName, siteRole, siteUrl, siteImageUrl, useTech, description } =
+    const { site_name, site_role, site_url, site_image_url, use_tech, description } =
       body as CreatePortfolioDto;
 
     const newItem = await prisma.portfolio_item.create({
       data: {
-        site_name: siteName,
-        site_role: siteRole,
-        site_url: siteUrl,
-        site_image_url: siteImageUrl,
-        use_tech: JSON.stringify(useTech),
+        site_name,
+        site_role,
+        site_url,
+        site_image_url,
+        use_tech,
         description,
       },
     });
@@ -193,9 +190,10 @@ export async function createPortfolioItem(req: Request, res: Response): Promise<
       success: true,
       status: 201,
       message: 'Portfolio item created successfully',
-      data: parseItem(newItem),
+      data: newItem,
     });
   } catch (err) {
+    await deleteFromCloudinary(req.body.site_image_url);
     catchError(res, err);
   }
 }
@@ -203,12 +201,21 @@ export async function createPortfolioItem(req: Request, res: Response): Promise<
 // ─── PATCH /api/portfolio/:id ────────────────────────────────────────────────
 
 export async function updatePortfolioItem(req: Request, res: Response): Promise<void> {
+  let newImage: string | undefined;
+
   try {
     const { id } = req.params;
     const body = req.body as UpdatePortfolioDto;
     const clientETag = req.headers['if-match'] as string | undefined;
 
+    newImage = body.site_image_url;
+
+    // ─── Require If-Match (Optimistic Locking) ───
     if (!clientETag) {
+      if (newImage) {
+        await deleteFromCloudinary(newImage);
+      }
+
       return send(res, {
         success: false,
         status: 428,
@@ -216,14 +223,24 @@ export async function updatePortfolioItem(req: Request, res: Response): Promise<
       });
     }
 
-    // Check existence + optimistic locking via cache
+    // ─── Fetch Cached + Validate ETag ───
     const cached = await cacheRememberConditional(CACHE_KEYS.one(id), {
       ttl: TTL.ONE_DAY,
-      ifMatch: clientETag, // 412 if modified
-      callback: () => prisma.portfolio_item.findUnique({ where: { id } }),
+      ifMatch: clientETag,
+      callback: () =>
+        prisma.portfolio_item.findUnique({
+          where: { id },
+        }),
     });
 
+    const existing = cached.data;
+
+    // ─── Handle 412 (Modified) ───
     if (cached.status === 412) {
+      if (newImage && newImage !== existing?.site_image_url) {
+        await deleteFromCloudinary(newImage);
+      }
+
       return send(res, {
         success: false,
         status: 412,
@@ -232,7 +249,12 @@ export async function updatePortfolioItem(req: Request, res: Response): Promise<
       });
     }
 
-    if (!cached.data) {
+    // ─── Not Found ───
+    if (!existing) {
+      if (newImage) {
+        await deleteFromCloudinary(newImage);
+      }
+
       return send(res, {
         success: false,
         status: 404,
@@ -241,45 +263,70 @@ export async function updatePortfolioItem(req: Request, res: Response): Promise<
       });
     }
 
+    // ─── Validate Input ───
     const validationError = validateUpdate(body);
     if (validationError) {
-      send(res, {
+      if (newImage && newImage !== existing.site_image_url) {
+        await deleteFromCloudinary(newImage);
+      }
+
+      return send(res, {
         success: false,
         status: 400,
         message: 'Validation error',
         error: { detail: validationError },
       });
-      return;
     }
 
-    const { siteName, siteRole, siteUrl, siteImageUrl, useTech, description } = body;
+    const { site_name, site_role, site_url, site_image_url, use_tech, description } = body;
 
+    const isNewImage =
+      site_image_url && existing.site_image_url && site_image_url !== existing.site_image_url;
+
+    // ─── Update DB ───
     const updatedItem = await prisma.portfolio_item.update({
       where: { id },
       data: {
-        ...(siteName !== undefined && { site_name: siteName }),
-        ...(siteRole !== undefined && { site_role: siteRole }),
-        ...(siteUrl !== undefined && { site_url: siteUrl }),
-        ...(siteImageUrl !== undefined && { site_image_url: siteImageUrl }),
-        ...(useTech !== undefined && { use_tech: JSON.stringify(useTech) }),
+        ...(site_name !== undefined && { site_name }),
+        ...(site_role !== undefined && { site_role }),
+        ...(site_url !== undefined && { site_url }),
+        ...(site_image_url !== undefined && { site_image_url }),
+        ...(use_tech !== undefined && { use_tech }),
         ...(description !== undefined && { description }),
       },
     });
-    // Warm cache with new value, invalidate list
+
+    // ─── Delete Old Image (ONLY if replaced) ───
+    if (isNewImage) {
+      await deleteFromCloudinary(existing.site_image_url);
+    }
+
+    // ─── Cache Sync ───
     await Promise.all([
       cachePut(CACHE_KEYS.one(id), updatedItem, TTL.ONE_DAY),
       cacheInvalidatePrefix(CACHE_KEYS.prefix),
     ]);
 
+    // ─── Response ───
     res.setHeader('ETag', generateETag(updatedItem));
-    send(res, {
+
+    return send(res, {
       success: true,
       status: 200,
       message: 'Portfolio item updated successfully',
-      data: parseItem(updatedItem),
+      data: updatedItem,
     });
   } catch (err) {
-    catchError(res, err);
+    // ─── Rollback uploaded image on failure ───
+    try {
+      if (newImage) {
+        await deleteFromCloudinary(newImage);
+      }
+    } catch {
+      // optionally log this
+    }
+
+    return catchError(res, err);
   }
 }
 
@@ -308,7 +355,10 @@ export async function deletePortfolioItem(req: Request, res: Response): Promise<
       });
     }
 
-    await prisma.portfolio_item.delete({ where: { id } });
+    const existing = await prisma.portfolio_item.delete({ where: { id } });
+    if (existing?.site_image_url) {
+      await deleteFromCloudinary(existing.site_image_url);
+    }
 
     await Promise.all([cacheForget(CACHE_KEYS.one(id)), cacheInvalidatePrefix(CACHE_KEYS.prefix)]);
 
