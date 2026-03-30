@@ -24,7 +24,8 @@ export function rateLimit(config: RateLimitConfig) {
   }
 
   return async (req: Request, res: Response, next: NextFunction): Promise<void> => {
-    if (req.headers.origin === 'http://localhost:5173') return next();
+    if (process.env.NODE_ENV === 'development' && req.headers.origin === 'http://localhost:5173')
+      return next();
     if (skip?.(req)) return next();
 
     const identity = keyResolver ? (keyResolver(req) ?? getIp(req)) : getIp(req);

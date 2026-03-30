@@ -179,8 +179,8 @@ export function PortfolioItemCard({ item }: PortfolioItemCardProps) {
           >
             <motion.img
               className="absolute -top-[5%] left-[0%] h-[110%] w-[110%] object-cover"
-              src={item.siteImageUrl}
-              alt={item.siteName}
+              src={item.site_image_url}
+              alt={item.site_name}
               style={{ x: imgX, y: imgY, willChange: 'transform' }}
             />
 
@@ -203,7 +203,7 @@ export function PortfolioItemCard({ item }: PortfolioItemCardProps) {
             <div className="absolute inset-0 bg-linear-to-t from-black/90 via-black/30 to-transparent" />
 
             <motion.a
-              href={item.siteUrl}
+              href={item.site_url}
               target="_blank"
               rel="noopener noreferrer"
               onClick={(e) => e.stopPropagation()}
@@ -247,13 +247,13 @@ export function PortfolioItemCard({ item }: PortfolioItemCardProps) {
                 size={HEADING.h3.size}
                 className="ml-2 leading-tight font-bold text-white"
               >
-                {item.siteName}
+                {item.site_name}
               </Heading>
               <Badge
                 size="3"
                 className="mt-2 inline-block rounded-full text-[10px] font-semibold uppercase"
               >
-                {item.siteRole}
+                {item.site_role}
               </Badge>
             </motion.div>
 
@@ -329,14 +329,14 @@ export function PortfolioItemCard({ item }: PortfolioItemCardProps) {
                 animate={flipped ? 'visible' : 'hidden'}
               >
                 <Heading as="h4" size={HEADING.h4.size} className="leading-tight text-white">
-                  {item.siteName}
+                  {item.site_name}
                 </Heading>
                 <Text
                   size={TEXT.sm.size}
                   className="mt-1 font-semibold tracking-widest text-(--blue-10) uppercase"
                   as="p"
                 >
-                  {item.siteRole}
+                  {item.site_role}
                 </Text>
               </motion.div>
 
@@ -357,7 +357,7 @@ export function PortfolioItemCard({ item }: PortfolioItemCardProps) {
                 animate={flipped ? 'visible' : 'hidden'}
               >
                 <Flex wrap="wrap" gap="2">
-                  {item.useTech.map((tech, i) => (
+                  {item.use_tech.map((tech, i) => (
                     <motion.div
                       key={tech}
                       initial={{ opacity: 0, scale: 0.7 }}

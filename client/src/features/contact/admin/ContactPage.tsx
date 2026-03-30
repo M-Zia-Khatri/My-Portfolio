@@ -23,7 +23,7 @@ export default function ContactPage() {
 
     return contacts.filter((c) => {
       // Add null-checks for individual fields to be extra safe
-      const name = c.name?.toLowerCase() || '';
+      const name = c.full_name?.toLowerCase() || '';
       const email = c.email?.toLowerCase() || '';
       const message = c.message?.toLowerCase() || '';
 

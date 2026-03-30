@@ -24,7 +24,7 @@ export interface AccessTokenPayload {
 
 export interface RefreshTokenPayload {
   sub: string; // adminId
-  jti: string; // RefreshToken.id (used for revocation lookppppppppppppppppppppppppppup)
+  jti: string; // RefreshToken.id (used for revocation look up)
   type: 'refresh';
 }
 

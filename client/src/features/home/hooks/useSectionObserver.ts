@@ -24,7 +24,7 @@ export const useSectionObserver = () => {
         }
       },
       {
-        threshold: [0.3, 0.6, 0.8],
+        rootMargin: '-30% 0px -30% 0px',
       },
     );
 

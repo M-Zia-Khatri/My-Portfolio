@@ -3,6 +3,7 @@ import { create } from 'zustand';
 import type { AuthState, AuthUser } from '@/features/auth/types';
 import { clearAccessToken } from '@/features/auth/utils/tokenManager';
 import type { QueryClient } from '@tanstack/react-query';
+import { api } from '../api/axios';
 
 // ─── QueryClient bridge ───────────────────────────────────────────────────────
 // Injected once at app boot (in AuthProvider) so logout() can clear the
@@ -51,7 +52,12 @@ const initialState: AuthState = {
 export const useAuthStore = create<AuthStore>((set, get) => ({
   ...initialState,
 
-  logout: () => {
+  logout: async () => {
+    try {
+      await api.post('/auth/logout');
+    } catch {
+      /* ignore */
+    }
     clearAccessToken();
     _queryClient?.clear();
     set({ user: null, isAuthenticated: false, isLoading: false });

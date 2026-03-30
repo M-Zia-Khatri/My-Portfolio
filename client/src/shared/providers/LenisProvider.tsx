@@ -1,5 +1,5 @@
 import Lenis from '@studio-freight/lenis';
-import { createContext, useContext, useEffect, useRef, type ReactNode } from 'react';
+import { createContext, useContext, useEffect, useState, type ReactNode } from 'react';
 
 type LenisContextType = {
   lenis: Lenis | null;
@@ -12,30 +12,16 @@ const LenisContext = createContext<LenisContextType>({
 export const useLenis = () => useContext(LenisContext);
 
 export const LenisProvider = ({ children }: { children: ReactNode }) => {
-  const lenisRef = useRef<Lenis | null>(null);
-
+  const [lenis, setLenis] = useState<Lenis | null>(null);
   useEffect(() => {
-    const lenis = new Lenis({
-      duration: 1.2,
-      smoothWheel: true,
-      smoothTouch: false,
-    });
-
-    lenisRef.current = lenis;
-
+    const instance = new Lenis({ duration: 1.2, smoothWheel: true, smoothTouch: false });
+    setLenis(instance);
     const raf = (time: number) => {
-      lenis.raf(time);
+      instance.raf(time);
       requestAnimationFrame(raf);
     };
-
     requestAnimationFrame(raf);
-
-    return () => {
-      lenis.destroy();
-    };
+    return () => instance.destroy();
   }, []);
-
-  return (
-    <LenisContext.Provider value={{ lenis: lenisRef.current }}>{children}</LenisContext.Provider>
-  );
+  return <LenisContext.Provider value={{ lenis }}>{children}</LenisContext.Provider>;
 };

@@ -51,10 +51,9 @@ COPY --from=builder /app/dist ./dist
 RUN echo '#!/bin/sh' > /app/start.sh && \
     echo 'set -e' >> /app/start.sh && \
     echo 'echo "Running database migrations..."' >> /app/start.sh && \
-    echo 'exec node dist/server.js' >> /app/start.sh && \
-    echo 'echo "Starting application..."' >> /app/start.sh && \
-    echo 'exec node src/server.js' >> /app/start.sh && \
     chmod +x /app/start.sh
+
+RUN printf '#!/bin/sh\nset -e\necho "Running migrations..."\necho "Starting server..."\nexec node dist/server.js\n' > /app/start.sh && chmod +x /app/start.sh
 
 # Expose port
 EXPOSE 5000

@@ -9,6 +9,7 @@ const COOLDOWN_MS = 900;
 export const useLenisSnap = () => {
   const { lenis } = useLenis();
   const { activeHash } = useNavigationStore();
+  const lastEventTime = useRef(0);
 
   const isLocked = useRef(false);
   const wheelAccum = useRef(0);
@@ -38,6 +39,12 @@ export const useLenisSnap = () => {
     const onWheel = (e: WheelEvent) => {
       if (isLocked.current) return;
 
+      const now = Date.now();
+      if (now - lastEventTime.current > 100) {
+        wheelAccum.current = 0;
+      }
+
+      lastEventTime.current = now;
       wheelAccum.current += e.deltaY;
 
       if (Math.abs(wheelAccum.current) < WHEEL_THRESHOLD) return;

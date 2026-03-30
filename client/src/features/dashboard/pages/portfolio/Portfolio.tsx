@@ -14,7 +14,7 @@ import {
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { Plus, TriangleAlert } from 'lucide-react';
 import { AnimatePresence, motion } from 'motion/react';
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import { createPortfolio, deletePortfolio, fetchPortfolio, updatePortfolio } from './portfolio.api';
 import type { PortfolioItem } from './portfolio.types';
 import { PortfolioCard } from './PortfolioCard';
@@ -90,15 +90,25 @@ export default function Portfolio() {
 
   // ─── Filter Options ────────────────────────────────────────────────────────
 
-  const allTechs = Array.from(new Set(items.flatMap((item) => item.use_tech))).sort();
+  const allTechs = useMemo(
+    () => Array.from(new Set(items.flatMap((item) => item.use_tech))).sort(),
+    [items],
+  );
 
-  const allRoles = Array.from(new Set(items.map((item) => item.site_role).filter(Boolean))).sort();
+  const allRoles = useMemo(
+    () => Array.from(new Set(items.map((item) => item.site_role).filter(Boolean))).sort(),
+    [items],
+  );
 
-  const filtered = items.filter((item) => {
-    const techMatch = filterTech === 'all' || item.use_tech.includes(filterTech);
-    const roleMatch = filterRole === 'all' || item.site_role === filterRole;
-    return techMatch && roleMatch;
-  });
+  const filtered = useMemo(
+    () =>
+      items.filter((item) => {
+        const techMatch = filterTech === 'all' || item.use_tech.includes(filterTech);
+        const roleMatch = filterRole === 'all' || item.site_role === filterRole;
+        return techMatch && roleMatch;
+      }),
+    [items, filterTech, filterRole],
+  );
 
   // ─── Create Mutation ───────────────────────────────────────────────────────
 

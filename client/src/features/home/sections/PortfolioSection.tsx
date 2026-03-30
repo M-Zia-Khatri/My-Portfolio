@@ -1,8 +1,9 @@
+import { fetchPortfolio } from '@/features/dashboard/pages/portfolio/portfolio.api';
 import { PortfolioItemCard } from '@/features/portfolio/components/PortfolioItemCard';
-import type { PortfolioItem } from '@/features/portfolio/types';
 import SecComponent from '@/shared/components/SecContainer';
 import { TEXT } from '@/shared/constants/style.constants';
 import { Box, Heading, Text } from '@radix-ui/themes';
+import { useQuery } from '@tanstack/react-query';
 import { motion, type Variants } from 'motion/react';
 
 // ✅ Explicit typing
@@ -36,20 +37,16 @@ const headingVariants: Variants = {
 const VIEWPORT_ONCE = { once: true, margin: '-60px' } as const;
 const VIEWPORT_GRID = { once: true, margin: '-80px' } as const;
 
-const MOCK_ITEM: PortfolioItem = {
-  siteName: 'xyz',
-  siteRole: 'xyz role',
-  siteUrl: 'https://www.google.com',
-  siteImageUrl:
-    'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSAyyRRzS5-kkk_Y5vm3O5MBZjWYsczQsR9qA&s',
-  useTech: ['react', 'ts', 'node.js'],
-  description:
-    'Lorem ipsum dolor sit amet consectetur adipisicing elit. Exercitationem enim at veritatis aut ipsum unde dolorum assumenda?',
-};
-
-const ITEMS = [1, 2, 3, 4, 5, 6];
-
 export default function PortfolioSection() {
+  const { data: items = [], isLoading } = useQuery({
+    queryKey: ['portfolio'],
+    queryFn: fetchPortfolio,
+  });
+
+  console.log(items);
+
+  if (isLoading) return null;
+
   return (
     <SecComponent className="w-full" py="8">
       <Box className="flex flex-col items-center gap-10">
@@ -76,9 +73,9 @@ export default function PortfolioSection() {
           whileInView="visible"
           viewport={VIEWPORT_GRID}
         >
-          {ITEMS.map((item) => (
-            <motion.div key={item} variants={cardVariants}>
-              <PortfolioItemCard item={MOCK_ITEM} />
+          {items.map((item, idx) => (
+            <motion.div key={idx} variants={cardVariants}>
+              <PortfolioItemCard item={item} />
             </motion.div>
           ))}
         </motion.div>
