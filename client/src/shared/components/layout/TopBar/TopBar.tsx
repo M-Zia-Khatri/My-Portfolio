@@ -1,28 +1,21 @@
-import { sections } from '@/features/home/Home.config';
 import { useLenisSnap } from '@/features/home/hooks/useLenisSnap';
 import { AppNavigation } from '@/shared/constants/navigation.constants';
 import { TEXT } from '@/shared/constants/style.constants';
 import { useNavigationStore } from '@/shared/store/navigation.store';
 import { cn } from '@/shared/utils/cn';
-import { Box, Button, Card, Container, Flex, Link, Text } from '@radix-ui/themes';
-import { motion, type Variants } from 'motion/react';
+import { Box, Button, Card, Container, Link, Text } from '@radix-ui/themes';
+import { motion } from 'motion/react';
 import { useEffect, useRef, useState } from 'react';
 import { NavLink } from 'react-router';
-
-const navItems = [
-  { label: 'Home', href: AppNavigation.HOME },
-  { label: 'About', href: AppNavigation.ABOUT },
-  { label: 'Skills', href: AppNavigation.SKILLS },
-  { label: 'Portfolio', href: AppNavigation.PORTFOLIO },
-  { label: 'Contact', href: AppNavigation.CONTACT },
-] as const;
+import { HIDE_DELAY_MS } from './TopBar.constants';
+import { TopBarMobile } from './TopBarMobile';
+import { TopBarNav } from './TopBarNav';
 
 /** How long (ms) the user must keep scrolling DOWN before the bar hides */
-const HIDE_DELAY_MS = 4000;
 
 export default function TopBar() {
   const { snapTo } = useLenisSnap();
-  const { activeHash, setActiveHash } = useNavigationStore();
+  const { activeHash } = useNavigationStore();
 
   // ── scroll-hide logic ─────────────────────────────────────────────────────
   const [hidden, setHidden] = useState(false);
@@ -61,32 +54,6 @@ export default function TopBar() {
     };
   }, []);
   // ─────────────────────────────────────────────────────────────────────────
-
-  const itemVariants: Variants = {
-    initial: { y: 0, opacity: 0.9, fontWeight: 400 },
-    hover: {
-      y: -5,
-      opacity: 1,
-      fontWeight: 500,
-      scale: 1.02,
-      margin: '0 1%',
-      transition: { duration: 0.25, ease: 'easeOut' },
-    },
-  };
-
-  const underlineVariants: Variants = {
-    initial: { scaleX: 0, opacity: 0 },
-    active: {
-      scaleX: 1,
-      opacity: 1,
-      transition: { duration: 0.3, ease: 'easeIn' },
-    },
-    hover: {
-      scaleX: 1,
-      opacity: 1,
-      transition: { delay: 0.1, duration: 0.3, ease: 'easeIn' },
-    },
-  };
 
   return (
     <Box asChild className="fixed top-4 z-50 w-full px-4">
@@ -137,78 +104,10 @@ export default function TopBar() {
               </Link>
 
               {/* nav links */}
-              <Box asChild className="flex-1 overflow-x-auto">
-                <nav aria-label="Main navigation">
-                  <Flex asChild align="center" justify="center" gap="5">
-                    <ul className="min-w-max">
-                      {navItems.map((item) => {
-                        const isRoute = !item.href.startsWith('#');
-                        const isActive = activeHash === item.href;
-
-                        return (
-                          <motion.li
-                            key={item.label}
-                            initial="initial"
-                            whileHover="hover"
-                            className="relative list-none"
-                            variants={itemVariants}
-                            onClick={() => {
-                              if (item.href.startsWith('#')) {
-                                const index = sections.findIndex((s) => `#${s.id}` === item.href);
-                                snapTo(index);
-                              }
-                            }}
-                          >
-                            <Link asChild underline="none">
-                              {isRoute ? (
-                                <NavLink
-                                  to={item.href}
-                                  className="relative inline-flex items-center pb-1"
-                                >
-                                  <Text size={TEXT.base.size} className="text-white">
-                                    {item.label}
-                                  </Text>
-                                  <motion.span
-                                    variants={underlineVariants}
-                                    animate={isActive ? 'active' : 'initial'}
-                                    className="absolute right-0 -bottom-0.5 left-0 h-0.5 w-8 origin-left rounded-full"
-                                    style={{ backgroundColor: 'var(--blue-9)' }}
-                                  />
-                                </NavLink>
-                              ) : (
-                                <a
-                                  href={item.href}
-                                  onClick={(e) => {
-                                    e.preventDefault();
-                                    const index = sections.findIndex(
-                                      (s) => `#${s.id}` === item.href,
-                                    );
-                                    snapTo(index);
-                                  }}
-                                  className="relative inline-flex items-center pb-1"
-                                >
-                                  <Text size={TEXT.base.size} className="text-white">
-                                    {item.label}
-                                  </Text>
-                                  <motion.span
-                                    variants={underlineVariants}
-                                    animate={isActive ? 'active' : 'initial'}
-                                    className="absolute right-0 -bottom-0.5 left-0 h-0.5 origin-left rounded-full"
-                                    style={{ backgroundColor: 'var(--blue-9)' }}
-                                  />
-                                </a>
-                              )}
-                            </Link>
-                          </motion.li>
-                        );
-                      })}
-                    </ul>
-                  </Flex>
-                </nav>
-              </Box>
+              <TopBarNav activeHash={activeHash} s snapTo={snapTo} />
 
               {/* let's talk btn */}
-              <Button asChild radius="full" color="gray" className="shrink-0">
+              <Button asChild radius="full" color="gray" className="shrink-0 hidden md:block">
                 <motion.a
                   href="mailto:muhammadziakhatri@gmail.com"
                   className="relative overflow-hidden"
@@ -230,6 +129,8 @@ export default function TopBar() {
                   </Text>
                 </motion.a>
               </Button>
+
+              <TopBarMobile activeHash={activeHash} snapTo={snapTo} />
             </motion.div>
           </Card>
         </Container>

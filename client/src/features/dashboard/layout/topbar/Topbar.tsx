@@ -34,13 +34,6 @@ export default function Topbar() {
     navigate('/');
   };
 
-  const formattedTime = time.toLocaleTimeString([], {
-    hour: '2-digit',
-    minute: '2-digit',
-    second: '2-digit',
-    hour12: false,
-  });
-
   return (
     <header className="sticky top-0 z-40 w-full border-b border-(--gray-5) bg-(--gray-2)/80 backdrop-blur-md">
       <Flex align="center" justify="between" px="6" height="64px">
