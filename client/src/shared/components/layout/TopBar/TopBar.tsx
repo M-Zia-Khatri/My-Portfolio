@@ -1,21 +1,13 @@
 import { AppNavigation } from '@/shared/constants/navigation.constants';
 import { TEXT } from '@/shared/constants/style.constants';
 import { cn } from '@/shared/utils/cn';
-import { Box, Button, Card, Container, Flex, Link, Text } from '@radix-ui/themes';
+import { Box, Button, Card, Container, Link, Text } from '@radix-ui/themes';
 import { motion, type Variants } from 'motion/react';
 import { useEffect, useRef, useState } from 'react';
 import { NavLink } from 'react-router';
-
-const navItems = [
-  { label: 'Home', href: AppNavigation.HOME, sectionId: 'home' },
-  { label: 'About', href: AppNavigation.ABOUT, sectionId: 'about' },
-  { label: 'Skills', href: AppNavigation.SKILLS, sectionId: 'skills' },
-  { label: 'Portfolio', href: AppNavigation.PORTFOLIO, sectionId: 'portfolio' },
-  { label: 'Contact', href: AppNavigation.CONTACT, sectionId: 'contact' },
-] as const;
+import { HIDE_DELAY_MS, navItems } from './TopBar.constants';
 
 /** How long (ms) the user must keep scrolling DOWN before the bar hides */
-const HIDE_DELAY_MS = 4000;
 
 function scrollToSection(sectionId: string) {
   document.getElementById(sectionId)?.scrollIntoView({ behavior: 'smooth' });
@@ -191,6 +183,8 @@ export default function TopBar() {
                   </Text>
                 </motion.a>
               </Button>
+
+              {/* <TopBarMobile /> */}
             </motion.div>
           </Card>
         </Container>
