@@ -14,6 +14,9 @@
  *  3. After the timer expires (or if the user clicks the auto-typing tab
  *     again while paused) the timeline resumes exactly where it stopped.
  *
+ *  4. The parent section controls lifecycle with `isActive`. When inactive,
+ *     execution pauses; when active again it resumes.
+ *
  * Only the ContactSection uses this component; the original CodeCard and
  * SkillsSection are completely unchanged (except for the two additions to
  * CodeCard: `onTypingComplete` prop and the imperative `pause/resume` ref).
@@ -26,6 +29,7 @@ import CodeCard from '@/shared/components/CodeCard';
 import { BorderTrail } from '@/shared/components/motion-primitives/border-trail';
 import TabScrollbarStyle from '@/shared/components/TabScrollbarStyle';
 import { AnimatePresence, motion } from 'motion/react';
+import React from 'react';
 import { useCallback, useEffect, useRef, useState } from 'react';
 
 // ── Curated list: code-only skills so the typewriter always fires ─────────────
@@ -35,7 +39,7 @@ const CONTACT_SKILLS = skills.filter(
 );
 
 // ── Status shown in the top-right badge ──────────────────────────────────────
-type CardStatus = 'idle' | 'typing' | 'paused' | 'advancing' | 'done';
+type CardStatus = 'typing' | 'paused' | 'advancing' | 'done';
 
 // ── Tiny animated status badge (typing dots / paused countdown / next →) ─────
 function StatusBadge({
@@ -167,7 +171,7 @@ function ProgressRail({ autoIndex, isDone }: { autoIndex: number; isDone: boolea
 }
 
 // ── Main component ────────────────────────────────────────────────────────────
-export default function ContactCodeCard() {
+export default function ContactCodeCard({ isActive }: { isActive: boolean }) {
   // Which skill is currently auto-typing
   const [autoIndex, setAutoIndex] = useState(0);
   const autoIndexRef = useRef(0);
@@ -178,12 +182,8 @@ export default function ContactCodeCard() {
   const [openTabs, setOpenTabs] = useState<Skill[]>([autoSkill]);
 
   // Status badge
-  const [cardStatus, setCardStatus] = useState<CardStatus>('idle');
+  const [cardStatus, setCardStatus] = useState<CardStatus>('typing');
   const [secondsLeft, setSecondsLeft] = useState(0);
-
-  // Viewport + one-shot start guard
-  const containerRef = useRef<HTMLDivElement>(null);
-  const hasStartedRef = useRef(false);
 
   // Pause / resume refs
   const codeCardRef = useRef<CodeCardHandle>(null);
@@ -220,39 +220,11 @@ export default function ContactCodeCard() {
     }, 900);
   }, []);
 
-  // ── start typing — triggered once by the IntersectionObserver ─────────────
-  const startSequence = useCallback(() => {
-    if (hasStartedRef.current) return;
-    hasStartedRef.current = true;
-    setCardStatus('typing');
-    // CodeCard picks up typing automatically when `skill` changes and
-    // fires onTypingComplete when done — no extra trigger needed here.
-  }, []);
-
-  // ── IntersectionObserver: fire startSequence when card enters viewport ─────
-  useEffect(() => {
-    const el = containerRef.current;
-    if (!el) return;
-
-    const observer = new IntersectionObserver(
-      ([entry]) => {
-        if (entry.isIntersecting) {
-          startSequence();
-          observer.disconnect(); // one-shot — never need to observe again
-        }
-      },
-      { threshold: 0.35 }, // at least 35 % of the card must be visible
-    );
-
-    observer.observe(el);
-    return () => observer.disconnect();
-  }, [startSequence]);
-
   // ── tab click: either resume (if clicking the live tab) or pause ──────────
   const handleTabClick = useCallback(
     (skill: Skill) => {
       // Ignore clicks once everything is done
-      if (cardStatus === 'done' || cardStatus === 'idle') return;
+      if (cardStatus === 'done' || !isActive) return;
 
       const liveSkill = CONTACT_SKILLS[autoIndexRef.current];
 
@@ -301,11 +273,11 @@ export default function ContactCodeCard() {
         setCardStatus('typing');
       }, delayMs);
     },
-    [cardStatus],
+    [cardStatus, isActive],
   );
 
   // No close buttons in the contact card — tabs only accumulate
-  const handleTabClose = useCallback((_skill: Skill) => {
+  const handleTabClose = useCallback(() => {
     /* intentionally no-op */
   }, []);
 
@@ -318,12 +290,10 @@ export default function ContactCodeCard() {
     [],
   );
 
-  // While idle CodeCard shows the empty state naturally (openTabs=[])
-  // Once started we keep the real openTabs forever.
-  const isStarted = cardStatus !== 'idle';
+  const isStarted = isActive;
 
   return (
-    <div ref={containerRef} className="flex flex-col gap-2">
+    <div className="flex flex-col gap-2">
       {/* Status badge floats above the card */}
       <div className="flex h-5 justify-end pr-1">
         <StatusBadge
@@ -359,6 +329,7 @@ export default function ContactCodeCard() {
           skill={activeSkill}
           openTabs={isStarted ? openTabs : []}
           started={isStarted}
+          isActive={isActive}
           onTabClick={handleTabClick}
           onTabClose={handleTabClose}
           onTypingComplete={cardStatus !== 'done' ? advanceToNext : undefined}

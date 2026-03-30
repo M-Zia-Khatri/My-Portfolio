@@ -6,6 +6,7 @@ import type { Skill } from '@/features/skills/types';
 import TabScrollbarStyle from '@/shared/components/TabScrollbarStyle';
 import gsap from 'gsap';
 import { AnimatePresence, motion, useSpring, useTransform } from 'motion/react';
+import React from 'react';
 import {
   forwardRef,
   memo,
@@ -47,10 +48,20 @@ export interface CodeCardProps {
   onTypingComplete?: () => void;
   /** When false the typewriter will not start (used for viewport-gated cards) */
   started?: boolean;
+  /** Controls whether the current animation timeline should actively run */
+  isActive?: boolean;
 }
 
 const CodeCard = forwardRef<CodeCardHandle, CodeCardProps>(function CodeCard(
-  { skill, openTabs, onTabClick, onTabClose, onTypingComplete, started = true }: CodeCardProps,
+  {
+    skill,
+    openTabs,
+    onTabClick,
+    onTabClose,
+    onTypingComplete,
+    started = true,
+    isActive = true,
+  }: CodeCardProps,
   ref,
 ) {
   // Split animation state — only used in "code" mode
@@ -67,6 +78,15 @@ const CodeCard = forwardRef<CodeCardHandle, CodeCardProps>(function CodeCard(
     pause: () => tlRef.current?.pause(),
     resume: () => tlRef.current?.resume(),
   }));
+
+  useEffect(() => {
+    if (!tlRef.current) return;
+    if (isActive) {
+      tlRef.current.resume();
+    } else {
+      tlRef.current.pause();
+    }
+  }, [isActive]);
 
   // Auto-scroll code area to bottom as new lines appear
   useEffect(() => {
@@ -232,6 +252,7 @@ const CodeCard = forwardRef<CodeCardHandle, CodeCardProps>(function CodeCard(
                   skillName={skill.name}
                   commands={skill.commands}
                   color={skill.color}
+                  isActive={isActive}
                 />
               ) : (
                 /* ── Code editor mode ── */

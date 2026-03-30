@@ -1,15 +1,18 @@
 import SkillChip from '@/features/skills/components/SkillChip';
 import { skills } from '@/features/skills/skills.data';
 import type { Skill } from '@/features/skills/types';
+import { useSectionActive } from '@/features/home/hooks/useSectionActive';
 import CodeCard from '@/shared/components/CodeCard';
 import { BorderTrail } from '@/shared/components/motion-primitives/border-trail';
 import SecComponent from '@/shared/components/SecContainer';
 import { HEADING, TEXT } from '@/shared/constants/style.constants';
 import { Box, Heading, Text } from '@radix-ui/themes';
 import { motion } from 'motion/react';
+import React from 'react';
 import { useCallback, useMemo, useState } from 'react';
 
 export default function SkillsSection() {
+  const isActive = useSectionActive('skills');
   const [active, setActive] = useState<Skill | null>(skills[0]);
   const [openTabs, setOpenTabs] = useState<Skill[]>([skills[0]]);
 
@@ -91,6 +94,7 @@ export default function SkillsSection() {
           <CodeCard
             skill={resolvedSkill}
             openTabs={openTabs}
+            started={isActive}
             onTabClick={handleTabClick}
             onTabClose={handleTabClose}
           />

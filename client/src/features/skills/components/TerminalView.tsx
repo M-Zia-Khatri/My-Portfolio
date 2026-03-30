@@ -1,5 +1,6 @@
 import gsap from 'gsap';
 import { motion } from 'motion/react';
+import React from 'react';
 import { memo, useEffect, useMemo, useRef, useState } from 'react';
 import type { TerminalLine as TLine } from '../types';
 import TerminalLine from './TerminalLine';
@@ -8,6 +9,7 @@ interface TerminalViewProps {
   skillName: string;
   commands: TLine[];
   color: string;
+  isActive?: boolean;
 }
 
 interface Block {
@@ -79,7 +81,12 @@ const DoneBlock = memo(function DoneBlock({
 });
 
 // ─── TerminalView ─────────────────────────────────────────────────────────────
-export default function TerminalView({ skillName, commands, color }: TerminalViewProps) {
+export default function TerminalView({
+  skillName,
+  commands,
+  color,
+  isActive = true,
+}: TerminalViewProps) {
   const [state, setState] = useState<DisplayState>(INIT_STATE);
   const [cursor, setCursor] = useState(true);
   const tlRef = useRef<gsap.core.Timeline | null>(null);
@@ -87,9 +94,10 @@ export default function TerminalView({ skillName, commands, color }: TerminalVie
 
   // Blink cursor
   useEffect(() => {
+    if (!isActive) return;
     const id = setInterval(() => setCursor((c) => !c), 530);
     return () => clearInterval(id);
-  }, []);
+  }, [isActive]);
 
   const blocks = useMemo(() => buildBlocks(commands), [commands]);
 
@@ -103,6 +111,8 @@ export default function TerminalView({ skillName, commands, color }: TerminalVie
 
   // ── Single-tween GSAP typewriter (O(1) tweens instead of O(N chars)) ────────
   useEffect(() => {
+    if (!isActive) return;
+
     tlRef.current?.kill();
     setState(INIT_STATE);
 
@@ -206,7 +216,7 @@ export default function TerminalView({ skillName, commands, color }: TerminalVie
     return () => {
       tl.kill();
     };
-  }, [skillName, blocks]);
+  }, [isActive, skillName, blocks]);
 
   const { doneBlocks, activeBlock, activeCommand, activeOutputs, done } = state;
 

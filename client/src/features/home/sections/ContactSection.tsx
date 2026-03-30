@@ -1,11 +1,15 @@
 import ContactCodeCard from '@/features/contact/public/ContactCodeCard';
 import ContactForm from '@/features/contact/public/ContactForm';
+import { useSectionActive } from '@/features/home/hooks/useSectionActive';
 import SecComponent from '@/shared/components/SecContainer';
 import { HEADING } from '@/shared/constants/style.constants';
 import { Flex, Heading } from '@radix-ui/themes';
 import { motion } from 'motion/react';
+import React from 'react';
 
 export default function ContactSection() {
+  const isActive = useSectionActive('contact');
+
   return (
     <SecComponent className="w-full">
       <Flex direction="column" align="center" gap="2">
@@ -33,7 +37,7 @@ export default function ContactSection() {
             className="flex flex-col justify-center"
             style={{ perspective: 900 }}
           >
-            <ContactCodeCard />
+            <ContactCodeCard isActive={isActive} />
           </motion.div>
         </div>
       </Flex>
