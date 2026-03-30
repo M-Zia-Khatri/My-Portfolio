@@ -5,7 +5,9 @@ import { Box, Button, Card, Container, Link, Text } from '@radix-ui/themes';
 import { motion, type Variants } from 'motion/react';
 import { useEffect, useRef, useState } from 'react';
 import { NavLink } from 'react-router';
-import { HIDE_DELAY_MS, navItems } from './TopBar.constants';
+import { HIDE_DELAY_MS } from './TopBar.constants';
+import { TopBarMobile } from './TopBarMobile';
+import { TopBarNav } from './TopBarNav';
 
 /** How long (ms) the user must keep scrolling DOWN before the bar hides */
 
@@ -121,47 +123,10 @@ export default function TopBar() {
                 </NavLink>
               </Link>
 
-              {/* Nav links */}
-              <Box asChild className="flex-1 overflow-x-auto">
-                <nav aria-label="Main navigation">
-                  <Flex asChild align="center" justify="center" gap="5">
-                    <ul className="min-w-max">
-                      {navItems.map((item) => (
-                        <motion.li
-                          key={item.label}
-                          initial="initial"
-                          whileHover="hover"
-                          className="relative list-none"
-                          variants={itemVariants}
-                        >
-                          <Link asChild underline="none">
-                            <a
-                              href={item.href}
-                              onClick={(e) => {
-                                e.preventDefault();
-                                scrollToSection(item.sectionId);
-                              }}
-                              className="relative inline-flex items-center pb-1"
-                            >
-                              <Text size={TEXT.base.size} className="text-white">
-                                {item.label}
-                              </Text>
-                              <motion.span
-                                variants={underlineVariants}
-                                className="absolute right-0 -bottom-0.5 left-0 h-0.5 origin-left rounded-full"
-                                style={{ backgroundColor: 'var(--blue-9)' }}
-                              />
-                            </a>
-                          </Link>
-                        </motion.li>
-                      ))}
-                    </ul>
-                  </Flex>
-                </nav>
-              </Box>
+              <TopBarNav />
 
               {/* Let's talk btn */}
-              <Button asChild radius="full" color="gray" className="shrink-0">
+              <Button asChild radius="full" color="gray" className="shrink-0 hidden md:block">
                 <motion.a
                   href="mailto:muhammadziakhatri@gmail.com"
                   className="relative overflow-hidden"
@@ -184,7 +149,7 @@ export default function TopBar() {
                 </motion.a>
               </Button>
 
-              {/* <TopBarMobile /> */}
+              <TopBarMobile />
             </motion.div>
           </Card>
         </Container>

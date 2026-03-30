@@ -3,7 +3,7 @@ import { Menu } from 'lucide-react';
 import { navItems } from './TopBar.constants';
 import { TopBarItem } from './TopBarItem';
 
-export function TopBarMobile({ activeHash, snapTo }: any) {
+export function TopBarMobile() {
   return (
     <div className="md:hidden">
       <Dialog.Root>
@@ -18,12 +18,7 @@ export function TopBarMobile({ activeHash, snapTo }: any) {
             <Flex asChild align="center" justify="center" direction="column" gap="5">
               <ul className="min-w-max">
                 {navItems.map((item) => (
-                  <TopBarItem
-                    key={item.label}
-                    item={item}
-                    isActive={activeHash === item.href}
-                    snapTo={snapTo}
-                  />
+                  <TopBarItem item={item} />
                 ))}
               </ul>
             </Flex>
