@@ -105,3 +105,6 @@ server:
 
 client:
 	cd client && pnpm dev
+
+client-host:
+	cd client && pnpm dev --host
