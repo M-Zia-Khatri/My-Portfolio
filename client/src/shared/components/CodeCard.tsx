@@ -47,10 +47,20 @@ export interface CodeCardProps {
   onTypingComplete?: () => void;
   /** When false the typewriter will not start (used for viewport-gated cards) */
   started?: boolean;
+  /** Pauses internal animations/timelines when false. */
+  isActive?: boolean;
 }
 
 const CodeCard = forwardRef<CodeCardHandle, CodeCardProps>(function CodeCard(
-  { skill, openTabs, onTabClick, onTabClose, onTypingComplete, started = true }: CodeCardProps,
+  {
+    skill,
+    openTabs,
+    onTabClick,
+    onTabClose,
+    onTypingComplete,
+    started = true,
+    isActive = true,
+  }: CodeCardProps,
   ref,
 ) {
   // Split animation state — only used in "code" mode
@@ -159,6 +169,17 @@ const CodeCard = forwardRef<CodeCardHandle, CodeCardProps>(function CodeCard(
     };
   }, [skill, started]);
 
+  useEffect(() => {
+    if (!tlRef.current) return;
+
+    if (isActive) {
+      tlRef.current.resume();
+      return;
+    }
+
+    tlRef.current.pause();
+  }, [isActive, skill.name, skill.mode]);
+
   // All lines to render (code mode)
   const allLines = useMemo(
     () => (isTyping ? [...completedLines, currentLine] : completedLines),
@@ -232,6 +253,7 @@ const CodeCard = forwardRef<CodeCardHandle, CodeCardProps>(function CodeCard(
                   skillName={skill.name}
                   commands={skill.commands}
                   color={skill.color}
+                  isActive={isActive}
                 />
               ) : (
                 /* ── Code editor mode ── */

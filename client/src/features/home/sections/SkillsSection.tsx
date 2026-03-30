@@ -8,8 +8,10 @@ import { HEADING, TEXT } from '@/shared/constants/style.constants';
 import { Box, Heading, Text } from '@radix-ui/themes';
 import { motion } from 'motion/react';
 import { useCallback, useMemo, useState } from 'react';
+import { useSectionActive } from '../hooks/useSectionActive';
 
 export default function SkillsSection() {
+  const isSectionActive = useSectionActive('skills');
   const [active, setActive] = useState<Skill | null>(skills[0]);
   const [openTabs, setOpenTabs] = useState<Skill[]>([skills[0]]);
 
@@ -89,6 +91,7 @@ export default function SkillsSection() {
           style={{ perspective: 800 }}
         >
           <CodeCard
+            isActive={isSectionActive}
             skill={resolvedSkill}
             openTabs={openTabs}
             onTabClick={handleTabClick}
