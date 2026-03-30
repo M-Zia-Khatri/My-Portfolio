@@ -5,20 +5,6 @@ import GameSection from './sections/GameSection';
 import HeroSection from './sections/hero/HeroSection';
 import SkillsSection from './sections/SkillsSection';
 
-// ─── Scroll constants ────────────────────────────────────────────────────────
-
-export const TOP_BAR_HEIGHT = 0;
-export const SCROLL_DURATION_SECONDS = 0.75;
-export const WHEEL_TRIGGER_THRESHOLD = 16;
-export const SWIPE_TRIGGER_THRESHOLD = 56;
-export const WHEEL_ACCUMULATE_WINDOW_MS = 80;
-
-/** px tolerance for "are we at the section boundary?" */
-export const BOUNDARY_THRESHOLD = 6;
-
-/** ms to block further snaps after one fires (short sections only) */
-export const SNAP_COOLDOWN_MS = SCROLL_DURATION_SECONDS * 1000 + 200;
-
 // ─── Section registry ────────────────────────────────────────────────────────
 
 export type SectionConfig = {
