@@ -29,7 +29,7 @@ portfolioRouter
     getAllPortfolioItems,
   )
   .get(
-    ':id',
+    '/:id',
     rateLimit({
       action: 'portfolio-get-one',
       tiers: [

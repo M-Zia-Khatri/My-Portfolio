@@ -14,13 +14,15 @@ import type { Request, Response } from 'express';
 import { catchError } from '../lib/utills/catch-error';
 import { send } from '../lib/utills/send';
 
+// ─── Cache Keys ──────────────────────────────────────────────────────────────
+
 const CACHE_KEYS = {
   all: 'portfolio:list',
   one: (id: string) => `portfolio:${id}`,
   prefix: 'portfolio',
 };
 
-// ─── Helpers ────────────────────────────────────────────────────────────────
+// ─── Helpers ─────────────────────────────────────────────────────────────────
 
 function isValidUrl(value: string): boolean {
   try {
@@ -72,7 +74,7 @@ function validateUpdate(body: UpdatePortfolioDto): string | null {
   return null;
 }
 
-// ─── GET /api/portfolio ──────────────────────────────────────────────────────
+// ─── GET /api/portfolio ───────────────────────────────────────────────────────
 
 export async function getAllPortfolioItems(req: Request, res: Response): Promise<void> {
   try {
@@ -91,8 +93,10 @@ export async function getAllPortfolioItems(req: Request, res: Response): Promise
     res.setHeader('ETag', result.etag);
     res.setHeader('Cache-Control', 'private, must-revalidate');
 
+    // FIX: HTTP 304 must have no body — use res.status(304).end()
     if (result.status === 304) {
-      return send(res, { success: true, status: 304, message: 'Data not modified' });
+      res.status(304).end();
+      return;
     }
 
     send(res, {
@@ -100,14 +104,14 @@ export async function getAllPortfolioItems(req: Request, res: Response): Promise
       status: 200,
       message: 'Portfolio items retrieved successfully',
       data: result.data,
-      meta: { total: result.data?.length },
+      meta: { total: result.data?.length ?? 0 },
     });
   } catch (err) {
     catchError(res, err);
   }
 }
 
-// ─── GET /api/portfolio/:id ──────────────────────────────────────────────────
+// ─── GET /api/portfolio/:id ───────────────────────────────────────────────────
 
 export async function getPortfolioItemById(req: Request, res: Response): Promise<void> {
   try {
@@ -124,8 +128,10 @@ export async function getPortfolioItemById(req: Request, res: Response): Promise
     res.setHeader('ETag', result.etag);
     res.setHeader('Cache-Control', 'private, must-revalidate');
 
+    // FIX: HTTP 304 must have no body
     if (result.status === 304) {
-      return send(res, { success: true, status: 304, message: 'Data not modified' });
+      res.status(304).end();
+      return;
     }
 
     if (!result.data) {
@@ -148,7 +154,7 @@ export async function getPortfolioItemById(req: Request, res: Response): Promise
   }
 }
 
-// ─── POST /api/portfolio ─────────────────────────────────────────────────────
+// ─── POST /api/portfolio ──────────────────────────────────────────────────────
 
 export async function createPortfolioItem(req: Request, res: Response): Promise<void> {
   try {
@@ -180,10 +186,11 @@ export async function createPortfolioItem(req: Request, res: Response): Promise<
       },
     });
 
-    // Warm the single item cache (instant consistency for GET /:id)
-    await cachePut(CACHE_KEYS.one(newItem.id), newItem, TTL.ONE_DAY);
-    // Only invalidate the list
+    // FIX: invalidate the list FIRST, then warm the single-item cache.
+    // Previously cachePut ran before cacheInvalidatePrefix, which wiped the
+    // freshly-warmed key immediately (prefix 'portfolio:' covers 'portfolio:{id}').
     await cacheInvalidatePrefix(CACHE_KEYS.prefix);
+    await cachePut(CACHE_KEYS.one(newItem.id), newItem, TTL.ONE_DAY);
 
     res.setHeader('ETag', generateETag(newItem));
     send(res, {
@@ -198,7 +205,7 @@ export async function createPortfolioItem(req: Request, res: Response): Promise<
   }
 }
 
-// ─── PATCH /api/portfolio/:id ────────────────────────────────────────────────
+// ─── PATCH /api/portfolio/:id ─────────────────────────────────────────────────
 
 export async function updatePortfolioItem(req: Request, res: Response): Promise<void> {
   let newImage: string | undefined;
@@ -206,15 +213,14 @@ export async function updatePortfolioItem(req: Request, res: Response): Promise<
   try {
     const { id } = req.params;
     const body = req.body as UpdatePortfolioDto;
+    // Client sends the standard If-Match header for optimistic locking
     const clientETag = req.headers['if-match'] as string | undefined;
 
     newImage = body.site_image_url;
 
-    // ─── Require If-Match (Optimistic Locking) ───
+    // ─── Require If-Match ────────────────────────────────────────────────────
     if (!clientETag) {
-      if (newImage) {
-        await deleteFromCloudinary(newImage);
-      }
+      if (newImage) await deleteFromCloudinary(newImage);
 
       return send(res, {
         success: false,
@@ -223,19 +229,16 @@ export async function updatePortfolioItem(req: Request, res: Response): Promise<
       });
     }
 
-    // ─── Fetch Cached + Validate ETag ───
+    // ─── Fetch Cached + Validate ETag ────────────────────────────────────────
     const cached = await cacheRememberConditional(CACHE_KEYS.one(id), {
       ttl: TTL.ONE_DAY,
       ifMatch: clientETag,
-      callback: () =>
-        prisma.portfolio_item.findUnique({
-          where: { id },
-        }),
+      callback: () => prisma.portfolio_item.findUnique({ where: { id } }),
     });
 
     const existing = cached.data;
 
-    // ─── Handle 412 (Modified) ───
+    // ─── 412 Precondition Failed ─────────────────────────────────────────────
     if (cached.status === 412) {
       if (newImage && newImage !== existing?.site_image_url) {
         await deleteFromCloudinary(newImage);
@@ -249,11 +252,9 @@ export async function updatePortfolioItem(req: Request, res: Response): Promise<
       });
     }
 
-    // ─── Not Found ───
+    // ─── 404 Not Found ────────────────────────────────────────────────────────
     if (!existing) {
-      if (newImage) {
-        await deleteFromCloudinary(newImage);
-      }
+      if (newImage) await deleteFromCloudinary(newImage);
 
       return send(res, {
         success: false,
@@ -263,7 +264,7 @@ export async function updatePortfolioItem(req: Request, res: Response): Promise<
       });
     }
 
-    // ─── Validate Input ───
+    // ─── Validate Body ────────────────────────────────────────────────────────
     const validationError = validateUpdate(body);
     if (validationError) {
       if (newImage && newImage !== existing.site_image_url) {
@@ -283,7 +284,7 @@ export async function updatePortfolioItem(req: Request, res: Response): Promise<
     const isNewImage =
       site_image_url && existing.site_image_url && site_image_url !== existing.site_image_url;
 
-    // ─── Update DB ───
+    // ─── Update DB ────────────────────────────────────────────────────────────
     const updatedItem = await prisma.portfolio_item.update({
       where: { id },
       data: {
@@ -296,18 +297,18 @@ export async function updatePortfolioItem(req: Request, res: Response): Promise<
       },
     });
 
-    // ─── Delete Old Image (ONLY if replaced) ───
+    // ─── Delete Old Image (only if replaced) ─────────────────────────────────
     if (isNewImage) {
       await deleteFromCloudinary(existing.site_image_url);
     }
 
-    // ─── Cache Sync ───
-    await Promise.all([
-      cachePut(CACHE_KEYS.one(id), updatedItem, TTL.ONE_DAY),
-      cacheInvalidatePrefix(CACHE_KEYS.prefix),
-    ]);
+    // FIX: sequential cache operations — invalidate list first, then update the
+    // single-item cache. Promise.all() previously caused a race where
+    // cacheInvalidatePrefix could delete what cachePut just wrote.
+    await cacheInvalidatePrefix(CACHE_KEYS.prefix);
+    await cachePut(CACHE_KEYS.one(id), updatedItem, TTL.ONE_DAY);
 
-    // ─── Response ───
+    // ─── Response ─────────────────────────────────────────────────────────────
     res.setHeader('ETag', generateETag(updatedItem));
 
     return send(res, {
@@ -317,26 +318,23 @@ export async function updatePortfolioItem(req: Request, res: Response): Promise<
       data: updatedItem,
     });
   } catch (err) {
-    // ─── Rollback uploaded image on failure ───
     try {
-      if (newImage) {
-        await deleteFromCloudinary(newImage);
-      }
+      if (newImage) await deleteFromCloudinary(newImage);
     } catch {
-      // optionally log this
+      // intentionally silent — primary error takes precedence
     }
 
     return catchError(res, err);
   }
 }
 
-// ─── DELETE /api/portfolio/:id ───────────────────────────────────────────────
+// ─── DELETE /api/portfolio/:id ────────────────────────────────────────────────
 
 export async function deletePortfolioItem(req: Request, res: Response): Promise<void> {
   try {
     const { id } = req.params;
 
-    // Fast existence check via cache
+    // Fast existence check via cache (only needs id)
     const cached = await cacheRemember(CACHE_KEYS.one(id), {
       ttl: TTL.ONE_DAY,
       callback: () =>
@@ -355,9 +353,10 @@ export async function deletePortfolioItem(req: Request, res: Response): Promise<
       });
     }
 
-    const existing = await prisma.portfolio_item.delete({ where: { id } });
-    if (existing?.site_image_url) {
-      await deleteFromCloudinary(existing.site_image_url);
+    // Delete returns the full record — use it for Cloudinary cleanup
+    const deleted = await prisma.portfolio_item.delete({ where: { id } });
+    if (deleted?.site_image_url) {
+      await deleteFromCloudinary(deleted.site_image_url);
     }
 
     await Promise.all([cacheForget(CACHE_KEYS.one(id)), cacheInvalidatePrefix(CACHE_KEYS.prefix)]);
