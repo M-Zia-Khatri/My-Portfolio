@@ -24,7 +24,7 @@ router
     skill.getAll,
   )
   .get(
-    ':id',
+    '/:id',
     rateLimit({
       action: 'skill-get-one',
       tiers: [

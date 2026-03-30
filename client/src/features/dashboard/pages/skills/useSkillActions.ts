@@ -1,21 +1,17 @@
-import type { ApiSkill } from '@/features/skills/types';
-import { api } from '@/shared/api/axios';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { createSkill, deleteSkill, fetchSkills, updateSkill } from './skills.api';
 
 export const useSkillsData = () => {
-  return useQuery<ApiSkill[]>({
+  return useQuery({
     queryKey: ['skills'],
-    queryFn: async () => {
-      const res = await api.get('/skills');
-      return res.data.data;
-    },
+    queryFn: fetchSkills,
   });
 };
 
 export const useCreateSkill = (onError?: (err: unknown) => void) => {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: (newSkill: unknown) => api.post('/skills', newSkill),
+    mutationFn: (newSkill: unknown) => createSkill(newSkill),
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ['skills'] }),
     onError,
   });
@@ -24,7 +20,7 @@ export const useCreateSkill = (onError?: (err: unknown) => void) => {
 export const useUpdateSkill = (onError?: (err: unknown) => void) => {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: ({ id, data }: { id: string; data: unknown }) => api.patch(`/skills/${id}`, data),
+    mutationFn: ({ id, data }: { id: string; data: unknown }) => updateSkill(id, data),
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ['skills'] }),
     onError,
   });
@@ -33,7 +29,7 @@ export const useUpdateSkill = (onError?: (err: unknown) => void) => {
 export const useDeleteSkill = (onError?: (err: unknown) => void) => {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: (id: string) => api.delete(`/skills/${id}`),
+    mutationFn: (id: string) => deleteSkill(id),
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ['skills'] }),
     onError,
   });
