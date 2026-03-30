@@ -4,8 +4,11 @@ import SecComponent from '@/shared/components/SecContainer';
 import { HEADING } from '@/shared/constants/style.constants';
 import { Flex, Heading } from '@radix-ui/themes';
 import { motion } from 'motion/react';
+import { useSectionActive } from '../hooks/useSectionActive';
 
 export default function ContactSection() {
+  const isSectionActive = useSectionActive('contact');
+
   return (
     <SecComponent className="w-full">
       <Flex direction="column" align="center" gap="2">
@@ -33,7 +36,7 @@ export default function ContactSection() {
             className="flex flex-col justify-center"
             style={{ perspective: 900 }}
           >
-            <ContactCodeCard />
+            <ContactCodeCard isActive={isSectionActive} />
           </motion.div>
         </div>
       </Flex>

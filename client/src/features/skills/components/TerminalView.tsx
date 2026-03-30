@@ -8,6 +8,7 @@ interface TerminalViewProps {
   skillName: string;
   commands: TLine[];
   color: string;
+  isActive?: boolean;
 }
 
 interface Block {
@@ -79,7 +80,12 @@ const DoneBlock = memo(function DoneBlock({
 });
 
 // ─── TerminalView ─────────────────────────────────────────────────────────────
-export default function TerminalView({ skillName, commands, color }: TerminalViewProps) {
+export default function TerminalView({
+  skillName,
+  commands,
+  color,
+  isActive = true,
+}: TerminalViewProps) {
   const [state, setState] = useState<DisplayState>(INIT_STATE);
   const [cursor, setCursor] = useState(true);
   const tlRef = useRef<gsap.core.Timeline | null>(null);
@@ -207,6 +213,18 @@ export default function TerminalView({ skillName, commands, color }: TerminalVie
       tl.kill();
     };
   }, [skillName, blocks]);
+
+
+  useEffect(() => {
+    if (!tlRef.current) return;
+
+    if (isActive) {
+      tlRef.current.resume();
+      return;
+    }
+
+    tlRef.current.pause();
+  }, [isActive, skillName]);
 
   const { doneBlocks, activeBlock, activeCommand, activeOutputs, done } = state;
 
