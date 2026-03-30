@@ -9,17 +9,46 @@ interface CodeTabBarProps {
   onTabClose: (skill: Skill) => void;
 }
 
+const TAB_PADDING_PX = 12;
+
 export default function CodeTabBar({ skill, openTabs, onTabClick, onTabClose }: CodeTabBarProps) {
   const tabBarRef = useRef<HTMLDivElement>(null);
+  const hasMountedRef = useRef(false);
 
   useEffect(() => {
     const bar = tabBarRef.current;
     if (!bar) return;
-    bar.querySelector<HTMLElement>("[data-active='true']")?.scrollIntoView({
-      behavior: 'smooth',
-      block: 'nearest',
-      inline: 'nearest',
-    });
+
+    const activeTab = bar.querySelector<HTMLElement>("[data-active='true']");
+    if (!activeTab) return;
+
+    // Guard initial render to avoid any mount-time viewport scrolling.
+    if (!hasMountedRef.current) {
+      hasMountedRef.current = true;
+      return;
+    }
+
+    // Scroll only the horizontal tab strip (never the document viewport).
+    const barRect = bar.getBoundingClientRect();
+    const tabRect = activeTab.getBoundingClientRect();
+
+    const overflowLeft = tabRect.left - barRect.left;
+    const overflowRight = tabRect.right - barRect.right;
+
+    if (overflowLeft < 0) {
+      bar.scrollTo({
+        left: bar.scrollLeft + overflowLeft - TAB_PADDING_PX,
+        behavior: 'smooth',
+      });
+      return;
+    }
+
+    if (overflowRight > 0) {
+      bar.scrollTo({
+        left: bar.scrollLeft + overflowRight + TAB_PADDING_PX,
+        behavior: 'smooth',
+      });
+    }
   }, [skill.name, openTabs.length]);
 
   return (
