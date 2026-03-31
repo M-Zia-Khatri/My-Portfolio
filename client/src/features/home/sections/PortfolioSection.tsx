@@ -1,10 +1,14 @@
+import { fetchPortfolio } from '@/features/dashboard/pages/portfolio/portfolio.api';
+import type { PortfolioItem as DashboardPortfolioItem } from '@/features/dashboard/pages/portfolio/portfolio.types';
 import { PortfolioItemCard } from '@/features/portfolio/components/PortfolioItemCard';
 import type { PortfolioItem } from '@/features/portfolio/types';
 import SecComponent from '@/shared/components/SecContainer';
 import { TEXT } from '@/shared/constants/style.constants';
 import { cn } from '@/shared/utils/cn';
-import { Box, Heading, Text } from '@radix-ui/themes';
+import { Box, Card, Flex, Heading, Skeleton, Text } from '@radix-ui/themes';
+import { useQuery } from '@tanstack/react-query';
 import { motion, type Variants } from 'motion/react';
+import React from 'react';
 
 // ✅ Explicit typing
 const containerVariants: Variants = {
@@ -37,20 +41,29 @@ const headingVariants: Variants = {
 const VIEWPORT_ONCE = { once: true, margin: '-60px' } as const;
 const VIEWPORT_GRID = { once: true, margin: '-80px' } as const;
 
-const MOCK_ITEM: PortfolioItem = {
-  siteName: 'xyz',
-  siteRole: 'xyz role',
-  siteUrl: 'https://www.google.com',
-  siteImageUrl:
-    'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSAyyRRzS5-kkk_Y5vm3O5MBZjWYsczQsR9qA&s',
-  useTech: ['react', 'ts', 'node.js'],
-  description:
-    'Lorem ipsum dolor sit amet consectetur adipisicing elit. Exercitationem enim at veritatis aut ipsum unde dolorum assumenda?',
-};
+const PORTFOLIO_QUERY_KEY = ['portfolio'] as const;
 
-const ITEMS = [1, 2, 3, 4, 5, 6];
+const mapPortfolioItem = (item: DashboardPortfolioItem): PortfolioItem => ({
+  siteName: item.site_name,
+  siteRole: item.site_role,
+  siteUrl: item.site_url,
+  siteImageUrl: item.site_image_url,
+  useTech: item.use_tech,
+  description: item.description,
+});
 
 export default function PortfolioSection() {
+  const {
+    data: portfolioItems = [],
+    isLoading,
+    isError,
+  } = useQuery({
+    queryKey: PORTFOLIO_QUERY_KEY,
+    queryFn: fetchPortfolio,
+    select: (items) => items.map(mapPortfolioItem),
+    staleTime: 1000 * 60 * 5,
+  });
+
   return (
     <SecComponent className="w-full" py="8">
       <Box className="flex flex-col items-center gap-8 md:gap-10 lg:gap-12 xl:gap-14">
@@ -77,11 +90,38 @@ export default function PortfolioSection() {
           whileInView="visible"
           viewport={VIEWPORT_GRID}
         >
-          {ITEMS.map((item) => (
-            <motion.div key={item} variants={cardVariants}>
-              <PortfolioItemCard item={MOCK_ITEM} />
-            </motion.div>
-          ))}
+          {isLoading ? (
+            Array.from({ length: 4 }).map((_, index) => (
+              <React.Fragment key={index}>
+                <Card size="2">
+                  <Flex direction="column" gap="3">
+                    <Skeleton className="h-48 w-full rounded-md" />
+                    <Skeleton className="h-5 w-2/3" />
+                    <Skeleton className="h-4 w-1/2" />
+                    <Skeleton className="h-4 w-full" />
+                  </Flex>
+                </Card>
+              </React.Fragment>
+            ))
+          ) : isError ? (
+            <Card size="3" className="md:col-span-2">
+              <Text size={TEXT.base.size} color="red">
+                Couldn&apos;t load portfolio items right now. Please try again later.
+              </Text>
+            </Card>
+          ) : portfolioItems.length === 0 ? (
+            <Card size="3" className="md:col-span-2">
+              <Text size={TEXT.base.size} color="gray">
+                Portfolio items coming soon.
+              </Text>
+            </Card>
+          ) : (
+            portfolioItems.map((item) => (
+              <motion.div key={item.siteUrl} variants={cardVariants}>
+                <PortfolioItemCard item={item} />
+              </motion.div>
+            ))
+          )}
         </motion.div>
       </Box>
     </SecComponent>

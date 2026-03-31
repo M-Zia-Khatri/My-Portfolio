@@ -2,8 +2,18 @@ import { api } from '@/shared/api/axios';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import type { Contact } from './types';
 
+export type ContactFormData = {
+  fullName: string;
+  email: string;
+  message: string;
+};
+
 export const contactKeys = {
   all: ['contacts'] as const,
+};
+
+export const submitContactForm = async (payload: ContactFormData): Promise<void> => {
+  await api.post('/contact', payload);
 };
 
 export const useContacts = () => {

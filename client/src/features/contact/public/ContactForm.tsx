@@ -1,6 +1,7 @@
-import { api } from '@/shared/api/axios';
+import { submitContactForm, type ContactFormData } from '@/features/contact/api';
 import { HEADING, TEXT } from '@/shared/constants/style.constants';
 import { CheckCircledIcon, EnvelopeClosedIcon, PaperPlaneIcon } from '@radix-ui/react-icons';
+import type { AxiosError } from 'axios';
 import {
   Button,
   Callout,
@@ -8,20 +9,15 @@ import {
   Flex,
   Heading,
   Separator,
+  Spinner,
   Text,
   TextArea,
   TextField,
 } from '@radix-ui/themes';
+import { useMutation } from '@tanstack/react-query';
 import { AnimatePresence, motion } from 'motion/react';
+import React from 'react';
 import { useState } from 'react';
-
-type FormState = 'idle' | 'loading' | 'success' | 'error';
-
-interface FormData {
-  fullName: string;
-  email: string;
-  message: string;
-}
 
 interface FormErrors {
   fullName?: string;
@@ -29,7 +25,7 @@ interface FormErrors {
   message?: string;
 }
 
-function validate(data: FormData): FormErrors {
+function validate(data: ContactFormData): FormErrors {
   const errors: FormErrors = {};
   if (!data.fullName.trim()) errors.fullName = 'Full name is required.';
   if (!data.email.trim()) {
@@ -44,19 +40,32 @@ function validate(data: FormData): FormErrors {
 }
 
 export default function ContactForm() {
-  const [form, setForm] = useState<FormData>({
+  const [form, setForm] = useState<ContactFormData>({
     fullName: '',
     email: '',
     message: '',
   });
   const [errors, setErrors] = useState<FormErrors>({});
-  const [status, setStatus] = useState<FormState>('idle');
+  const [isSuccess, setIsSuccess] = useState(false);
 
   const handleChange =
-    (field: keyof FormData) => (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    (field: keyof ContactFormData) =>
+    (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
       setForm((prev) => ({ ...prev, [field]: e.target.value }));
       if (errors[field]) setErrors((prev) => ({ ...prev, [field]: undefined }));
     };
+
+  const contactMutation = useMutation({
+    mutationFn: submitContactForm,
+    onMutate: () => {
+      setIsSuccess(false);
+    },
+    onSuccess: () => {
+      setIsSuccess(true);
+      setErrors({});
+      setForm({ fullName: '', email: '', message: '' });
+    },
+  });
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -65,19 +74,13 @@ export default function ContactForm() {
       setErrors(validationErrors);
       return;
     }
-
-    setStatus('loading');
-
-    try {
-      await api.post('/contact', form);
-      setStatus('success');
-      setForm({ fullName: '', email: '', message: '' });
-    } catch {
-      setStatus('error');
-    }
+    await contactMutation.mutateAsync(form);
   };
 
-  const isLoading = status === 'loading';
+  const isLoading = contactMutation.isPending;
+  const submitError = contactMutation.error as AxiosError<{ message?: string }> | null;
+  const errorMessage =
+    submitError?.response?.data?.message ?? 'Something went wrong. Please try again.';
 
   return (
     <Card size={'3'}>
@@ -97,7 +100,7 @@ export default function ContactForm() {
       <Separator my="4" size="4" />
 
       <AnimatePresence mode="wait">
-        {status === 'success' ? (
+        {isSuccess ? (
           <motion.div
             key="success"
             initial={{ opacity: 0, scale: 0.95 }}
@@ -109,9 +112,9 @@ export default function ContactForm() {
               <Callout.Icon>
                 <CheckCircledIcon width={18} height={18} />
               </Callout.Icon>
-              <Callout.Text>Your message was sent! I'll get back to you soon.</Callout.Text>
+              <Callout.Text>Your message was sent! I&apos;ll get back to you soon.</Callout.Text>
             </Callout.Root>
-            <Button mt="4" variant="ghost" size="2" onClick={() => setStatus('idle')}>
+            <Button mt="4" variant="ghost" size="2" onClick={() => setIsSuccess(false)}>
               Send another message
             </Button>
           </motion.div>
@@ -197,12 +200,12 @@ export default function ContactForm() {
               </Flex>
 
               <Text size="1" color="blue" weight="medium">
-                I'll never share your data with anyone else. Pinky promise!
+                I&apos;ll never share your data with anyone else. Pinky promise!
               </Text>
 
-              {status === 'error' && (
+              {contactMutation.isError && (
                 <Callout.Root color="red" variant="surface" size="1">
-                  <Callout.Text>Something went wrong. Please try again.</Callout.Text>
+                  <Callout.Text>{errorMessage}</Callout.Text>
                 </Callout.Root>
               )}
 
@@ -214,7 +217,10 @@ export default function ContactForm() {
                 className="w-full cursor-pointer"
               >
                 {isLoading ? (
-                  'Sending…'
+                  <Flex align="center" gap="2">
+                    <Spinner size="2" />
+                    Sending…
+                  </Flex>
                 ) : (
                   <Flex align="center" gap="2">
                     Send Message
