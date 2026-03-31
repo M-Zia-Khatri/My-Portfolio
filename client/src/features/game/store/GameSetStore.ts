@@ -44,6 +44,7 @@ interface AppState {
 
   customLevels: CustomLevelPreset[];
   addCustomLevel: (level: CustomLevelPreset) => void;
+  updateCustomLevel: (id: string, level: CustomLevelPreset) => void;
   removeCustomLevel: (id: string) => void;
 
   scoreHistory: ScoreRecord[];
@@ -71,6 +72,10 @@ const useGameSet = create<AppState>()(
       setDifficultLevel: (difficultLevel) => set({ difficultLevel }),
 
       addCustomLevel: (level) => set((state) => ({ customLevels: [...state.customLevels, level] })),
+      updateCustomLevel: (id, level) =>
+        set((state) => ({
+          customLevels: state.customLevels.map((item) => (item.id === id ? level : item)),
+        })),
       removeCustomLevel: (id) =>
         set((state) => ({
           customLevels: state.customLevels.filter((l) => l.id !== id),

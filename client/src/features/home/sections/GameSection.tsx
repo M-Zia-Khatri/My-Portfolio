@@ -13,7 +13,7 @@ import { Card, Heading } from '@radix-ui/themes';
 
 export default function GameSection() {
   return (
-    <SecComponent className="h-dvh w-full" height={{ lg: '100%' }} py={'8'}>
+    <SecComponent className="min-h-dvh w-full lg:h-dvh" height={{ lg: '100%' }} py={'8'}>
       <GuessNumProvider>
         <div className="flex h-full w-full flex-col gap-6 lg:flex-row">
           {/* Left: Results Summary (desktop only) */}
@@ -33,13 +33,15 @@ export default function GameSection() {
           </aside>
 
           {/* Mobile feedback toast */}
-          <Feedback />
+          <div className="lg:hidden">
+            <Feedback />
+          </div>
 
           {/* Center: Game Area */}
           <section className="flex flex-1 flex-col gap-4">
             <Card size={'2'} className="w-full text-center">
               <Heading as="h2" size={HEADING.h2.size} className="font-bold">
-                Gess the number
+                Guess the number
               </Heading>
             </Card>
 

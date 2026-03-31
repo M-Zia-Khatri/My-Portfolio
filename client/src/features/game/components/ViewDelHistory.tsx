@@ -4,7 +4,7 @@ import useGameSet from '../store/GameSetStore';
 
 export default function ViewDelHistory() {
   const { scoreHistory } = useGameSet();
-  const { clearAndReloadHistory } = useGuessNum();
+  const { clearHistory } = useGuessNum();
 
   if (scoreHistory.length === 0) {
     return (
@@ -45,7 +45,7 @@ export default function ViewDelHistory() {
               </Button>
             </AlertDialog.Cancel>
             <AlertDialog.Action>
-              <Button variant="solid" color="red" onClick={clearAndReloadHistory}>
+              <Button variant="solid" color="red" onClick={clearHistory}>
                 Yes, Delete
               </Button>
             </AlertDialog.Action>

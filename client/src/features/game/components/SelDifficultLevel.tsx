@@ -21,6 +21,7 @@ export default function SelDifficultLevel() {
   } = useGameSet();
 
   const [dialogOpen, setDialogOpen] = useState(false);
+  const selectedValue = customLevels.find((lvl) => lvl.name === difficultLevel)?.id ?? difficultLevel;
 
   const handleChange = (val: string) => {
     // Special sentinel — open dialog instead of selecting
@@ -38,8 +39,8 @@ export default function SelDifficultLevel() {
       return;
     }
 
-    // User-created custom level — val is lvl.name
-    const custom = customLevels.find((l) => l.name === val);
+    // User-created custom level — val is lvl.id
+    const custom = customLevels.find((l) => l.id === val);
     if (custom) {
       setDifficultLevel(custom.name); // store readable name, not id
       setMaxNumber(custom.maxNumber);
@@ -50,7 +51,7 @@ export default function SelDifficultLevel() {
 
   return (
     <Flex align="center" gap="1">
-      <Select.Root value={difficultLevel} onValueChange={handleChange}>
+      <Select.Root value={selectedValue} onValueChange={handleChange}>
         <Select.Trigger variant="surface" color="blue" style={{ width: 160 }} />
         <Select.Content color="blue" variant="soft">
           {/* Built-in levels */}
@@ -68,7 +69,7 @@ export default function SelDifficultLevel() {
               <Select.Separator />
               <Select.Label>Custom</Select.Label>
               {customLevels.map((lvl) => (
-                <Select.Item key={lvl.id} value={lvl.name}>
+                <Select.Item key={lvl.id} value={lvl.id}>
                   {lvl.name}
                 </Select.Item>
               ))}
