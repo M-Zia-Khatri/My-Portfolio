@@ -322,22 +322,40 @@ export function PortfolioItemCard({ item }: PortfolioItemCardProps) {
 
             <div className="absolute top-0 right-0 left-0 h-0.5 bg-linear-to-r from-transparent via-(--blue-8) to-transparent blur-[1.5px]" />
 
-            <div className="relative z-10 flex h-full flex-col gap-3 p-4">
+            <div className="relative z-10 flex h-full flex-col gap-2 p-4">
               <motion.div
                 custom={0}
                 variants={backItemVariants}
                 animate={flipped ? 'visible' : 'hidden'}
+                className="flex justify-between"
               >
-                <Heading as="h4" size={HEADING.h4.size} className="leading-tight text-white">
-                  {item.siteName}
-                </Heading>
-                <Text
-                  size={TEXT.sm.size}
-                  className="mt-1 font-semibold tracking-widest text-(--blue-10) uppercase"
-                  as="p"
+                <div className="flex flex-col">
+                  <Heading as="h4" size={HEADING.h4.size} className="leading-tight text-white">
+                    {item.siteName}
+                  </Heading>
+                  <Text
+                    size={TEXT.sm.size}
+                    className="mt-1 font-semibold tracking-widest text-(--blue-10)/90 uppercase"
+                    as="p"
+                  >
+                    {item.siteRole}
+                  </Text>
+                </div>
+                <motion.a
+                  href={item.siteUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  onClick={(e) => e.stopPropagation()}
+                  className="z-20 flex h-8 w-8 items-center justify-center rounded-full border border-(--blue-12)/30 bg-(--blue-12)/10 backdrop-blur-sm"
                 >
-                  {item.siteRole}
-                </Text>
+                  <motion.div
+                    whileHover={{ rotate: 45 }}
+                    whileTap={{ rotate: 45 }}
+                    transition={{ type: 'spring', stiffness: 300, damping: 18 }}
+                  >
+                    <ArrowUpRight size={14} className="text-(--blue-12)/70" />
+                  </motion.div>
+                </motion.a>
               </motion.div>
 
               <motion.div

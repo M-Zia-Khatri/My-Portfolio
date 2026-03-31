@@ -2,6 +2,7 @@ import { PortfolioItemCard } from '@/features/portfolio/components/PortfolioItem
 import type { PortfolioItem } from '@/features/portfolio/types';
 import SecComponent from '@/shared/components/SecContainer';
 import { TEXT } from '@/shared/constants/style.constants';
+import { cn } from '@/shared/utils/cn';
 import { Box, Heading, Text } from '@radix-ui/themes';
 import { motion, type Variants } from 'motion/react';
 
@@ -52,9 +53,9 @@ const ITEMS = [1, 2, 3, 4, 5, 6];
 export default function PortfolioSection() {
   return (
     <SecComponent className="w-full" py="8">
-      <Box className="flex flex-col items-center gap-10">
+      <Box className="flex flex-col items-center gap-8 md:gap-10 lg:gap-12 xl:gap-14">
         <motion.div
-          className="flex flex-col items-center gap-2 text-center"
+          className=" text-center"
           variants={headingVariants}
           initial="hidden"
           whileInView="visible"
@@ -70,7 +71,7 @@ export default function PortfolioSection() {
         </motion.div>
 
         <motion.div
-          className="grid w-full grid-cols-1 gap-5"
+          className={cn('grid w-full ', 'grid-cols-1 md:grid-cols-2', 'gap-5 md:gap-3 lg:gap-4')}
           variants={containerVariants}
           initial="hidden"
           whileInView="visible"
