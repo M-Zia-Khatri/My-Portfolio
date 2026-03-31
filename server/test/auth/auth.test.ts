@@ -1,4 +1,5 @@
 import assert from 'node:assert/strict';
+import { afterEach, beforeEach, describe, it } from 'node:test';
 import request from 'supertest';
 import { createTestContext, forceRateLimit, restoreAll, type StubRegistry } from '../setup';
 
@@ -42,8 +43,14 @@ describe('Auth Routes', () => {
   });
 
   it('POST /api/auth/verify-otp - success', async () => {
-    stubs.prisma.admin.findUnique.resolves({ id: 'admin-1', email: 'admin@example.com', isActive: true });
-    const res = await request(app).post('/api/auth/verify-otp').send({ email: 'admin@example.com', otp: '123456' });
+    stubs.prisma.admin.findUnique.resolves({
+      id: 'admin-1',
+      email: 'admin@example.com',
+      isActive: true,
+    });
+    const res = await request(app)
+      .post('/api/auth/verify-otp')
+      .send({ email: 'admin@example.com', otp: '123456' });
 
     assert.equal(res.status, 200);
     assert.equal(res.body.data.accessToken, 'access-token');
@@ -51,15 +58,23 @@ describe('Auth Routes', () => {
   });
 
   it('POST /api/auth/verify-otp - invalid otp', async () => {
-    stubs.prisma.admin.findUnique.resolves({ id: 'admin-1', email: 'admin@example.com', isActive: true });
+    stubs.prisma.admin.findUnique.resolves({
+      id: 'admin-1',
+      email: 'admin@example.com',
+      isActive: true,
+    });
     stubs.verifyOtp.resolves(false);
-    const res = await request(app).post('/api/auth/verify-otp').send({ email: 'admin@example.com', otp: '000000' });
+    const res = await request(app)
+      .post('/api/auth/verify-otp')
+      .send({ email: 'admin@example.com', otp: '000000' });
     assert.equal(res.status, 401);
   });
 
   it('POST /api/auth/refresh - expired token', async () => {
     stubs.rotateRefreshToken.resolves(null);
-    const res = await request(app).post('/api/auth/refresh').set('Cookie', ['refreshToken=bad-token']);
+    const res = await request(app)
+      .post('/api/auth/refresh')
+      .set('Cookie', ['refreshToken=bad-token']);
     assert.equal(res.status, 401);
   });
 
@@ -101,7 +116,9 @@ describe('Auth Routes', () => {
 
   it('POST /api/auth/login - rate limit mocked', async () => {
     forceRateLimit(stubs);
-    const res = await request(app).post('/api/auth/login').send({ email: 'admin@example.com', password: 'secret' });
+    const res = await request(app)
+      .post('/api/auth/login')
+      .send({ email: 'admin@example.com', password: 'secret' });
     assert.equal(res.status, 429);
   });
 });

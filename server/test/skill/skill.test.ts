@@ -1,4 +1,5 @@
 import assert from 'node:assert/strict';
+import { afterEach, beforeEach, describe, it } from 'node:test';
 import request from 'supertest';
 import { createTestContext, forceRateLimit, restoreAll, type StubRegistry } from '../setup';
 
@@ -131,9 +132,7 @@ describe('Skill Routes', () => {
     assert.equal(res.status, 404);
 
     stubs.prisma.skill.findUnique.resolves({ id: 's-1' });
-    res = await request(app)
-      .delete('/api/skills/s-1')
-      .set('Authorization', 'Bearer access-ok');
+    res = await request(app).delete('/api/skills/s-1').set('Authorization', 'Bearer access-ok');
     assert.equal(res.status, 200);
   });
 

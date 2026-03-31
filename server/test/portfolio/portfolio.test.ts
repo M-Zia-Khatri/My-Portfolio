@@ -1,4 +1,5 @@
 import assert from 'node:assert/strict';
+import { afterEach, beforeEach, describe, it } from 'node:test';
 import request from 'supertest';
 import { createTestContext, forceRateLimit, restoreAll, type StubRegistry } from '../setup';
 
@@ -36,7 +37,11 @@ describe('Portfolio Routes', () => {
     let res = await request(app).post('/api/portfolio').send(validPayload);
     assert.equal(res.status, 401);
 
-    stubs.prisma.portfolio_item.create.resolves({ id: 'p-1', ...validPayload, created_at: new Date() });
+    stubs.prisma.portfolio_item.create.resolves({
+      id: 'p-1',
+      ...validPayload,
+      created_at: new Date(),
+    });
     res = await request(app)
       .post('/api/portfolio')
       .set('Authorization', 'Bearer access-ok')
@@ -64,7 +69,11 @@ describe('Portfolio Routes', () => {
     assert.equal(res.status, 428);
 
     stubs.prisma.portfolio_item.findUnique.resolves({ id: 'p-1', ...validPayload });
-    stubs.prisma.portfolio_item.update.resolves({ id: 'p-1', ...validPayload, site_name: 'updated' });
+    stubs.prisma.portfolio_item.update.resolves({
+      id: 'p-1',
+      ...validPayload,
+      site_name: 'updated',
+    });
 
     res = await request(app)
       .patch('/api/portfolio/p-1')
@@ -88,7 +97,10 @@ describe('Portfolio Routes', () => {
 
   it('DELETE /api/portfolio/:id - success and internal error', async () => {
     stubs.prisma.portfolio_item.findUnique.resolves({ id: 'p-1' });
-    stubs.prisma.portfolio_item.delete.resolves({ id: 'p-1', site_image_url: validPayload.site_image_url });
+    stubs.prisma.portfolio_item.delete.resolves({
+      id: 'p-1',
+      site_image_url: validPayload.site_image_url,
+    });
 
     let res = await request(app)
       .delete('/api/portfolio/p-1')
@@ -96,9 +108,7 @@ describe('Portfolio Routes', () => {
     assert.equal(res.status, 200);
 
     stubs.prisma.portfolio_item.findUnique.rejects(new Error('boom'));
-    res = await request(app)
-      .delete('/api/portfolio/p-1')
-      .set('Authorization', 'Bearer access-ok');
+    res = await request(app).delete('/api/portfolio/p-1').set('Authorization', 'Bearer access-ok');
     assert.equal(res.status, 500);
   });
 
