@@ -1,10 +1,11 @@
 import { AppNavigation } from '@/shared/constants/navigation.constants';
 import { TEXT } from '@/shared/constants/style.constants';
 import { cn } from '@/shared/utils/cn';
-import { Box, Button, Card, Container, Link, Text } from '@radix-ui/themes';
+import { Box, Card, Container, Link, Text } from '@radix-ui/themes';
 import { motion } from 'motion/react';
 import { useEffect, useRef, useState } from 'react';
 import { NavLink } from 'react-router';
+import { MagneticShinyButton } from './MagneticShinyButton';
 import { HIDE_DELAY_MS } from './TopBar.constants';
 import { TopBarMobile } from './TopBarMobile';
 import { TopBarNav } from './TopBarNav';
@@ -94,9 +95,8 @@ export default function TopBar() {
                   }}
                   className="flex items-center gap-2"
                 >
-                  <img src="/vite.svg" alt="Brand logo" className="h-8 w-8" />
                   <Text size={TEXT.lg.size} weight="bold" className="text-white">
-                    My Portfolio
+                    M.Zia Khatri
                   </Text>
                 </NavLink>
               </Link>
@@ -104,28 +104,7 @@ export default function TopBar() {
               <TopBarNav />
 
               {/* Let's talk btn */}
-              <Button asChild radius="full" color="gray" className="shrink-0 hidden md:block">
-                <motion.a
-                  href="mailto:muhammadziakhatri@gmail.com"
-                  className="relative overflow-hidden"
-                >
-                  <motion.span
-                    initial={{ skewX: '-18deg' }}
-                    animate={{ x: [-24, 140, -24] }}
-                    transition={{
-                      delay: 1.5,
-                      repeatDelay: 2.5,
-                      duration: 1,
-                      repeat: Infinity,
-                      repeatType: 'reverse',
-                    }}
-                    className="pointer-events-none absolute top-0 left-0 h-full bg-(--blue-10) blur-sm"
-                  />
-                  <Text size={TEXT.lg.size} weight="bold">
-                    Let's Talk
-                  </Text>
-                </motion.a>
-              </Button>
+              <MagneticShinyButton />
 
               <TopBarMobile />
             </motion.div>

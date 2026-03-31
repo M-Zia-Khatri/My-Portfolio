@@ -3,7 +3,8 @@ import { TEXT } from '@/shared/constants/style.constants';
 import { Link, Strong, Text } from '@radix-ui/themes'; // ✅ Text from here, not callout
 import { motion } from 'motion/react';
 import type { ComponentType } from 'react';
-import { FaFacebook, FaGithub, FaInstagram, FaLinkedin, FaWhatsapp } from 'react-icons/fa6';
+import { FaInstagram } from 'react-icons/fa';
+import { FaFacebook, FaGithub, FaLinkedin, FaWhatsapp } from 'react-icons/fa6';
 import { NavLink } from 'react-router';
 
 const socialMedia: {
@@ -13,21 +14,21 @@ const socialMedia: {
 }[] = [
   {
     icon: FaInstagram,
-    href: 'https://instagram.com/YOUR_HANDLE',
+    href: 'https://instagram.com/m_zia_khatri',
     label: 'Instagram',
   },
   {
     icon: FaFacebook,
-    href: 'https://facebook.com/YOUR_HANDLE',
+    href: 'https://www.facebook.com/profile.php?id=61579565593155',
     label: 'Facebook',
   },
   {
     icon: FaLinkedin,
-    href: 'https://linkedin.com/in/YOUR_HANDLE',
+    href: 'https://www.linkedin.com/in/muhammad-zia-khatri-1891ab390/',
     label: 'LinkedIn',
   },
-  { icon: FaGithub, href: 'https://github.com/YOUR_HANDLE', label: 'GitHub' },
-  { icon: FaWhatsapp, href: 'https://wa.me/923001234567', label: 'WhatsApp' },
+  { icon: FaGithub, href: 'https://github.com/M-Zia-Khatri', label: 'GitHub' },
+  { icon: FaWhatsapp, href: 'https://wa.me/923121070936', label: 'WhatsApp' },
 ];
 
 export default function Footer() {
@@ -37,9 +38,8 @@ export default function Footer() {
         {/* Brand / Logo */}
         <Link asChild underline="none" className="shrink-0">
           <NavLink to={AppNavigation.HOME} className="flex items-center gap-2">
-            <img src="/vite.svg" alt="Brand logo" className="h-8 w-8" />
             <Text size={TEXT.lg.size} weight="bold" className="text-(--blue-12)">
-              My Portfolio
+              Muhammad Zia Khatri
             </Text>
           </NavLink>
         </Link>
