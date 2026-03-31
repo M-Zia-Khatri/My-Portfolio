@@ -9,8 +9,8 @@ const headingBaseStyling = cn(
 
 export default function HeroSection() {
   return (
-    <div className="z-10 relative  flex h-full w-full flex-col items-center justify-center text-center">
-      <div className="absolute inset-0 left-0 -z-100 h-dvh w-screen bg-linear-to-t from-transparent to-(--blue-4)/50" />
+    <div className="relative z-10 flex h-full w-full overflow-x-clip flex-col items-center justify-center text-center">
+      <div className="absolute inset-0 -z-100 h-dvh w-full bg-linear-to-t from-transparent to-(--blue-4)/50" />
       <BgScene />
 
       <div className={cn('relative z-20 w-full mt-8 lg:mt-23', 'space-y-2')}>

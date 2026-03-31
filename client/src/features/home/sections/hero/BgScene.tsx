@@ -175,7 +175,7 @@ export default function BgScene() {
   }, []);
 
   return (
-    <div className="absolute inset-0 top-1/2 left-1/2 z-0 h-dvh w-[101svw] -translate-1/2">
+    <div className="absolute inset-0 z-0 h-dvh w-full">
       <svg ref={svgRef} className="h-full w-full" />
     </div>
   );

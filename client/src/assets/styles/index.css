@@ -156,10 +156,16 @@
 
   html {
     scroll-behavior: smooth;
+    overflow-x: clip;
   }
 
   body {
     @apply m-0 p-0;
+    overflow-x: clip;
+  }
+
+  #root {
+    overflow-x: clip;
   }
 }
 
