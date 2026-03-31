@@ -80,21 +80,19 @@ export default function ContactForm() {
   const isLoading = status === 'loading';
 
   return (
-    <Card
-      size={'4'}
-      // p="6"
-      // className="rounded-xl border border-(--gray-a2) bg-(--gray-a2)/50 backdrop-blur-sm"
-    >
-      <Heading as="h3" size={HEADING.h3.size} weight="bold" className="text-white">
-        Contact Form
-      </Heading>
-      <Text size={TEXT.base.size} weight="medium">
-        Please contact me directly at{' '}
-        <Text size={TEXT.base.size} className="font-extrabold text-(--blue-a11)">
-          muhammadziakhatri@gmail.com
-        </Text>{' '}
-        or drop your info here.
-      </Text>
+    <Card size={'3'}>
+      <div className="space-y-2">
+        <Heading as="h3" size={HEADING.h3.size} weight="bold" className="text-white text-center">
+          Contact Form
+        </Heading>
+        <Text size={TEXT.sm.size} weight="medium">
+          Please contact me directly at{' '}
+          <Text size={TEXT.sm.size} className="font-extrabold text-(--blue-a11)" as="span">
+            muhammadziakhatri@gmail.com
+          </Text>{' '}
+          or drop your info here.
+        </Text>
+      </div>
 
       <Separator my="4" size="4" />
 
@@ -129,7 +127,7 @@ export default function ContactForm() {
             <Flex direction="column" gap="4">
               <Flex direction={{ initial: 'column', sm: 'row' }} gap="4">
                 {/* Full Name */}
-                <Flex direction="column" gap="1" flexGrow="1">
+                <Flex direction="column" gap={{ initial: '1' }} flexGrow="1">
                   <Text as="label" size={TEXT.base.size} weight="medium">
                     Full name
                   </Text>
@@ -141,7 +139,6 @@ export default function ContactForm() {
                     color={errors.fullName ? 'red' : undefined}
                     disabled={isLoading}
                     aria-invalid={!!errors.fullName}
-                    // className="shadow-2xl"
                   />
                   {errors.fullName && (
                     <Text size={TEXT.sm.size} color="red">
@@ -151,7 +148,7 @@ export default function ContactForm() {
                 </Flex>
 
                 {/* Email */}
-                <Flex direction="column" gap="1" flexGrow="1">
+                <Flex direction="column" gap={{ initial: '1' }} flexGrow="1">
                   <Text as="label" size={TEXT.base.size} weight="medium">
                     Email Address
                   </Text>
@@ -178,7 +175,7 @@ export default function ContactForm() {
               </Flex>
 
               {/* Message */}
-              <Flex direction="column" gap="1">
+              <Flex direction="column" gap={{ initial: '1' }}>
                 <Text as="label" size={TEXT.base.size} weight="medium">
                   Your Message
                 </Text>

@@ -1,8 +1,7 @@
 import ContactCodeCard from '@/features/contact/public/ContactCodeCard';
 import ContactForm from '@/features/contact/public/ContactForm';
 import SecComponent from '@/shared/components/SecContainer';
-import { HEADING } from '@/shared/constants/style.constants';
-import { Flex, Heading } from '@radix-ui/themes';
+import { Flex } from '@radix-ui/themes';
 import { motion } from 'motion/react';
 import { useSectionActive } from '../hooks/useSectionActive';
 
@@ -12,11 +11,7 @@ export default function ContactSection() {
   return (
     <SecComponent className="w-full">
       <Flex direction="column" align="center" gap="2">
-        <Heading as="h2" size={HEADING.h2.size} className="font-bold">
-          Contact
-        </Heading>
-
-        <div className="mt-4 grid w-full grid-cols-1 gap-6 md:grid-cols-2">
+        <div className="mt-4 grid w-full grid-cols-1 gap-6 lg:grid-cols-2">
           {/* ── Contact Form ─────────────────────────────────────── */}
           <motion.div
             initial={{ opacity: 0, y: 24 }}
@@ -33,7 +28,7 @@ export default function ContactSection() {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.5, delay: 0.1, ease: 'easeOut' }}
-            className="flex flex-col justify-center"
+            className="flex-col justify-center hidden lg:flex "
             style={{ perspective: 900 }}
           >
             <ContactCodeCard isActive={isSectionActive} />
