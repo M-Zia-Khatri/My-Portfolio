@@ -18,16 +18,7 @@ export default function GameSection() {
         <div className="flex h-full w-full flex-col gap-6 lg:flex-row">
           {/* Left: Results Summary (desktop only) */}
           <aside className="hidden w-full lg:flex lg:w-1/4">
-            <Card
-              size={'2'}
-              className="flex h-full w-full flex-col"
-              style={
-                {
-                  // background: "var(--gray-2)",
-                  // outlineWidth: "2px",
-                }
-              }
-            >
+            <Card size={'2'} className="flex h-full w-full flex-col">
               <GuessResult />
             </Card>
           </aside>

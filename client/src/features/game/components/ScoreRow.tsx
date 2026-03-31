@@ -52,29 +52,19 @@ function ScoreRow({ record, idx, isEditing, onEdit, onCancel, onSave }: ScoreRow
             }}
             className="w-full max-w-[120px] rounded px-2 py-0.5 text-center text-xs"
             style={{
-              background: 'var(--gray-3)',
+              // background: 'var(--gray-3)',
               border: '1px solid var(--blue-7)',
               color: 'var(--gray-12)',
               outline: 'none',
             }}
           />
         ) : (
-          <button
-            type="button"
-            onDoubleClick={onEdit}
-            onKeyDown={(e) => {
-              if (e.key === 'Enter' || e.key === ' ') {
-                e.preventDefault();
-                onEdit();
-              }
-            }}
-            className="max-w-[120px] cursor-pointer truncate text-left text-xs font-medium"
+          <Text
+            className="max-w-[120px] cursor-pointer truncate text-left text-xs font-medium capitalize"
             style={{ color: 'var(--blue-11)' }}
-            title="Double-click to edit name"
-            aria-label="Edit player name"
           >
             {record.name || <span style={{ color: 'var(--gray-9)', fontStyle: 'italic' }}>—</span>}
-          </button>
+          </Text>
         )}
       </Table.Cell>
 

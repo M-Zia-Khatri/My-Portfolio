@@ -38,7 +38,7 @@ export default function Feedback() {
     }[message] ?? message;
 
   return (
-    <div className="fixed bottom-8 left-1/2 z-50 w-fit min-w-48 -translate-x-1/2">
+    <div className="fixed top-8 left-1/2 z-50 w-fit min-w-48 -translate-x-1/2">
       <Callout.Root color={color} variant="surface" size="2">
         <Callout.Icon>
           <Icon />
