@@ -53,7 +53,7 @@ export default function CodeTabBar({ skill, openTabs, onTabClick, onTabClose }: 
 
   return (
     <div
-      className="flex shrink-0 items-stretch"
+      className="flex shrink-0 items-stretch min-h-8.5"
       style={{
         background: 'rgba(0,0,0,0.5)',
         borderBottom: '1px solid rgba(255,255,255,0.08)',

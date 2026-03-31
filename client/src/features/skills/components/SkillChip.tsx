@@ -60,7 +60,7 @@ const SkillChip = memo(function SkillChip({ skill, active, onClick }: SkillChipP
         <Icon size={15} />
       </motion.span>
 
-      <span>{skill.name}</span>
+      <span >{skill.name}</span>
 
       {/* Active ring slides between chips via layoutId */}
       {active && (

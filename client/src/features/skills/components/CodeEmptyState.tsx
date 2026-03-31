@@ -8,7 +8,7 @@ export default function CodeEmptyState() {
       animate={{ opacity: 1, scale: 1 }}
       exit={{ opacity: 0, scale: 0.94 }}
       transition={{ duration: 0.25, ease: 'easeOut' }}
-      className="flex h-full flex-col items-center justify-center gap-3 select-none"
+      className="flex h-full flex-col items-center justify-center gap-2 select-none"
       style={{ minHeight: 240 }}
     >
       <motion.div
@@ -19,16 +19,9 @@ export default function CodeEmptyState() {
         📂
       </motion.div>
 
-      <p
-        className="text-[12px] tracking-widest uppercase opacity-25"
-        style={{ fontFamily: 'ui-monospace, monospace' }}
-      >
-        No file open
-      </p>
+      <p className="text-[12px] tracking-widest uppercase opacity-25">No file open</p>
 
-      <p className="text-[11px] opacity-15" style={{ fontFamily: 'ui-monospace, monospace' }}>
-        Click a skill to open a tab
-      </p>
+      <p className="text-[11px] opacity-15">Click a skill to open a tab</p>
     </motion.div>
   );
 }

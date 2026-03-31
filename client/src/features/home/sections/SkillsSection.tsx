@@ -5,6 +5,7 @@ import CodeCard from '@/shared/components/CodeCard';
 import { BorderTrail } from '@/shared/components/motion-primitives/border-trail';
 import SecComponent from '@/shared/components/SecContainer';
 import { HEADING, TEXT } from '@/shared/constants/style.constants';
+import { cn } from '@/shared/utils/cn';
 import { Box, Heading, Text } from '@radix-ui/themes';
 import { motion } from 'motion/react';
 import { useCallback, useMemo, useState } from 'react';
@@ -48,19 +49,21 @@ export default function SkillsSection() {
 
   return (
     <SecComponent>
-      <Box className="mx-auto flex w-full max-w-xs sm:max-w-xl flex-col items-center gap-8">
+      <Box className="mx-auto flex w-full max-w-xs sm:max-w-xl flex-col items-center gap-8 md:gap-12">
         {/* Heading */}
         <motion.div
           initial={{ opacity: 0, y: 14 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.45 }}
-          className="text-center"
+          className="text-center gap-1 md:gap-1.5 lg:gap-2 xl:gap-2.5"
         >
           <Heading as="h2" size={HEADING.h2.size} className="font-bold">
             Tech Stack
           </Heading>
-          <Text size={TEXT.base.size}>select a skill to explore</Text>
+          <Text size={TEXT.base.size} color="blue" className="opacity-75">
+            select a skill to explore
+          </Text>
         </motion.div>
 
         {/* Skill chips */}
@@ -69,7 +72,7 @@ export default function SkillsSection() {
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.4, delay: 0.1 }}
-          className="flex flex-wrap justify-center gap-2"
+          className={cn('flex flex-wrap justify-center', 'gap-2 md:gap-2.5 lg:gap-3 2xl:gap-4')}
         >
           {skills.map((skill) => (
             <SkillChip
