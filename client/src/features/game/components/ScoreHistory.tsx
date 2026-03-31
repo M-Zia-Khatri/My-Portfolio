@@ -29,30 +29,32 @@ export default function ScoreHistory() {
   return (
     <div className="overflow-hidden rounded-xl" style={{ border: '1px solid var(--gray-5)' }}>
       <div className="max-h-75 overflow-y-auto">
-        <Table.Root size="1">
-          <Table.Header>
-            <Table.Row>
-              <Table.ColumnHeaderCell>#</Table.ColumnHeaderCell>
-              <Table.ColumnHeaderCell>Name</Table.ColumnHeaderCell>
-              <Table.ColumnHeaderCell>Score</Table.ColumnHeaderCell>
-              <Table.ColumnHeaderCell>Result</Table.ColumnHeaderCell>
-              <Table.ColumnHeaderCell>Level</Table.ColumnHeaderCell>
-            </Table.Row>
-          </Table.Header>
-          <Table.Body>
-            {scoreHistory.map((record, idx) => (
-              <MemoizedScoreRow
-                key={record.id}
-                record={record}
-                idx={idx}
-                isEditing={editingIdx === idx}
-                onEdit={() => setEditingIdx(idx)}
-                onCancel={() => setEditingIdx(null)}
-                onSave={(newName) => handleUpdateName(idx, newName)}
-              />
-            ))}
-          </Table.Body>
-        </Table.Root>
+        <div className="overflow-x-auto">
+          <Table.Root size="1" className="min-w-[460px]">
+            <Table.Header>
+              <Table.Row>
+                <Table.ColumnHeaderCell>#</Table.ColumnHeaderCell>
+                <Table.ColumnHeaderCell>Name</Table.ColumnHeaderCell>
+                <Table.ColumnHeaderCell>Score</Table.ColumnHeaderCell>
+                <Table.ColumnHeaderCell>Result</Table.ColumnHeaderCell>
+                <Table.ColumnHeaderCell>Level</Table.ColumnHeaderCell>
+              </Table.Row>
+            </Table.Header>
+            <Table.Body>
+              {scoreHistory.map((record, idx) => (
+                <MemoizedScoreRow
+                  key={record.id}
+                  record={record}
+                  idx={idx}
+                  isEditing={editingIdx === idx}
+                  onEdit={() => setEditingIdx(idx)}
+                  onCancel={() => setEditingIdx(null)}
+                  onSave={(newName) => handleUpdateName(idx, newName)}
+                />
+              ))}
+            </Table.Body>
+          </Table.Root>
+        </div>
       </div>
     </div>
   );

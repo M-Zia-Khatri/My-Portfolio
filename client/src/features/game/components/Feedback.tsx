@@ -29,6 +29,13 @@ export default function Feedback() {
 
   const color = isWin ? 'green' : isClose ? 'amber' : 'blue';
   const Icon = isWin ? CheckCircledIcon : isClose ? InfoCircledIcon : Cross2Icon;
+  const displayMessage =
+    {
+      'you win': 'You win',
+      'very close': 'Very close',
+      'too low': 'Too low',
+      'too high': 'Too high',
+    }[message] ?? message;
 
   return (
     <div className="fixed bottom-8 left-1/2 z-50 w-fit min-w-48 -translate-x-1/2">
@@ -36,9 +43,7 @@ export default function Feedback() {
         <Callout.Icon>
           <Icon />
         </Callout.Icon>
-        <Callout.Text className="font-medium capitalize">
-          {message.replace(/cols/, 'close')}
-        </Callout.Text>
+        <Callout.Text className="font-medium">{displayMessage}</Callout.Text>
       </Callout.Root>
     </div>
   );

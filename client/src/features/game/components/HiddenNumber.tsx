@@ -27,6 +27,7 @@ export default function HiddenNumber() {
   }, [timeLeft]);
 
   const isUrgent = timeLeft <= 30 && started && !showNumber;
+  const canStart = nameInput.trim().length > 0;
 
   const handlePlayAgain = () => {
     restartGame();
@@ -72,6 +73,7 @@ export default function HiddenNumber() {
             variant="solid"
             color="blue"
             onClick={() => setStarted(true)}
+            disabled={!canStart}
             style={{ minWidth: 120 }}
           >
             Start

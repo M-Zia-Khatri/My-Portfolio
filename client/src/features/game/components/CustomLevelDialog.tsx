@@ -82,7 +82,7 @@ function FieldRow({
 }
 
 export default function CustomLevelDialog({ open, onOpenChange }: Props) {
-  const { customLevels, addCustomLevel, removeCustomLevel } = useGameSet();
+  const { customLevels, addCustomLevel, updateCustomLevel, removeCustomLevel } = useGameSet();
   const [form, setForm] = useState<FormState>(EMPTY_FORM);
   const [errors, setErrors] = useState<FormErrors>({});
   const [submitted, setSubmitted] = useState(false);
@@ -131,10 +131,8 @@ export default function CustomLevelDialog({ open, onOpenChange }: Props) {
       totalSeconds: Number(form.timeMinutes) * 60 + Number(form.timeSeconds),
     };
 
-    if (editingId) {
-      removeCustomLevel(editingId);
-    }
-    addCustomLevel(payload);
+    if (editingId) updateCustomLevel(editingId, payload);
+    else addCustomLevel(payload);
 
     setForm(EMPTY_FORM);
     setErrors({});
