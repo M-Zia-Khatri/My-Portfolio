@@ -1,4 +1,4 @@
-import Lenis from '@studio-freight/lenis';
+import Lenis from 'lenis';
 
 let lenisInstance: Lenis | null = null;
 let rafId: number | null = null;

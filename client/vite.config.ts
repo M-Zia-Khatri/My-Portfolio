@@ -11,6 +11,10 @@ export default defineConfig({
   resolve: {
     alias: {
       '@': path.resolve(__dirname, './src'),
+      '@studio-freight/lenis/dist/lenis.css': path.resolve(
+        __dirname,
+        'node_modules/@studio-freight/lenis/dist/lenis.css',
+      ),
     },
   },
 });
