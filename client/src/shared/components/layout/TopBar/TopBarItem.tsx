@@ -1,8 +1,8 @@
-import React from 'react';
-import { getLenis } from '@/shared/lib/lenis';
 import { TEXT } from '@/shared/constants/style.constants';
+import { scrollToTarget } from '@/shared/lib/lenis';
 import { Link, Text } from '@radix-ui/themes';
 import { motion, type Variants } from 'motion/react';
+import React from 'react';
 import type { NavItem } from './TopBar.types';
 
 const itemVariants: Variants = {
@@ -26,20 +26,7 @@ const underlineVariants: Variants = {
   },
 };
 
-function scrollToSection(sectionId: string) {
-  const targetElement = document.getElementById(sectionId);
-  if (!targetElement) return;
-
-  const lenis = getLenis();
-  if (lenis) {
-    lenis.scrollTo(targetElement, { offset: -96 });
-    return;
-  }
-
-  targetElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
-}
-
-export function TopBarItem({ item }: { item: NavItem }) {
+function TopBarItemImpl({ item }: { item: NavItem }) {
   return (
     <motion.li
       key={item.label}
@@ -53,7 +40,7 @@ export function TopBarItem({ item }: { item: NavItem }) {
           href={item.href}
           onClick={(e) => {
             e.preventDefault();
-            scrollToSection(item.sectionId);
+            scrollToTarget(`#${item.sectionId}`);
           }}
           className="relative inline-flex items-center pb-1"
         >
@@ -70,3 +57,5 @@ export function TopBarItem({ item }: { item: NavItem }) {
     </motion.li>
   );
 }
+
+export const TopBarItem = React.memo(TopBarItemImpl);
