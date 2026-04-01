@@ -1,13 +1,7 @@
-import React, { useRef } from 'react';
 import { cn } from '@/shared/utils/cn';
 import { sectionClassName, sections } from './Home.config';
-import { useSnapScroll } from './hooks/useSnapScroll';
 
 export default function Home() {
-  const sectionsRef = useRef<HTMLDivElement | null>(null);
-
-  useSnapScroll({ containerRef: sectionsRef });
-
   return (
     <>
       {/* Background: noise texture */}
@@ -21,7 +15,7 @@ export default function Home() {
       {/* Background: blue tint */}
       <div className={cn('absolute top-0 left-0 -z-90 h-full w-full', 'bg-(--blue-3)/15')} />
 
-      <div ref={sectionsRef} className={cn('mx-auto')}>
+      <div className={cn('mx-auto h-screen snap-y snap-mandatory overflow-y-scroll scroll-smooth')}>
         {sections.map((section) => {
           const SectionComponent = section.Component;
 
@@ -35,6 +29,7 @@ export default function Home() {
                 section.id === 'home'
                   ? 'flex h-[calc(100dvh)] scroll-mt-24 flex-col justify-center'
                   : sectionClassName,
+                'min-h-dvh',
               )}
             >
               <SectionComponent />
