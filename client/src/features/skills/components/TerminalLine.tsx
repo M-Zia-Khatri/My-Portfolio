@@ -1,10 +1,8 @@
-import { motion } from 'motion/react';
 import { memo } from 'react';
 import type { TerminalLine as TLine } from '../types';
 
 interface TerminalLineProps {
   line: TLine;
-  /** The partial text being typed (only relevant when kind === "command" and isActive) */
   partial?: string;
   isActive: boolean;
   cursor: boolean;
@@ -12,67 +10,23 @@ interface TerminalLineProps {
   index: number;
 }
 
-const TerminalLine = memo(function TerminalLine({
-  line,
-  partial,
-  isActive,
-  cursor,
-  color,
-}: TerminalLineProps) {
+const TerminalLine = memo(function TerminalLine({ line, partial, isActive, cursor, color }: TerminalLineProps) {
   return (
-    <motion.div
-      // layout=false prevents layout recalculation on every re-render
-      layout={false}
-      // animate only on first mount; subsequent re-renders (cursor blink)
-      // will not retrigger the entrance because animate matches the final state
-      initial={{ opacity: 0, x: -6 }}
-      animate={{ opacity: 1, x: 0 }}
-      transition={{ duration: 0.1 }}
-      className="flex items-start"
-      style={{ minHeight: '1.6rem', fontFamily: 'inherit' }}
-    >
+    <div className="flex items-start" style={{ minHeight: '1.6rem', fontFamily: 'inherit' }}>
       {line.kind === 'blank' ? (
-        // Empty spacer — just reserves the row height
         <span className="leading-[1.6rem]">&nbsp;</span>
       ) : line.kind === 'comment' ? (
-        // Dimmed # comment
-        <span
-          className="text-[12.5px] leading-[1.6rem] tracking-tight whitespace-pre select-none"
-          style={{ color: 'rgba(255,255,255,0.28)' }}
-        >
-          {line.text}
-        </span>
+        <span className="text-[12.5px] leading-[1.6rem] tracking-tight whitespace-pre select-none" style={{ color: 'rgba(255,255,255,0.28)' }}>{line.text}</span>
       ) : line.kind === 'output' ? (
-        // Output line — slightly dimmer, no prompt
-        <span
-          className="pl-4 text-[12.5px] leading-[1.6rem] tracking-tight whitespace-pre"
-          style={{ color: 'rgba(255,255,255,0.55)' }}
-        >
-          {line.text}
-        </span>
+        <span className="pl-4 text-[12.5px] leading-[1.6rem] tracking-tight whitespace-pre" style={{ color: 'rgba(255,255,255,0.55)' }}>{line.text}</span>
       ) : (
-        // Command line with $ prompt
         <span className="flex items-center gap-0 text-[12.5px] leading-[1.6rem] tracking-tight whitespace-pre">
-          {/* Prompt */}
-          <span style={{ color: color }} className="mr-1.5 font-bold select-none">
-            $
-          </span>
-          {/* Command text — partial while typing, full when done */}
+          <span style={{ color }} className="mr-1.5 font-bold select-none">$</span>
           <span style={{ color: '#e2e8f0' }}>{isActive ? (partial ?? '') : line.text}</span>
-          {/* Blinking block cursor on the active command */}
-          {isActive && (
-            <span
-              className="ml-0.5 inline-block h-3.25 w-0.5 align-middle"
-              style={{
-                background: color,
-                opacity: cursor ? 1 : 0,
-                transition: 'opacity 0.08s',
-              }}
-            />
-          )}
+          {isActive && <span className="ml-0.5 inline-block h-3.25 w-0.5 align-middle" style={{ background: color, opacity: cursor ? 1 : 0, transition: 'opacity 0.08s' }} />}
         </span>
       )}
-    </motion.div>
+    </div>
   );
 });
 

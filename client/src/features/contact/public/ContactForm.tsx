@@ -15,7 +15,6 @@ import {
   TextField,
 } from '@radix-ui/themes';
 import { useMutation } from '@tanstack/react-query';
-import { AnimatePresence, motion } from 'motion/react';
 import React from 'react';
 import { useState } from 'react';
 
@@ -99,15 +98,9 @@ export default function ContactForm() {
 
       <Separator my="4" size="4" />
 
-      <AnimatePresence mode="wait">
+      
         {isSuccess ? (
-          <motion.div
-            key="success"
-            initial={{ opacity: 0, scale: 0.95 }}
-            animate={{ opacity: 1, scale: 1 }}
-            exit={{ opacity: 0, scale: 0.95 }}
-            transition={{ duration: 0.3 }}
-          >
+          <div key="success" className="animate-in fade-in zoom-in-95 duration-300">
             <Callout.Root color="green" variant="surface" size="2">
               <Callout.Icon>
                 <CheckCircledIcon width={18} height={18} />
@@ -117,16 +110,9 @@ export default function ContactForm() {
             <Button mt="4" variant="ghost" size="2" onClick={() => setIsSuccess(false)}>
               Send another message
             </Button>
-          </motion.div>
+          </div>
         ) : (
-          <motion.form
-            key="form"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            onSubmit={handleSubmit}
-            noValidate
-          >
+          <form key="form" className="animate-in fade-in duration-200" onSubmit={handleSubmit} noValidate>
             <Flex direction="column" gap="4">
               <Flex direction={{ initial: 'column', sm: 'row' }} gap="4">
                 {/* Full Name */}
@@ -229,9 +215,9 @@ export default function ContactForm() {
                 )}
               </Button>
             </Flex>
-          </motion.form>
+          </form>
         )}
-      </AnimatePresence>
+      
     </Card>
   );
 }

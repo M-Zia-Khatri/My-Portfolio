@@ -3,20 +3,23 @@ import CodeEmptyState from '@/features/skills/components/CodeEmptyState';
 import type { ApiSkill, Skill } from '@/features/skills/types';
 import { ICON_MAP } from '@/features/dashboard/pages/skills/iconMap';
 import { useSkillsData } from '@/features/dashboard/pages/skills/useSkillActions';
+import { useGsapReveal, useGsapStagger } from '@/shared/hooks/useGsapAnimations';
 import CodeCard from '@/shared/components/CodeCard';
-import { BorderTrail } from '@/shared/components/motion-primitives/border-trail';
 import SecComponent from '@/shared/components/SecContainer';
 import { HEADING, TEXT } from '@/shared/constants/style.constants';
 import { cn } from '@/shared/utils/cn';
 import { Box, Flex, Heading, Spinner, Text } from '@radix-ui/themes';
-import { motion } from 'motion/react';
-import React from 'react';
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useMemo, useRef, useState } from 'react';
 import { useSectionActive } from '../hooks/useSectionActive';
 
 export default function SkillsSection() {
   const isSectionActive = useSectionActive('skills');
-  const { data, isLoading, isError, error } = useSkillsData();
+  const { data, isLoading, isError } = useSkillsData();
+  const sectionRef = useRef<HTMLDivElement>(null);
+
+  useGsapReveal(sectionRef, '[data-gsap="skills-heading"]', { y: 14, duration: 0.45 });
+  useGsapStagger(sectionRef, '[data-gsap="skill-chip"]', { y: 10, stagger: 0.06 });
+  useGsapReveal(sectionRef, '[data-gsap="skills-card"]', { y: 20, duration: 0.55 });
 
   const mappedSkills = useMemo<Skill[]>(() => {
     const apiSkills: ApiSkill[] = data ?? [];
@@ -26,22 +29,14 @@ export default function SkillsSection() {
     });
   }, [data]);
 
-  useEffect(() => {
-    if (isError && error) {
-      console.error('[SkillsSection] Failed to load skills data.', error);
-    }
-  }, [error, isError]);
-
   const [activeName, setActiveName] = useState<string | null>(null);
   const [openTabNames, setOpenTabNames] = useState<string[]>([]);
 
   const openTabs = useMemo<Skill[]>(() => {
     if (mappedSkills.length === 0) return [];
-
     const tabs = openTabNames
       .map((tabName) => mappedSkills.find((skill) => skill.name === tabName))
       .filter((skill): skill is Skill => Boolean(skill));
-
     return tabs.length > 0 ? tabs : [mappedSkills[0]];
   }, [mappedSkills, openTabNames]);
 
@@ -61,9 +56,8 @@ export default function SkillsSection() {
   const handleTabClose = useCallback((skill: Skill) => {
     setOpenTabNames((prev) => {
       const next = prev.filter((name) => name !== skill.name);
-      if (next.length === 0) {
-        setActiveName(null);
-      } else {
+      if (next.length === 0) setActiveName(null);
+      else {
         setActiveName((currentName) => {
           if (currentName !== skill.name) return currentName;
           const idx = prev.findIndex((name) => name === skill.name);
@@ -74,73 +68,34 @@ export default function SkillsSection() {
     });
   }, []);
 
-  // Stable per-chip callbacks — prevents SkillChip memo from breaking
   const chipHandlers = useMemo(
     () => Object.fromEntries(mappedSkills.map((s) => [s.name, () => handleChipClick(s)])),
     [handleChipClick, mappedSkills],
   );
 
-  const resolvedSkill = useMemo<Skill | null>(() => {
-    if (active) return active;
-    return mappedSkills[0] ?? null;
-  }, [active, mappedSkills]);
-
-  const borderTrailStyle = useMemo(
-    () =>
-      resolvedSkill
-        ? {
-            background: `linear-gradient(to right, transparent, ${resolvedSkill.color}, transparent)`,
-          }
-        : undefined,
-    [resolvedSkill],
-  );
+  const resolvedSkill = active ?? mappedSkills[0] ?? null;
 
   return (
     <SecComponent>
-      <Box className="mx-auto flex w-full max-w-xs sm:max-w-xl flex-col items-center gap-8 md:gap-12">
-        {/* Heading */}
-        <motion.div
-          initial={{ opacity: 0, y: 14 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.45 }}
-          className="text-center gap-1 md:gap-1.5 lg:gap-2 xl:gap-2.5"
-        >
+      <Box ref={sectionRef} className="mx-auto flex w-full max-w-xs flex-col items-center gap-8 sm:max-w-xl md:gap-12">
+        <div data-gsap="skills-heading" className="text-center gap-1 md:gap-1.5 lg:gap-2 xl:gap-2.5">
           <Heading as="h2" size={HEADING.h2.size} className="font-bold">
             Tech Stack
           </Heading>
           <Text size={TEXT.base.size} color="blue" className="opacity-75">
             select a skill to explore
           </Text>
-        </motion.div>
+        </div>
 
-        {/* Skill chips */}
-        <motion.div
-          initial={{ opacity: 0, y: 10 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.4, delay: 0.1 }}
-          className={cn('flex flex-wrap justify-center', 'gap-2 md:gap-2.5 lg:gap-3 2xl:gap-4')}
-        >
+        <div className={cn('flex flex-wrap justify-center', 'gap-2 md:gap-2.5 lg:gap-3 2xl:gap-4')}>
           {mappedSkills.map((skill) => (
-            <SkillChip
-              key={skill.name}
-              skill={skill}
-              active={active?.name === skill.name}
-              onClick={chipHandlers[skill.name]}
-            />
+            <div key={skill.name} data-gsap="skill-chip">
+              <SkillChip skill={skill} active={active?.name === skill.name} onClick={chipHandlers[skill.name]} />
+            </div>
           ))}
-        </motion.div>
+        </div>
 
-        {/* Code card */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.5, delay: 0.2 }}
-          className="relative w-full"
-          style={{ perspective: 800 }}
-        >
+        <div data-gsap="skills-card" className="relative w-full" style={{ perspective: 800 }}>
           {isLoading ? (
             <Flex align="center" justify="center" className="min-h-[300px] rounded-xl border border-white/10">
               <Spinner size="3" />
@@ -148,34 +103,23 @@ export default function SkillsSection() {
           ) : isError ? (
             <Flex direction="column" align="center" justify="center" className="min-h-[300px] rounded-xl border border-white/10 p-4">
               <CodeEmptyState />
-              <Text size="2" color="red" className="text-center">
-                Couldn&apos;t load skills right now. Please try again soon.
-              </Text>
+              <Text size="2" color="red" className="text-center">Couldn&apos;t load skills right now.</Text>
             </Flex>
           ) : !resolvedSkill || mappedSkills.length === 0 ? (
             <Flex direction="column" align="center" justify="center" className="min-h-[300px] rounded-xl border border-white/10 p-4">
               <CodeEmptyState />
-              <Text size="2" color="gray" className="text-center">
-                No skills available yet.
-              </Text>
+              <Text size="2" color="gray" className="text-center">No skills available yet.</Text>
             </Flex>
           ) : (
-            <>
-              <CodeCard
-                isActive={isSectionActive}
-                skill={resolvedSkill}
-                openTabs={openTabs}
-                onTabClick={handleTabClick}
-                onTabClose={handleTabClose}
-              />
-              <BorderTrail
-                style={borderTrailStyle}
-                size={80}
-                transition={{ duration: 4, repeat: Infinity, ease: 'linear' }}
-              />
-            </>
+            <CodeCard
+              isActive={isSectionActive}
+              skill={resolvedSkill}
+              openTabs={openTabs}
+              onTabClick={handleTabClick}
+              onTabClose={handleTabClose}
+            />
           )}
-        </motion.div>
+        </div>
       </Box>
     </SecComponent>
   );

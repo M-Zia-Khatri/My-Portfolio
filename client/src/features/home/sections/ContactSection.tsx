@@ -1,38 +1,32 @@
 import ContactCodeCard from '@/features/contact/public/ContactCodeCard';
 import ContactForm from '@/features/contact/public/ContactForm';
+import { useGsapStagger } from '@/shared/hooks/useGsapAnimations';
 import SecComponent from '@/shared/components/SecContainer';
 import { Flex } from '@radix-ui/themes';
-import { motion } from 'motion/react';
+import { useRef } from 'react';
 import { useSectionActive } from '../hooks/useSectionActive';
 
 export default function ContactSection() {
   const isSectionActive = useSectionActive('contact');
+  const sectionRef = useRef<HTMLDivElement>(null);
+
+  useGsapStagger(sectionRef, '[data-gsap="contact-card"]', { y: 24, stagger: 0.12, duration: 0.5 });
 
   return (
     <SecComponent className="w-full">
-      <Flex direction="column" align="center" gap="2">
+      <Flex ref={sectionRef} direction="column" align="center" gap="2">
         <div className="mt-4 grid w-full grid-cols-1 gap-6 lg:grid-cols-2">
-          {/* ── Contact Form ─────────────────────────────────────── */}
-          <motion.div
-            initial={{ opacity: 0, y: 24 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.5, ease: 'easeOut' }}
-          >
+          <div data-gsap="contact-card">
             <ContactForm />
-          </motion.div>
+          </div>
 
-          {/* ── Showcase: ContactCodeCard ─────────────────────────── */}
-          <motion.div
-            initial={{ opacity: 0, y: 24 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.5, delay: 0.1, ease: 'easeOut' }}
-            className="flex-col justify-center hidden lg:flex "
+          <div
+            data-gsap="contact-card"
+            className="hidden flex-col justify-center lg:flex"
             style={{ perspective: 900 }}
           >
             <ContactCodeCard isActive={isSectionActive} />
-          </motion.div>
+          </div>
         </div>
       </Flex>
     </SecComponent>
