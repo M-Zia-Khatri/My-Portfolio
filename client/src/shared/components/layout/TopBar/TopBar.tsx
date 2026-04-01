@@ -10,32 +10,37 @@ import { HIDE_DELAY_MS } from './TopBar.constants';
 import { TopBarMobile } from './TopBarMobile';
 import { TopBarNav } from './TopBarNav';
 
-/** How long (ms) the user must keep scrolling DOWN before the bar hides */
-
 function scrollToSection(sectionId: string) {
   document.getElementById(sectionId)?.scrollIntoView({ behavior: 'smooth' });
 }
 
 export default function TopBar() {
-  // ── scroll-hide logic ─────────────────────────────────────────────────────
   const [hidden, setHidden] = useState(false);
+
+  // Mutable refs — never cause re-renders, always have the latest value
   const lastScrollY = useRef(0);
   const hideTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const rafId = useRef<number | null>(null);
 
   useEffect(() => {
-    const onScroll = () => {
+    // ── Core logic — runs inside RAF, so at most once per animation frame ──
+    const processScroll = () => {
+      rafId.current = null; // slot is free for the next frame
+
       const currentY = window.scrollY;
       const scrollingDown = currentY > lastScrollY.current;
 
       if (scrollingDown) {
-        if (!hideTimer.current) {
+        // Start the hide countdown only if one isn't already running
+        if (hideTimer.current === null) {
           hideTimer.current = setTimeout(() => {
             setHidden(true);
             hideTimer.current = null;
           }, HIDE_DELAY_MS);
         }
       } else {
-        if (hideTimer.current) {
+        // User scrolled up — cancel hide and reveal immediately
+        if (hideTimer.current !== null) {
           clearTimeout(hideTimer.current);
           hideTimer.current = null;
         }
@@ -45,12 +50,20 @@ export default function TopBar() {
       lastScrollY.current = currentY;
     };
 
+    const onScroll = () => {
+      if (rafId.current !== null) return; // already scheduled this frame
+      rafId.current = requestAnimationFrame(processScroll);
+    };
+
     window.addEventListener('scroll', onScroll, { passive: true });
+
     return () => {
       window.removeEventListener('scroll', onScroll);
-      if (hideTimer.current) clearTimeout(hideTimer.current);
+      // Cancel any in-flight RAF and pending hide timer on unmount
+      if (rafId.current !== null) cancelAnimationFrame(rafId.current);
+      if (hideTimer.current !== null) clearTimeout(hideTimer.current);
     };
-  }, []);
+  }, []); // no deps — all mutable state lives in refs
 
   return (
     <Box asChild className="fixed top-4 z-50 w-full px-4">

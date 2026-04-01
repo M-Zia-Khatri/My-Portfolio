@@ -1,9 +1,14 @@
-import type { ComponentType } from 'react';
-import { AboutSection, PortfolioSection } from './sections';
-import ContactSection from './sections/ContactSection';
-import GameSection from './sections/GameSection';
+import { lazy, type ComponentType } from 'react';
+
+// ─── Eager (above fold / tiny) ───────────────────────────────────────────────
+// Included in the main Home chunk — no async boundary.
+import AboutSection from './sections/AboutSection';
 import HeroSection from './sections/hero/HeroSection';
-import SkillsSection from './sections/SkillsSection';
+
+const SkillsSection = lazy(() => import('./sections/SkillsSection'));
+const PortfolioSection = lazy(() => import('./sections/PortfolioSection'));
+const GameSection = lazy(() => import('./sections/GameSection'));
+const ContactSection = lazy(() => import('./sections/ContactSection'));
 
 // ─── Section registry ────────────────────────────────────────────────────────
 
@@ -13,15 +18,14 @@ export type SectionConfig = {
 };
 
 export const sections: SectionConfig[] = [
-  { id: 'home', Component: HeroSection },
-  { id: 'about', Component: AboutSection },
-  { id: 'skills', Component: SkillsSection },
-  { id: 'portfolio', Component: PortfolioSection },
-  { id: 'game', Component: GameSection },
-  { id: 'contact', Component: ContactSection },
+  { id: 'home', Component: HeroSection }, // eager — above fold
+  { id: 'about', Component: AboutSection }, // eager — tiny, near fold
+  { id: 'skills', Component: SkillsSection }, // lazy  — heavy GSAP
+  { id: 'portfolio', Component: PortfolioSection }, // lazy  — 3-D cards
+  { id: 'game', Component: GameSection }, // lazy  — complex state
+  { id: 'contact', Component: ContactSection }, // lazy  — live typing
 ];
 
 // ─── Shared class names ──────────────────────────────────────────────────────
-
 export const sectionClassName =
   'scroll-mt-24 min-h-[calc(100dvh)] flex flex-col justify-center items-center';

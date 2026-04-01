@@ -1,7 +1,10 @@
 import { motion } from 'motion/react';
 import { Navigate, Outlet, useLocation } from 'react-router';
-import { useAuthStore } from '../store/useAuthStore';
+import { selectIsAuthenticated, selectIsLoading, useAuthStore } from '../store/useAuthStore';
 
+// ─── Loading screen ───────────────────────────────────────────────────────────
+// Shown while useMe is resolving on app boot. Keep this component stable so
+// React doesn't need to reconcile it on every auth state tick.
 const AuthLoadingScreen = () => (
   <div className="fixed inset-0 z-50 flex items-center justify-center bg-(--color-background)">
     <motion.span
@@ -12,15 +15,28 @@ const AuthLoadingScreen = () => (
   </div>
 );
 
-export const ProtectedRoute = ({ allowedRoles, redirectTo = '/', children }: any) => {
-  const { isAuthenticated, isLoading, hasRole } = useAuthStore();
+// ─── Component ────────────────────────────────────────────────────────────────
+export const ProtectedRoute = ({
+  allowedRoles,
+  redirectTo = '/',
+  children,
+}: {
+  allowedRoles?: string[];
+  redirectTo?: string;
+  children?: React.ReactNode;
+}) => {
+  const isAuthenticated = useAuthStore(selectIsAuthenticated);
+  const isLoading = useAuthStore(selectIsLoading);
+
+  // `hasRole` is a function — extract it separately so we call it once
+  const hasRole = useAuthStore((s) => s.hasRole);
+
   const location = useLocation();
 
   if (isLoading) return <AuthLoadingScreen />;
   if (!isAuthenticated) return <Navigate to={redirectTo} state={{ from: location }} replace />;
   if (allowedRoles && !hasRole(allowedRoles)) return <Navigate to="/" replace />;
 
-  // logic only: return children directly
   return <>{children ?? <Outlet />}</>;
 };
 
