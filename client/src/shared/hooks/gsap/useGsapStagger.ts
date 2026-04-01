@@ -1,7 +1,7 @@
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
-import { useLayoutEffect } from 'react';
 import type { RefObject } from 'react';
+import { useLayoutEffect, useRef } from 'react';
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -16,8 +16,12 @@ export function useGsapStagger(
   parentRef: RefObject<HTMLElement | null>,
   options: GsapStaggerOptions = {},
 ) {
+  const hasAnimatedRef = useRef(false);
+  const { y = 20, duration = 0.6, stagger = 0.1, once = true } = options;
+
   useLayoutEffect(() => {
     if (!parentRef.current) return;
+    if (once && hasAnimatedRef.current) return;
 
     const ctx = gsap.context(() => {
       const children = Array.from(parentRef.current?.children ?? []);
@@ -25,20 +29,23 @@ export function useGsapStagger(
 
       gsap.from(children, {
         autoAlpha: 0,
-        y: options.y ?? 20,
-        duration: options.duration ?? 0.6,
-        stagger: options.stagger ?? 0.1,
+        y,
+        duration,
+        stagger,
         ease: 'power2.out',
         willChange: 'transform,opacity',
         clearProps: 'willChange',
+        onComplete: () => {
+          hasAnimatedRef.current = true;
+        },
         scrollTrigger: {
           trigger: parentRef.current,
           start: 'top 82%',
-          once: options.once ?? true,
+          once,
         },
       });
     }, parentRef);
 
     return () => ctx.revert();
-  }, [parentRef, options.duration, options.once, options.stagger, options.y]);
+  }, [parentRef, y, duration, stagger, once]);
 }

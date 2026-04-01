@@ -6,14 +6,53 @@ import type { ApiSkill, Skill } from '@/features/skills/types';
 import CodeCard from '@/shared/components/CodeCard';
 import SecComponent from '@/shared/components/SecContainer';
 import { HEADING, TEXT } from '@/shared/constants/style.constants';
+import { useGsapReveal } from '@/shared/hooks/gsap/useGsapReveal';
+import { useGsapStagger } from '@/shared/hooks/gsap/useGsapStagger';
 import { useGsapTypingEffect } from '@/shared/hooks/gsap/useGsapTypingEffect';
-import { useGsapReveal, useGsapStagger } from '@/shared/hooks/useGsapAnimations';
 import { cn } from '@/shared/utils/cn';
 import { Box, Flex, Heading, Spinner, Text } from '@radix-ui/themes';
-import { useCallback, useMemo, useRef, useState } from 'react';
+import { memo, useCallback, useMemo, useRef, useState } from 'react';
+import type { RefObject } from 'react';
 import { useSectionActive } from '../hooks/useSectionActive';
 
-export default function SkillsSection() {
+const PERSPECTIVE_STYLE = { perspective: 800 } as const;
+
+const SkillsHeading = memo(function SkillsHeading() {
+  return (
+    <div className="text-center gap-1 md:gap-1.5 lg:gap-2 xl:gap-2.5">
+      <Heading as="h2" size={HEADING.h2.size} className="font-bold">
+        Tech Stack
+      </Heading>
+      <Text size={TEXT.base.size} color="blue" className="opacity-75">
+        select a skill to explore
+      </Text>
+    </div>
+  );
+});
+
+const SkillChips = memo(function SkillChips({
+  cardsRef,
+  skills,
+  activeName,
+  handlers,
+}: {
+  cardsRef: RefObject<HTMLDivElement | null>;
+  skills: Skill[];
+  activeName?: string;
+  handlers: Record<string, () => void>;
+}) {
+  return (
+    <div ref={cardsRef} className={cn('flex flex-wrap justify-center', 'gap-2 md:gap-2.5 lg:gap-3 2xl:gap-4')}>
+      {skills.map((skill) => (
+        <div key={skill.name}>
+          <SkillChip skill={skill} active={activeName === skill.name} onClick={handlers[skill.name]} />
+        </div>
+      ))}
+    </div>
+  );
+});
+
+function SkillsSection() {
   const isSectionActive = useSectionActive('skills');
   const { data, isLoading, isError } = useSkillsData();
 
@@ -43,7 +82,7 @@ export default function SkillsSection() {
     return tabs.length > 0 ? tabs : [mappedSkills[0]];
   }, [mappedSkills, openTabNames]);
 
-  const active = useMemo<Skill | null>(() => {
+  const resolvedSkill = useMemo<Skill | null>(() => {
     if (mappedSkills.length === 0) return null;
     if (!activeName) return openTabs[0] ?? mappedSkills[0];
     return (
@@ -73,12 +112,10 @@ export default function SkillsSection() {
     });
   }, []);
 
-  const chipHandlers = useMemo(
+  const chipHandlers = useMemo<Record<string, () => void>>(
     () => Object.fromEntries(mappedSkills.map((s) => [s.name, () => handleChipClick(s)])),
     [handleChipClick, mappedSkills],
   );
-
-  const resolvedSkill = active ?? mappedSkills[0] ?? null;
 
   useGsapTypingEffect(codeRef, {
     speed: 0.05,
@@ -89,35 +126,12 @@ export default function SkillsSection() {
 
   return (
     <SecComponent>
-      <Box
-        ref={sectionRef}
-        className="mx-auto flex w-full max-w-xs flex-col items-center gap-8 sm:max-w-xl md:gap-12"
-      >
-        <div className="text-center gap-1 md:gap-1.5 lg:gap-2 xl:gap-2.5">
-          <Heading as="h2" size={HEADING.h2.size} className="font-bold">
-            Tech Stack
-          </Heading>
-          <Text size={TEXT.base.size} color="blue" className="opacity-75">
-            select a skill to explore
-          </Text>
-        </div>
+      <Box ref={sectionRef} className="mx-auto flex w-full max-w-xs flex-col items-center gap-8 sm:max-w-xl md:gap-12">
+        <SkillsHeading />
 
-        <div
-          ref={cardsRef}
-          className={cn('flex flex-wrap justify-center', 'gap-2 md:gap-2.5 lg:gap-3 2xl:gap-4')}
-        >
-          {mappedSkills.map((skill) => (
-            <div key={skill.name}>
-              <SkillChip
-                skill={skill}
-                active={active?.name === skill.name}
-                onClick={chipHandlers[skill.name]}
-              />
-            </div>
-          ))}
-        </div>
+        <SkillChips cardsRef={cardsRef} skills={mappedSkills} activeName={resolvedSkill?.name} handlers={chipHandlers} />
 
-        <div className="relative w-full" style={{ perspective: 800 }}>
+        <div className="relative w-full" style={PERSPECTIVE_STYLE}>
           {isLoading ? (
             <Flex
               align="center"
@@ -134,21 +148,12 @@ export default function SkillsSection() {
               className="min-h-[300px] rounded-xl border border-white/10 p-4"
             >
               <CodeEmptyState />
-              <Text size="2" color="red" className="text-center">
-                Couldn&apos;t load skills right now.
-              </Text>
+              <Text size="2" color="red" className="text-center">Couldn&apos;t load skills right now.</Text>
             </Flex>
-          ) : !resolvedSkill || mappedSkills.length === 0 ? (
-            <Flex
-              direction="column"
-              align="center"
-              justify="center"
-              className="min-h-[300px] rounded-xl border border-white/10 p-4"
-            >
+          ) : !resolvedSkill ? (
+            <Flex direction="column" align="center" justify="center" className="min-h-[300px] rounded-xl border border-white/10 p-4">
               <CodeEmptyState />
-              <Text size="2" color="gray" className="text-center">
-                No skills available yet.
-              </Text>
+              <Text size="2" color="gray" className="text-center">No skills available yet.</Text>
             </Flex>
           ) : (
             <CodeCard
@@ -165,3 +170,5 @@ export default function SkillsSection() {
     </SecComponent>
   );
 }
+
+export default memo(SkillsSection);

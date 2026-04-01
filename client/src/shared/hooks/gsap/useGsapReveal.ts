@@ -1,6 +1,6 @@
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
-import { useLayoutEffect } from 'react';
+import { useLayoutEffect, useRef } from 'react';
 import type { RefObject } from 'react';
 
 gsap.registerPlugin(ScrollTrigger);
@@ -13,33 +13,37 @@ interface GsapRevealOptions {
   once?: boolean;
 }
 
-export function useGsapReveal(
-  ref: RefObject<HTMLElement | null>,
-  options: GsapRevealOptions = {},
-) {
+export function useGsapReveal(ref: RefObject<HTMLElement | null>, options: GsapRevealOptions = {}) {
+  const hasAnimatedRef = useRef(false);
+  const { y = 24, duration = 0.8, delay = 0, ease = 'power2.out', once = true } = options;
+
   useLayoutEffect(() => {
     if (!ref.current) return;
+    if (once && hasAnimatedRef.current) return;
 
     const ctx = gsap.context(() => {
       gsap.fromTo(
         ref.current,
-        { autoAlpha: 0, y: options.y ?? 24, willChange: 'transform,opacity' },
+        { autoAlpha: 0, y, willChange: 'transform,opacity' },
         {
           autoAlpha: 1,
           y: 0,
-          delay: options.delay ?? 0,
-          duration: options.duration ?? 0.8,
-          ease: options.ease ?? 'power2.out',
+          delay,
+          duration,
+          ease,
           clearProps: 'willChange',
+          onComplete: () => {
+            hasAnimatedRef.current = true;
+          },
           scrollTrigger: {
             trigger: ref.current,
             start: 'top 80%',
-            once: options.once ?? true,
+            once,
           },
         },
       );
     }, ref);
 
     return () => ctx.revert();
-  }, [ref, options.delay, options.duration, options.ease, options.once, options.y]);
+  }, [ref, y, duration, delay, ease, once]);
 }

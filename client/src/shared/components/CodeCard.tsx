@@ -3,16 +3,18 @@ import CodeLine from '@/features/skills/components/CodeLine';
 import CodeTabBar from '@/features/skills/components/CodeTabBar';
 import TerminalView from '@/features/skills/components/TerminalView';
 import type { Skill } from '@/features/skills/types';
-import TabScrollbarStyle from '@/shared/components/TabScrollbarStyle';
 import { useGsapTypingEffect as useGsapTimeline } from '@/shared/hooks/useGsapAnimations';
-import type { RefObject } from 'react';
+import TabScrollbarStyle from '@/shared/components/TabScrollbarStyle';
 import { forwardRef, memo, useEffect, useImperativeHandle, useMemo, useRef, useState } from 'react';
+import type { RefObject } from 'react';
 
 const ContentScrollbarStyle = memo(function ContentScrollbarStyle({ color }: { color: string }) {
   return (
     <style>{`.content-scrollbar::-webkit-scrollbar { width: 3px; } .content-scrollbar::-webkit-scrollbar-thumb { background: ${color}44; } .content-scrollbar { scrollbar-width: thin; scrollbar-color: ${color}44 transparent; }`}</style>
   );
 });
+
+const CARD_STYLE = { transformStyle: 'preserve-3d' } as const;
 
 export interface CodeCardHandle {
   pause: () => void;
@@ -29,17 +31,8 @@ export interface CodeCardProps {
   codeContainerRef?: RefObject<HTMLDivElement | null>;
 }
 
-const CodeCard = forwardRef<CodeCardHandle, CodeCardProps>(function CodeCard(
-  {
-    skill,
-    openTabs,
-    onTabClick,
-    onTabClose,
-    onTypingComplete,
-    started = true,
-    isActive = true,
-    codeContainerRef,
-  },
+const CodeCardBase = forwardRef<CodeCardHandle, CodeCardProps>(function CodeCard(
+  { skill, openTabs, onTabClick, onTabClose, onTypingComplete, started = true, isActive = true, codeContainerRef },
   ref,
 ) {
   const [completedLines, setCompletedLines] = useState<string[]>([]);
@@ -57,21 +50,20 @@ const CodeCard = forwardRef<CodeCardHandle, CodeCardProps>(function CodeCard(
       setCompletedLines([]);
       setCurrentLine('');
       setIsTyping(true);
+
       skill.code.forEach((line, li) => {
         for (let ci = 1; ci <= line.length; ci++) {
-          timeline.to(
-            {},
-            {
-              duration: line[ci - 1] === ' ' ? 0.018 : 0.03,
-              onComplete: () => {
-                setCompletedLines(skill.code.slice(0, li));
-                setCurrentLine(line.slice(0, ci));
-              },
+          timeline.to({}, {
+            duration: line[ci - 1] === ' ' ? 0.018 : 0.03,
+            onComplete: () => {
+              setCompletedLines(skill.code.slice(0, li));
+              setCurrentLine(line.slice(0, ci));
             },
-          );
+          });
         }
         timeline.to({}, { duration: 0.05 });
       });
+
       timeline.call(() => {
         setCompletedLines(skill.code);
         setCurrentLine('');
@@ -82,10 +74,14 @@ const CodeCard = forwardRef<CodeCardHandle, CodeCardProps>(function CodeCard(
     !isActive,
   );
 
-  useImperativeHandle(ref, () => ({
-    pause: () => tlRef.current?.pause(),
-    resume: () => tlRef.current?.resume(),
-  }));
+  useImperativeHandle(
+    ref,
+    () => ({
+      pause: () => tlRef.current?.pause(),
+      resume: () => tlRef.current?.resume(),
+    }),
+    [tlRef],
+  );
 
   useEffect(() => {
     const id = setInterval(() => setCursor((c) => !c), 530);
@@ -108,7 +104,7 @@ const CodeCard = forwardRef<CodeCardHandle, CodeCardProps>(function CodeCard(
     <>
       <TabScrollbarStyle color={skill.color} />
       <ContentScrollbarStyle color={skill.color} />
-      <div ref={cardRef} className="relative" style={{ transformStyle: 'preserve-3d' }}>
+      <div ref={cardRef} className="relative" style={CARD_STYLE}>
         <div
           className="relative z-10 flex w-full flex-col overflow-hidden rounded-xl"
           style={{
@@ -117,12 +113,8 @@ const CodeCard = forwardRef<CodeCardHandle, CodeCardProps>(function CodeCard(
             minHeight: 300,
           }}
         >
-          <CodeTabBar
-            skill={skill}
-            openTabs={openTabs}
-            onTabClick={onTabClick}
-            onTabClose={onTabClose}
-          />
+          <CodeTabBar skill={skill} openTabs={openTabs} onTabClick={onTabClick} onTabClose={onTabClose} />
+
           <div
             ref={contentRef}
             className="content-scrollbar flex-1 py-3"
@@ -160,4 +152,6 @@ const CodeCard = forwardRef<CodeCardHandle, CodeCardProps>(function CodeCard(
   );
 });
 
-export default CodeCard;
+CodeCardBase.displayName = 'CodeCard';
+
+export default memo(CodeCardBase);
