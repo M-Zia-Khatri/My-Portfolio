@@ -1,3 +1,5 @@
+import React from 'react';
+import { getLenis } from '@/shared/lib/lenis';
 import { TEXT } from '@/shared/constants/style.constants';
 import { Link, Text } from '@radix-ui/themes';
 import { motion, type Variants } from 'motion/react';
@@ -25,7 +27,16 @@ const underlineVariants: Variants = {
 };
 
 function scrollToSection(sectionId: string) {
-  document.getElementById(sectionId)?.scrollIntoView({ behavior: 'smooth' });
+  const targetElement = document.getElementById(sectionId);
+  if (!targetElement) return;
+
+  const lenis = getLenis();
+  if (lenis) {
+    lenis.scrollTo(targetElement, { offset: -96 });
+    return;
+  }
+
+  targetElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
 }
 
 export function TopBarItem({ item }: { item: NavItem }) {
