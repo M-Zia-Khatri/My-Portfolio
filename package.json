@@ -1,6 +1,6 @@
 {
   "name": "my-profolio",
-  "private": true,
+  "privcdate": true,
   "version": "1.0.0",
   "description": "This is My Portfolio",
   "main": ".eslintrc.js",
