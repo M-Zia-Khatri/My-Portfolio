@@ -1,14 +1,24 @@
 import { cn } from '@/shared/utils/cn';
 import { sectionClassName, sections } from './Home.config';
+import { useSnapScroll } from './hooks/useSnapScroll';
 
 export default function Home() {
+  useSnapScroll();
+
   return (
     <>
-      {/* Background layers */}
-      <div className="absolute top-0 left-0 -z-100 h-full w-full bg-[url(@/assets/images/bg-noise.png)] opacity-2.5" />
-      <div className="absolute top-0 left-0 -z-90 h-full w-full bg-(--blue-3)/15" />
+      {/* Background: noise texture */}
+      <div
+        className={cn(
+          'absolute top-0 left-0 -z-100 h-full w-full',
+          'bg-[url(@/assets/images/bg-noise.png)] opacity-2.5',
+        )}
+      />
 
-      <div className="mx-auto space-y-6">
+      {/* Background: blue tint */}
+      <div className={cn('absolute top-0 left-0 -z-90 h-full w-full', 'bg-(--blue-3)/15')} />
+
+      <div className={cn('mx-auto')}>
         {sections.map((section) => {
           const SectionComponent = section.Component;
 
@@ -17,8 +27,9 @@ export default function Home() {
               key={section.id}
               id={section.id}
               className={cn(
+                'snap-start',
                 section.id === 'home'
-                  ? 'mb-5 flex h-[calc(100dvh)] scroll-mt-24 flex-col justify-center'
+                  ? 'flex h-[calc(100dvh)] scroll-mt-24 flex-col justify-center'
                   : sectionClassName,
               )}
             >
