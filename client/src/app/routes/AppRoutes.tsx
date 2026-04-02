@@ -1,7 +1,7 @@
+import { AppNavigation } from '@/shared/constants/navigation.constants';
 import { Spinner } from '@radix-ui/themes';
 import { lazy, Suspense, type ComponentType } from 'react';
 import { Navigate, type RouteObject } from 'react-router';
-import { AppNavigation } from '@/shared/constants/navigation.constants';
 
 const Auth = lazy(() => import('@/features/auth/Auth'));
 const ContactPage = lazy(() => import('@/features/contact/admin/ContactPage'));
@@ -28,14 +28,14 @@ const withSuspense = (Component: ComponentType) => (
 const AppRoutes: RouteObject[] = [
   {
     path: '/',
+    element: withSuspense(LandingPage),
+  },
+  {
+    path: '/home',
     element: withSuspense(AppLayout),
     children: [
       {
         index: true,
-        element: withSuspense(LandingPage),
-      },
-      {
-        path: 'home',
         element: withSuspense(Home),
       },
     ],
