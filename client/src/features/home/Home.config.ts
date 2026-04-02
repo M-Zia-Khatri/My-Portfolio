@@ -1,11 +1,12 @@
 import type { ComponentType } from 'react';
-import { AboutSection, PortfolioSection } from './sections';
-import ContactSection from './sections/ContactSection';
-import GameSection from './sections/GameSection';
-import HeroSection from './sections/hero/HeroSection';
-import SkillsSection from './sections/SkillsSection';
+import { lazy } from 'react';
 
-// ─── Section registry ────────────────────────────────────────────────────────
+const AboutSection = lazy(() => import('./sections/AboutSection'));
+const ContactSection = lazy(() => import('./sections/ContactSection'));
+const GameSection = lazy(() => import('./sections/GameSection'));
+const HeroSection = lazy(() => import('./sections/hero/HeroSection'));
+const PortfolioSection = lazy(() => import('./sections/PortfolioSection'));
+const SkillsSection = lazy(() => import('./sections/SkillsSection'));
 
 export type SectionConfig = {
   id: string;
@@ -20,8 +21,6 @@ export const sections: SectionConfig[] = [
   { id: 'game', Component: GameSection },
   { id: 'contact', Component: ContactSection },
 ];
-
-// ─── Shared class names ──────────────────────────────────────────────────────
 
 export const sectionClassName =
   'scroll-mt-24 min-h-[calc(100dvh)] flex flex-col justify-center items-center';

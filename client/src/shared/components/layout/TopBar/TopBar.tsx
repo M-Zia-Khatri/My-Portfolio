@@ -21,34 +21,41 @@ export default function TopBar() {
   const [hidden, setHidden] = useState(false);
   const lastScrollY = useRef(0);
   const hideTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const rafId = useRef<number | null>(null);
 
   useEffect(() => {
     const onScroll = () => {
-      const currentY = window.scrollY;
-      const scrollingDown = currentY > lastScrollY.current;
+      if (rafId.current !== null) return;
 
-      if (scrollingDown) {
-        if (!hideTimer.current) {
-          hideTimer.current = setTimeout(() => {
-            setHidden(true);
+      rafId.current = window.requestAnimationFrame(() => {
+        const currentY = window.scrollY;
+        const scrollingDown = currentY > lastScrollY.current;
+
+        if (scrollingDown) {
+          if (!hideTimer.current) {
+            hideTimer.current = setTimeout(() => {
+              setHidden(true);
+              hideTimer.current = null;
+            }, HIDE_DELAY_MS);
+          }
+        } else {
+          if (hideTimer.current) {
+            clearTimeout(hideTimer.current);
             hideTimer.current = null;
-          }, HIDE_DELAY_MS);
+          }
+          setHidden(false);
         }
-      } else {
-        if (hideTimer.current) {
-          clearTimeout(hideTimer.current);
-          hideTimer.current = null;
-        }
-        setHidden(false);
-      }
 
-      lastScrollY.current = currentY;
+        lastScrollY.current = currentY;
+        rafId.current = null;
+      });
     };
 
     window.addEventListener('scroll', onScroll, { passive: true });
     return () => {
       window.removeEventListener('scroll', onScroll);
       if (hideTimer.current) clearTimeout(hideTimer.current);
+      if (rafId.current !== null) window.cancelAnimationFrame(rafId.current);
     };
   }, []);
 

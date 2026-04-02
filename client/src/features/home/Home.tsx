@@ -1,10 +1,11 @@
+import { Spinner } from '@radix-ui/themes';
+import { Suspense } from 'react';
 import { cn } from '@/shared/utils/cn';
 import { sectionClassName, sections } from './Home.config';
 
 export default function Home() {
   return (
     <>
-      {/* Background layers */}
       <div className="absolute top-0 left-0 -z-100 h-full w-full bg-[url(@/assets/images/bg-noise.png)] opacity-2.5" />
       <div className="absolute top-0 left-0 -z-90 h-full w-full bg-(--blue-3)/15" />
 
@@ -22,7 +23,9 @@ export default function Home() {
                   : sectionClassName,
               )}
             >
-              <SectionComponent />
+              <Suspense fallback={<Spinner />}>
+                <SectionComponent />
+              </Suspense>
             </section>
           );
         })}

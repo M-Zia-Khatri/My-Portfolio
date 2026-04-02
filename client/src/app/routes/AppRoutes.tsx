@@ -1,28 +1,43 @@
-import Auth from '@/features/auth/Auth';
-import ContactPage from '@/features/contact/admin/ContactPage';
-import Dashboard from '@/features/dashboard/Dashboard';
-import DashboardLayout from '@/features/dashboard/layout/DashboardLayout';
-import Portfolio from '@/features/dashboard/pages/portfolio/Portfolio';
-import Skills from '@/features/dashboard/pages/skills/Skills';
-import Home from '@/features/home/Home';
-import AppLayout from '@/shared/components/layout/AppLayout';
-import { AppNavigation } from '@/shared/constants/navigation.constants';
+import { Spinner } from '@radix-ui/themes';
+import { lazy, Suspense, type ComponentType } from 'react';
 import { Navigate, type RouteObject } from 'react-router';
+import { AppNavigation } from '@/shared/constants/navigation.constants';
+
+const Auth = lazy(() => import('@/features/auth/Auth'));
+const ContactPage = lazy(() => import('@/features/contact/admin/ContactPage'));
+const Dashboard = lazy(() => import('@/features/dashboard/Dashboard'));
+const DashboardLayout = lazy(() => import('@/features/dashboard/layout/DashboardLayout'));
+const Portfolio = lazy(() => import('@/features/dashboard/pages/portfolio/Portfolio'));
+const Skills = lazy(() => import('@/features/dashboard/pages/skills/Skills'));
+const Home = lazy(() => import('@/features/home/Home'));
+const AppLayout = lazy(() => import('@/shared/components/layout/AppLayout'));
+
+const RouteLoader = () => (
+  <div className="flex min-h-[40vh] items-center justify-center">
+    <Spinner size="3" />
+  </div>
+);
+
+const withSuspense = (Component: ComponentType) => (
+  <Suspense fallback={<RouteLoader />}>
+    <Component />
+  </Suspense>
+);
 
 const AppRoutes: RouteObject[] = [
   {
     path: '/',
-    Component: AppLayout,
+    element: withSuspense(AppLayout),
     children: [
       {
         index: true,
-        Component: Home,
+        element: withSuspense(Home),
       },
     ],
   },
   {
     path: AppNavigation.AUTH,
-    Component: Auth,
+    element: withSuspense(Auth),
   },
   { path: '/login', element: <Navigate to={AppNavigation.AUTH} /> },
   {
@@ -31,23 +46,23 @@ const AppRoutes: RouteObject[] = [
   },
   {
     path: AppNavigation.DASHBOARD,
-    element: <DashboardLayout />,
+    element: withSuspense(DashboardLayout),
     children: [
       {
         index: true,
-        Component: Dashboard,
+        element: withSuspense(Dashboard),
       },
       {
         path: AppNavigation.A_SKILLS,
-        Component: Skills,
+        element: withSuspense(Skills),
       },
       {
         path: AppNavigation.A_PORTFOLIO,
-        Component: Portfolio,
+        element: withSuspense(Portfolio),
       },
       {
         path: AppNavigation.A_CONTACT,
-        Component: ContactPage,
+        element: withSuspense(ContactPage),
       },
     ],
   },

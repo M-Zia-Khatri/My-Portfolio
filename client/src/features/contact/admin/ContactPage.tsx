@@ -1,6 +1,7 @@
+import { useDebouncedValue } from '@/shared/hooks/useDebouncedValue';
 import { InfoCircledIcon } from '@radix-ui/react-icons';
 import { Box, Callout, Flex, Heading, Spinner } from '@radix-ui/themes';
-import { useMemo, useState } from 'react';
+import { useCallback, useMemo, useState } from 'react';
 import { useContacts, useDeleteContact } from '../api';
 import type { Contact } from '../types';
 import { ContactDetails } from './component/ContactDetails';
@@ -13,30 +14,31 @@ export default function ContactPage() {
 
   const [search, setSearch] = useState('');
   const [selectedContact, setSelectedContact] = useState<Contact | null>(null);
+  const debouncedSearch = useDebouncedValue(search, 250);
 
-  // Client-side filtering
   const filteredContacts = useMemo(() => {
     if (!contacts || !Array.isArray(contacts)) return [];
 
-    const q = search.toLowerCase();
+    const q = debouncedSearch.toLowerCase();
     if (!q) return contacts;
 
     return contacts.filter((c) => {
-      // Add null-checks for individual fields to be extra safe
-      const name = c.name?.toLowerCase() || '';
+      const name = c.full_name?.toLowerCase() || '';
       const email = c.email?.toLowerCase() || '';
       const message = c.message?.toLowerCase() || '';
 
       return name.includes(q) || email.includes(q) || message.includes(q);
     });
-  }, [contacts, search]);
+  }, [contacts, debouncedSearch]);
 
-  const handleDelete = async (id: string) => {
+  const handleDelete = useCallback(async (id: string) => {
     if (window.confirm('Are you sure?')) {
       await deleteMutation.mutateAsync(id);
       setSelectedContact(null);
     }
-  };
+  }, [deleteMutation]);
+
+  const handleSelect = useCallback((contact: Contact) => setSelectedContact(contact), []);
 
   if (isLoading)
     return (
@@ -63,7 +65,7 @@ export default function ContactPage() {
 
       <ContactFilters value={search} onChange={setSearch} resultsCount={filteredContacts.length} />
 
-      <ContactTable contacts={filteredContacts} onSelect={setSelectedContact} />
+      <ContactTable contacts={filteredContacts} onSelect={handleSelect} />
 
       <ContactDetails
         contact={selectedContact}
