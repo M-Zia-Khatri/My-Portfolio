@@ -5,21 +5,13 @@
     <link rel="icon" type="image/svg+xml" href="/vite.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>client</title>
-    <script>
-      (() => {
-        const key = 'initial-loader-seen';
-        try {
-          if (window.localStorage.getItem(key) === 'true') {
-            document.documentElement.setAttribute('data-skip-initial-loader', 'true');
-          } else {
-            window.localStorage.setItem(key, 'true');
-          }
-        } catch {
-          // no-op: private mode or storage restrictions
-        }
-      })();
-    </script>
     <style>
+      #root {
+        opacity: 0;
+        filter: blur(4px);
+        transition: opacity 320ms ease, filter 320ms ease;
+      }
+
       #initial-loader {
         position: fixed;
         inset: 0;
@@ -30,11 +22,9 @@
         background: linear-gradient(160deg, #213448 0%, #1a2a38 70%, #101a24 100%);
         color: #eaf3ff;
         opacity: 1;
-        transition: opacity 320ms ease;
-      }
-
-      html[data-skip-initial-loader='true'] #initial-loader {
-        display: none;
+        transition: opacity 420ms ease, filter 420ms ease;
+        filter: blur(0);
+        pointer-events: all;
       }
 
       .loader-content {
@@ -76,40 +66,6 @@
     </div>
 
     <div id="root"></div>
-
-    <script>
-      (() => {
-        const removeLoader = () => {
-          const loader = document.getElementById('initial-loader');
-          if (!loader) return;
-
-          loader.style.opacity = '0';
-          loader.style.pointerEvents = 'none';
-          window.setTimeout(() => loader.remove(), 340);
-        };
-
-        const maybeRemoveLoader = () => {
-          const root = document.getElementById('root');
-          if (!root || root.childElementCount === 0) return false;
-          removeLoader();
-          return true;
-        };
-
-        if (!document.documentElement.hasAttribute('data-skip-initial-loader')) {
-          const observer = new MutationObserver(() => {
-            if (maybeRemoveLoader()) observer.disconnect();
-          });
-
-          const root = document.getElementById('root');
-          if (root) observer.observe(root, { childList: true });
-
-          window.addEventListener('load', () => {
-            window.setTimeout(removeLoader, 120);
-            observer.disconnect();
-          });
-        }
-      })();
-    </script>
 
     <script type="module" src="/src/main.tsx"></script>
   </body>

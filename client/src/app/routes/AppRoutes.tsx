@@ -10,7 +10,6 @@ const DashboardLayout = lazy(() => import('@/features/dashboard/layout/Dashboard
 const Portfolio = lazy(() => import('@/features/dashboard/pages/portfolio/Portfolio'));
 const Skills = lazy(() => import('@/features/dashboard/pages/skills/Skills'));
 const Home = lazy(() => import('@/features/home/Home'));
-const LandingPage = lazy(() => import('@/features/landing/LandingPage'));
 const AppLayout = lazy(() => import('@/shared/components/layout/AppLayout'));
 
 const RouteLoader = () => (
@@ -36,7 +35,6 @@ const AppRoutes: RouteObject[] = [
       },
     ],
   },
-  { path: '/home', element: <Navigate to="/" replace /> },
   {
     path: AppNavigation.AUTH,
     element: withSuspense(Auth),
