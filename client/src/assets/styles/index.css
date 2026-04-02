@@ -1,3 +1,13 @@
+@font-face {
+  font-family: 'Special Gothic Expanded One';
+  src: url('../fonts/SpecialGothicExpandedOne-Regular.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap; /* Recommended for better performance */
+}
+
+@import url('https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900');
+
 /* 1. Tailwind BASE pehle */
 @import 'tailwindcss/theme';
 /* 2. Phir Radix Themes */
@@ -84,8 +94,19 @@
   --color-background: #050505;
 }
 
+@theme {
+  --font-inter: 'Inter', sans-serif;
+  --font-gothic-expanded: 'Special Gothic Expanded One', sans-serif;
+}
+
+.radix-themes :is(h1, h2, h3, h4, .rt-Heading) {
+    font-family: var(--font-gothic-expanded) !important;
+}
+
 .radix-themes {
-  --heading-font-size-adjust: 1;
+  --default-font-family: var(--font-inter);
+  --heading-font-family: var(--font-gothic-expanded);
+
 }
 
 @supports (color: color(display-p3 1 1 1)) {
@@ -168,6 +189,8 @@
     overflow-x: clip;
   }
 }
+
+
 
 /* -------------------------------------------------------
    HIDE SCROLLBAR
