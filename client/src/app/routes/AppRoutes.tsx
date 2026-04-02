@@ -28,10 +28,6 @@ const withSuspense = (Component: ComponentType) => (
 const AppRoutes: RouteObject[] = [
   {
     path: '/',
-    element: withSuspense(LandingPage),
-  },
-  {
-    path: '/home',
     element: withSuspense(AppLayout),
     children: [
       {
@@ -40,6 +36,7 @@ const AppRoutes: RouteObject[] = [
       },
     ],
   },
+  { path: '/home', element: <Navigate to="/" replace /> },
   {
     path: AppNavigation.AUTH,
     element: withSuspense(Auth),
