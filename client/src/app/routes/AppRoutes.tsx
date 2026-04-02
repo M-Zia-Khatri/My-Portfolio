@@ -6,26 +6,36 @@ import { Navigate, type RouteObject } from 'react-router';
 
 // ─── Lazy route components ────────────────────────────────────────────────────
 
-// Public pages
-const Home = lazy(() => import('@/features/home/Home'));
-const Auth = lazy(() => import('@/features/auth/Auth'));
+/**
+ * LandingPage — minimal chunk, loaded only when a visitor hits `/` without
+ * the visited flag.  No heavy deps; GSAP and Lenis are NOT imported.
+ */
+const LandingPage = lazy(() => import('@/features/landing/LandingPage'));
 
-// Dashboard shell + pages (only loaded when admin navigates to /dashboard)
+/**
+ * Home — the full portfolio page (GSAP, 3-D cards, CodeCard, GameSection).
+ * Lazy-loaded to keep the initial JS bundle small.
+ */
+const Home = lazy(() => import('@/features/home/Home'));
+
+// Dashboard family — downloaded only when admin navigates to /dashboard
 const DashboardLayout = lazy(() => import('@/features/dashboard/layout/DashboardLayout'));
 const Dashboard = lazy(() => import('@/features/dashboard/Dashboard'));
 const Skills = lazy(() => import('@/features/dashboard/pages/skills/Skills'));
 const Portfolio = lazy(() => import('@/features/dashboard/pages/portfolio/Portfolio'));
 const ContactPage = lazy(() => import('@/features/contact/admin/ContactPage'));
 
-// ─── Helpers ─────────────────────────────────────────────────────────────────
+// Auth — rarely visited
+const Auth = lazy(() => import('@/features/auth/Auth'));
+
+// ─── Helpers ──────────────────────────────────────────────────────────────────
 
 /**
- * Wraps a lazy component in a Suspense boundary with the correct fallback.
+ * Wraps a lazy component in a Suspense boundary.
  *
- * @param Component  The lazy-loaded page component
- * @param fullPage   Whether the fallback should fill the viewport (default true
- *                   for top-level routes; false for dashboard children where the
- *                   topbar is already visible)
+ * @param Component  The lazy page component
+ * @param fullPage   true  → fallback fills 100dvh (top-level routes)
+ *                   false → fallback fills content area (dashboard children)
  */
 function withSuspense(Component: ComponentType, fullPage = true): ReactNode {
   return (
@@ -38,9 +48,25 @@ function withSuspense(Component: ComponentType, fullPage = true): ReactNode {
 // ─── Route tree ──────────────────────────────────────────────────────────────
 
 const AppRoutes: RouteObject[] = [
-  // ── Public shell ───────────────────────────────────────────────────────────
+  // ── Landing (no shell) ───────────────────────────────────────────────────
   {
-    path: '/',
+    /**
+     * `/` renders LandingPage standalone — no AppLayout, no TopBar, no Footer.
+     * LandingPage itself handles:
+     *   • Auto-redirect to /home if localStorage visited flag is set.
+     *   • Writing the flag + navigating to /home on CTA click.
+     */
+    path: AppNavigation.LANDING,
+    element: withSuspense(LandingPage),
+  },
+
+  // ── Portfolio site (with TopBar + Footer shell) ───────────────────────────
+  {
+    /**
+     * `/home` is the main portfolio page wrapped in AppLayout.
+     * AppLayout starts Lenis, renders TopBar + Footer.
+     */
+    path: AppNavigation.HOME_ROUTE,
     Component: AppLayout,
     children: [
       {
@@ -56,18 +82,25 @@ const AppRoutes: RouteObject[] = [
     element: withSuspense(Auth),
   },
 
-  // Redirect legacy paths
-  { path: '/login', element: <Navigate to={AppNavigation.AUTH} /> },
-  { path: '/admin', element: <Navigate to={AppNavigation.DASHBOARD} /> },
-
-  // ── Dashboard ───────────────────────────────────────────────────────────────
+  // ── Legacy / convenience redirects ──────────────────────────────────────────
   {
-    path: AppNavigation.DASHBOARD,
+    // /login was an old alias; keep it alive for any bookmarked URLs
+    path: '/login',
+    element: <Navigate to={AppNavigation.AUTH} />,
+  },
+  {
+    // /admin used to redirect to dashboard; preserve the redirect
+    path: '/admin',
+    element: <Navigate to={AppNavigation.DASHBOARD} />,
+  },
+
+  // ── Dashboard (admin only, protected) ────────────────────────────────────
+  {
     /**
      * DashboardLayout contains ProtectedRoute + Topbar + AnimatePresence.
-     * Its chunk is shared by all /dashboard/* children so it is downloaded
-     * once on first admin visit and then cached.
+     * Downloaded once on first admin visit, then cached by the browser.
      */
+    path: AppNavigation.DASHBOARD,
     element: withSuspense(DashboardLayout),
     children: [
       {
@@ -89,8 +122,13 @@ const AppRoutes: RouteObject[] = [
     ],
   },
 
-  // ── Catch-all ───────────────────────────────────────────────────────────────
-  { path: '*', element: <Navigate to="/" /> },
+  // ── 404 catch-all ───────────────────────────────────────────────────────────
+  {
+    path: '*',
+    // Unknown URLs bounce to landing; landing then redirects to /home if
+    // the user has already visited.
+    element: <Navigate to={AppNavigation.LANDING} />,
+  },
 ];
 
 export default AppRoutes;
