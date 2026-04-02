@@ -4,14 +4,420 @@
     <meta charset="UTF-8" />
     <link rel="icon" type="image/svg+xml" href="/vite.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>client</title>
-    <!-- <script
-      crossOrigin="anonymous"
-      src="//unpkg.com/react-scan/dist/auto.global.js"
-    ></script> -->
+    <title>Muhammad Zia Khatri — Full-Stack Developer</title>
+
+    <style>
+      /* ── Reset for loader only ────────────────────────────────────────── */
+      *,
+      *::before,
+      *::after {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+
+      /* ── Page shell ────────────────────────────────────────────────────
+         Match var(--color-background): #050505 exactly.
+         Prevents the white flash that appears before React paints
+         its own background.
+      ─────────────────────────────────────────────────────────────────── */
+      html,
+      body {
+        background: #050505;
+        overflow: hidden; /* suppress scrollbar during loader */
+      }
+
+      /* ── Loader overlay ────────────────────────────────────────────────
+         Full-viewport fixed layer that sits above #root.
+         z-index: 9999 ensures it covers any early React paint.
+         transition: opacity is what drives the fade-out handoff.
+      ─────────────────────────────────────────────────────────────────── */
+      #initial-loader {
+        position: fixed;
+        inset: 0;
+        z-index: 9999;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        background: #050505;
+        /* Fade-out transition triggered by JS adding opacity:0 */
+        transition: opacity 0.45s cubic-bezier(0.4, 0, 0.2, 1);
+        will-change: opacity;
+        /* Prevent interaction during fade */
+        pointer-events: auto;
+      }
+
+      /* ── Scanline grid background ───────────────────────────────────────
+         Replicates the CSS-only grid from LandingPage/Background.
+         Pure background-image, zero DOM nodes, zero reflow cost.
+      ─────────────────────────────────────────────────────────────────── */
+      #initial-loader::before {
+        content: '';
+        position: absolute;
+        inset: 0;
+        background-image:
+          linear-gradient(rgba(112, 193, 229, 0.04) 1px, transparent 1px),
+          linear-gradient(90deg, rgba(112, 193, 229, 0.04) 1px, transparent 1px);
+        background-size: 48px 48px;
+        pointer-events: none;
+      }
+
+      /* ── Radial glow ────────────────────────────────────────────────────
+         Soft blue luminance above centre — matches the React LandingPage.
+         Implemented as ::after pseudo-element to avoid an extra DOM node.
+      ─────────────────────────────────────────────────────────────────── */
+      #initial-loader::after {
+        content: '';
+        position: absolute;
+        inset: 0;
+        background: radial-gradient(
+          ellipse 70% 55% at 50% 38%,
+          rgba(0, 56, 76, 0.4) 0%,
+          transparent 100%
+        );
+        pointer-events: none;
+      }
+
+      /* ── Content wrapper ────────────────────────────────────────────── */
+      .ld-content {
+        position: relative; /* above ::before / ::after pseudo layers */
+        z-index: 1;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 20px;
+        text-align: center;
+        padding: 0 24px;
+        /* Entrance animation — CSS-only, no JS required */
+        animation: ld-enter 0.7s cubic-bezier(0.22, 1, 0.36, 1) both;
+      }
+
+      /* ── Entrance keyframe ──────────────────────────────────────────── */
+      @keyframes ld-enter {
+        from {
+          opacity: 0;
+          transform: translateY(20px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      /* ── Status badge ────────────────────────────────────────────────── */
+      .ld-badge {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        animation: ld-enter 0.7s 0.05s cubic-bezier(0.22, 1, 0.36, 1) both;
+      }
+
+      .ld-dot {
+        width: 6px;
+        height: 6px;
+        border-radius: 50%;
+        background: #70c1e5;
+        box-shadow: 0 0 8px #70c1e5;
+        animation: ld-pulse 2.2s ease-in-out infinite;
+        flex-shrink: 0;
+      }
+
+      @keyframes ld-pulse {
+        0%, 100% { opacity: 1; }
+        50%       { opacity: 0.3; }
+      }
+
+      .ld-badge-text {
+        font-family: ui-monospace, "SF Mono", "Cascadia Code", "Consolas", monospace;
+        font-size: 10px;
+        letter-spacing: 0.22em;
+        text-transform: uppercase;
+        color: #76c7eb;
+        opacity: 0.7;
+      }
+
+      .ld-badge-sep {
+        color: #106988;
+        opacity: 0.7;
+        margin: 0 4px;
+      }
+
+      /* ── Accent line ─────────────────────────────────────────────────── */
+      .ld-line {
+        width: 64px;
+        height: 1px;
+        background: linear-gradient(90deg, #70c1e5, transparent);
+        box-shadow: 0 0 8px rgba(112, 193, 229, 0.4);
+        animation: ld-scale-in 0.6s 0.1s cubic-bezier(0.22, 1, 0.36, 1) both;
+        transform-origin: left center;
+      }
+
+      @keyframes ld-scale-in {
+        from { transform: scaleX(0); opacity: 0; }
+        to   { transform: scaleX(1); opacity: 1; }
+      }
+
+      /* ── Name ────────────────────────────────────────────────────────── */
+      .ld-name {
+        font-family: ui-sans-serif, system-ui, -apple-system, sans-serif;
+        font-weight: 900;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+        line-height: 1;
+        color: #e7f0f3;
+        /* Fluid type: clamp(36px, 8vw, 72px) */
+        font-size: clamp(2.25rem, 8vw, 4.5rem);
+        text-shadow: 0 0 40px rgba(112, 193, 229, 0.3);
+        animation: ld-enter 0.7s 0.15s cubic-bezier(0.22, 1, 0.36, 1) both;
+      }
+
+      .ld-name-accent {
+        display: block;
+        color: #76c7eb;
+        text-shadow: 0 0 60px rgba(112, 193, 229, 0.5);
+      }
+
+      /* ── Role ─────────────────────────────────────────────────────────── */
+      .ld-role {
+        font-family: ui-monospace, "SF Mono", "Cascadia Code", "Consolas", monospace;
+        font-size: 10px;
+        letter-spacing: 0.3em;
+        text-transform: uppercase;
+        color: #497584;
+        animation: ld-enter 0.7s 0.25s cubic-bezier(0.22, 1, 0.36, 1) both;
+      }
+
+      .ld-role-sep {
+        margin: 0 12px;
+        opacity: 0.4;
+        color: #107fa5;
+      }
+
+      /* ── Progress bar ────────────────────────────────────────────────── */
+      .ld-bar-wrap {
+        width: 120px;
+        height: 1px;
+        background: rgba(112, 193, 229, 0.1);
+        border-radius: 99px;
+        overflow: hidden;
+        animation: ld-enter 0.7s 0.35s cubic-bezier(0.22, 1, 0.36, 1) both;
+      }
+
+      .ld-bar-fill {
+        height: 100%;
+        width: 0%;
+        background: linear-gradient(90deg, #107fa5, #70c1e5);
+        border-radius: 99px;
+        /*
+          This CSS animation runs independently of JS.
+          The JS removal happens when React mounts — usually well before
+          this animation completes. If React is slow, the bar gives the
+          user a visual sense of progress.
+        */
+        animation: ld-progress 2.5s 0.5s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+      }
+
+      @keyframes ld-progress {
+        0%   { width: 0%; }
+        40%  { width: 55%; }
+        70%  { width: 75%; }
+        90%  { width: 90%; }
+        100% { width: 100%; }
+      }
+
+      /* ── Bottom meta ─────────────────────────────────────────────────── */
+      .ld-meta {
+        position: absolute;
+        bottom: 24px;
+        left: 0;
+        right: 0;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 0 32px;
+        pointer-events: none;
+        animation: ld-enter 0.7s 0.6s cubic-bezier(0.22, 1, 0.36, 1) both;
+      }
+
+      .ld-meta span {
+        font-family: ui-monospace, "SF Mono", "Consolas", monospace;
+        font-size: 9px;
+        letter-spacing: 0.2em;
+        text-transform: uppercase;
+        color: #243e46;
+      }
+
+      /* ── Restore overflow when loader is gone ──────────────────────────
+         Applied by JS after the transition ends, not via animation, so the
+         timing is exact (no scroll flicker).
+      ─────────────────────────────────────────────────────────────────── */
+      body.loader-done {
+        overflow: unset;
+      }
+    </style>
   </head>
+
   <body>
+
+    <div id="initial-loader" role="status" aria-label="Loading portfolio…" aria-live="polite">
+
+      <div class="ld-content">
+
+        <!-- Status badge -->
+        <div class="ld-badge">
+          <span class="ld-dot" aria-hidden="true"></span>
+          <span class="ld-badge-text">
+            Portfolio
+            <span class="ld-badge-sep">//</span>
+            2026
+          </span>
+        </div>
+
+        <!-- Accent line -->
+        <div class="ld-line" aria-hidden="true"></div>
+
+        <!-- Name -->
+        <h1 class="ld-name">
+          Muhammad
+          <span class="ld-name-accent">Zia Khatri</span>
+        </h1>
+
+        <!-- Role -->
+        <p class="ld-role">
+          Full-Stack Developer
+          <span class="ld-role-sep" aria-hidden="true">·</span>
+          Karachi, PK
+        </p>
+
+        <!-- Progress bar -->
+        <div class="ld-bar-wrap" aria-hidden="true">
+          <div class="ld-bar-fill"></div>
+        </div>
+
+      </div>
+
+      <!-- Bottom corner meta -->
+      <div class="ld-meta" aria-hidden="true">
+        <span>v1.0.0</span>
+        <span>React · Node.js · TypeScript</span>
+      </div>
+
+    </div>
+
+    <!-- React mounts here -->
     <div id="root"></div>
+
+    <script>
+      (function () {
+        'use strict';
+
+        /* ── Constants ─────────────────────────────────────────────────── */
+        var STORAGE_KEY   = 'zia_portfolio_visited'; // must match useHasVisited.ts
+        var FADE_DURATION = 450;                     // ms — matches CSS transition
+
+        /* ── Grab loader node ───────────────────────────────────────────── */
+        var loader = document.getElementById('initial-loader');
+        if (!loader) return; // defensive: should never happen
+
+        
+        var alreadyVisited = false;
+        try {
+          alreadyVisited = localStorage.getItem(STORAGE_KEY) === 'true';
+        } catch (e) {
+          /* localStorage may throw in sandboxed iframes or private browsing */
+        }
+
+        if (alreadyVisited) {
+          /*
+           * Remove synchronously — before any paint — so there is zero chance
+           * of the loader appearing for even a single frame on return visits.
+           */
+          loader.remove();
+          document.body.classList.add('loader-done');
+          return; /* nothing more to do */
+        }
+
+        /* ── Handoff function ───────────────────────────────────────────
+           Called when React has mounted.  Triggers the CSS opacity transition,
+           then removes the node from the DOM after it completes.
+        ──────────────────────────────────────────────────────────────── */
+        function dismiss() {
+          if (!loader) return;
+
+          /* Start fade — CSS picks up the opacity change via transition */
+          loader.style.opacity = '0';
+          loader.style.pointerEvents = 'none';
+
+          /* Remove node + re-enable body scroll after transition */
+          setTimeout(function () {
+            if (loader && loader.parentNode) {
+              loader.parentNode.removeChild(loader);
+              loader = null;
+            }
+            document.body.classList.add('loader-done');
+          }, FADE_DURATION);
+        }
+
+        /* ── Primary trigger: MutationObserver on #root ─────────────────
+           Fires the moment React writes its first child element.
+           This is the earliest correct time to dismiss — React has mounted,
+           its background is painted, the transition will look seamless.
+        ──────────────────────────────────────────────────────────────── */
+        var dismissed = false;
+
+        function dismissOnce() {
+          if (dismissed) return;
+          dismissed = true;
+          if (observer) {
+            observer.disconnect();
+            observer = null;
+          }
+          dismiss();
+        }
+
+        var root = document.getElementById('root');
+        var observer = null;
+
+        if (root && typeof MutationObserver !== 'undefined') {
+          observer = new MutationObserver(function (mutations) {
+            /*
+             * React's first render writes a <div> or text node into #root.
+             * Any childList mutation on #root means React has mounted.
+             */
+            for (var i = 0; i < mutations.length; i++) {
+              if (mutations[i].addedNodes.length > 0) {
+                dismissOnce();
+                return;
+              }
+            }
+          });
+
+          observer.observe(root, { childList: true });
+        }
+
+        /* ── Fallback trigger: window 'load' ────────────────────────────
+           Safety net for slow connections or unexpected React boot delays.
+           window.load fires after all resources including deferred scripts,
+           so React will definitely have mounted by then.
+        ──────────────────────────────────────────────────────────────── */
+        window.addEventListener('load', function () {
+          dismissOnce();
+        });
+
+        /* ── Hard fallback: 5 s timeout ─────────────────────────────────
+           If something goes catastrophically wrong (React never mounts,
+           network offline, script error), remove the loader after 5 s so
+           the user is not permanently stuck behind an overlay.
+        ──────────────────────────────────────────────────────────────── */
+        setTimeout(function () {
+          dismissOnce();
+        }, 5000);
+
+      }());
+    </script>
+
+    <!-- Vite entry point — type="module" is deferred by the browser automatically -->
     <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>
