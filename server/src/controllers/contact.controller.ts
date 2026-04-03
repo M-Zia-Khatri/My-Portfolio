@@ -76,12 +76,11 @@ export async function getContacts(req: Request, res: Response): Promise<void> {
     res.setHeader('Cache-Control', 'private, must-revalidate');
 
     if (result.status === 304) {
-      return send(res, {
-        success: true,
-        status: 304,
-        message: 'Data not modified',
-      });
+      res.status(304).end();
+      return;
     }
+
+    const total = result.data?.total ?? 0;
 
     send(res, {
       success: true,
@@ -89,10 +88,10 @@ export async function getContacts(req: Request, res: Response): Promise<void> {
       message: 'Data retrieved successfully',
       data: result.data?.items,
       meta: {
-        total: result.data?.total || 0,
+        total,
         page,
         pageSize,
-        totalPages: Math.ceil(result.data?.total || 0 / pageSize),
+        totalPages: Math.ceil(total / pageSize),
       },
     });
   } catch (err) {

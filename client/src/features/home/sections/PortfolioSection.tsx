@@ -1,5 +1,4 @@
-import { fetchPortfolio } from '@/features/dashboard/pages/portfolio/portfolio.api';
-import type { PortfolioItem as DashboardPortfolioItem } from '@/features/dashboard/pages/portfolio/portfolio.types';
+import { fetchPublicPortfolio } from '@/features/portfolio/api';
 import { PortfolioItemCard } from '@/features/portfolio/components/PortfolioItemCard';
 import type { PortfolioItem } from '@/features/portfolio/types';
 import SecComponent from '@/shared/components/SecContainer';
@@ -43,7 +42,9 @@ const VIEWPORT_GRID = { once: true, margin: '-80px' } as const;
 
 const PORTFOLIO_QUERY_KEY = ['portfolio'] as const;
 
-const mapPortfolioItem = (item: DashboardPortfolioItem): PortfolioItem => ({
+type PortfolioApiRow = Awaited<ReturnType<typeof fetchPublicPortfolio>>[number];
+
+const mapPortfolioItem = (item: PortfolioApiRow): PortfolioItem => ({
   siteName: item.site_name,
   siteRole: item.site_role,
   siteUrl: item.site_url,
@@ -59,7 +60,7 @@ export default function PortfolioSection() {
     isError,
   } = useQuery({
     queryKey: PORTFOLIO_QUERY_KEY,
-    queryFn: fetchPortfolio,
+    queryFn: fetchPublicPortfolio,
     select: (items) => items.map(mapPortfolioItem),
     staleTime: 1000 * 60 * 5,
   });

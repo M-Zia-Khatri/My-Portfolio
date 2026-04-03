@@ -68,11 +68,8 @@ export async function getAll(req: Request, res: Response): Promise<void> {
     res.setHeader('Cache-Control', 'private, must-revalidate');
 
     if (result.status === 304) {
-      return send(res, {
-        success: true,
-        status: 304,
-        message: 'Not modified',
-      });
+      res.status(304).end();
+      return;
     }
 
     send(res, {

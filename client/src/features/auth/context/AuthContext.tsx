@@ -3,7 +3,6 @@ import { setQueryClient, useAuthStore } from '@/shared/store/useAuthStore';
 import { useQueryClient } from '@tanstack/react-query';
 import { useEffect } from 'react';
 import { useMe } from '../hooks/useMe';
-import { clearTokens } from '../utils/tokenManager';
 import { useAutoRefresh } from '../utils/useAutoRefresh';
 
 // ─── Logout API ───────────────────────────────────────────────────────────────
@@ -21,20 +20,10 @@ export const logoutApi = async (): Promise<void> => {
 
 export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const { data: user, isLoading, isSuccess, isError } = useMe();
-  const { setUser, setLoading, logout: logoutStore } = useAuthStore();
+  const { setUser, setLoading } = useAuthStore();
   const queryClient = useQueryClient();
 
   useAutoRefresh();
-
-  const handleLogout = async () => {
-    try {
-      await api.post('/auth/logout');
-    } finally {
-      clearTokens();
-      queryClient.clear();
-      logoutStore();
-    }
-  };
 
   useEffect(() => {
     setQueryClient(queryClient);

@@ -23,8 +23,10 @@ export function rateLimit(config: RateLimitConfig) {
     throw new Error(`[rateLimit] "action" and at least one "tier" are required.`);
   }
 
+  const bypassInDev = process.env.RATE_LIMIT_BYPASS === 'true' && process.env.NODE_ENV !== 'production';
+
   return async (req: Request, res: Response, next: NextFunction): Promise<void> => {
-    if (req.headers.origin === 'http://localhost:5173') return next();
+    if (bypassInDev) return next();
     if (skip?.(req)) return next();
 
     const identity = keyResolver ? (keyResolver(req) ?? getIp(req)) : getIp(req);
