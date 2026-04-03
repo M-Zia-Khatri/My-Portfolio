@@ -1,6 +1,8 @@
+import { Suspense, lazy, useEffect, useState } from 'react';
 import { TextLoop } from '@/shared/components/motion-primitives/text-loop.tsx';
 import { cn } from '@/shared/utils/cn.ts';
-import BgScene from './BgScene';
+
+const BgScene = lazy(() => import('./BgScene'));
 
 const headingBaseStyling = cn(
   'font-black uppercase text-white w-full drop-shadow-[0_0_2.5px_color-mix(in_srgb,var(--blue-10)_80%,transparent),0_0_5px_color-mix(in_srgb,var(--blue-10)_90%,transparent)]',
@@ -8,10 +10,22 @@ const headingBaseStyling = cn(
 );
 
 export default function HeroSection() {
+  const [showBgScene, setShowBgScene] = useState(false);
+
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    const media = window.matchMedia('(min-width: 1024px) and (prefers-reduced-motion: no-preference)');
+    setShowBgScene(media.matches);
+  }, []);
+
   return (
     <div className="relative z-10 flex h-full w-full overflow-x-clip flex-col items-center justify-center text-center">
       <div className="absolute inset-0 -z-100 h-dvh w-full bg-linear-to-t from-transparent to-(--blue-4)/50" />
-      <BgScene />
+      {showBgScene ? (
+        <Suspense fallback={null}>
+          <BgScene />
+        </Suspense>
+      ) : null}
 
       <div className={cn('relative z-20 w-full mt-8 lg:mt-23', 'space-y-2')}>
         <h1 className={headingBaseStyling}>BUILDING</h1>

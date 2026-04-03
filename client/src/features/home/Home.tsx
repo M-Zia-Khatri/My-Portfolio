@@ -1,7 +1,47 @@
 import { Spinner } from '@radix-ui/themes';
-import { Suspense } from 'react';
+import { Suspense, useEffect, useRef, useState, type ReactNode } from 'react';
 import { cn } from '@/shared/utils/cn';
 import { sectionClassName, sections } from './Home.config';
+
+function DeferredSection({
+  id,
+  className,
+  children,
+  eager = false,
+}: {
+  id: string;
+  className: string;
+  children: ReactNode;
+  eager?: boolean;
+}) {
+  const [shouldRender, setShouldRender] = useState(eager);
+  const ref = useRef<HTMLElement | null>(null);
+
+  useEffect(() => {
+    if (eager || shouldRender) return;
+
+    const node = ref.current;
+    if (!node) return;
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (!entries[0]?.isIntersecting) return;
+        setShouldRender(true);
+        observer.disconnect();
+      },
+      { rootMargin: '350px 0px', threshold: 0.01 },
+    );
+
+    observer.observe(node);
+    return () => observer.disconnect();
+  }, [eager, shouldRender]);
+
+  return (
+    <section ref={ref} id={id} className={className}>
+      {shouldRender ? children : <div className="h-full min-h-[inherit] w-full" aria-hidden="true" />}
+    </section>
+  );
+}
 
 export default function Home() {
   return (
@@ -12,21 +52,23 @@ export default function Home() {
       <div className="mx-auto space-y-6">
         {sections.map((section) => {
           const SectionComponent = section.Component;
+          const className = cn(
+            section.id === 'home'
+              ? 'mb-5 flex h-[calc(100dvh)] scroll-mt-24 flex-col justify-center'
+              : sectionClassName,
+          );
 
           return (
-            <section
+            <DeferredSection
               key={section.id}
               id={section.id}
-              className={cn(
-                section.id === 'home'
-                  ? 'mb-5 flex h-[calc(100dvh)] scroll-mt-24 flex-col justify-center'
-                  : sectionClassName,
-              )}
+              className={className}
+              eager={section.id === 'home'}
             >
               <Suspense fallback={<Spinner />}>
                 <SectionComponent />
               </Suspense>
-            </section>
+            </DeferredSection>
           );
         })}
       </div>

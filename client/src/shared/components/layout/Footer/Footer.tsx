@@ -1,7 +1,6 @@
 import { AppNavigation } from '@/shared/constants/navigation.constants';
 import { TEXT } from '@/shared/constants/style.constants';
 import { Link, Strong, Text } from '@radix-ui/themes'; // ✅ Text from here, not callout
-import { motion } from 'motion/react';
 import type { ComponentType } from 'react';
 import { FaInstagram } from 'react-icons/fa';
 import { FaFacebook, FaGithub, FaLinkedin, FaWhatsapp } from 'react-icons/fa6';
@@ -46,26 +45,17 @@ export default function Footer() {
 
         {/* Social Media Icons */}
         <div className="flex items-center gap-4">
-          {socialMedia.map(({ icon: Icon, href, label }, index) => (
-            <motion.a
+          {socialMedia.map(({ icon: Icon, href, label }) => (
+            <a
               key={label}
               href={href}
               target="_blank"
               rel="noopener noreferrer"
               aria-label={label}
-              initial={{ opacity: 0, y: 8 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{
-                delay: index * 0.07,
-                duration: 0.3,
-                ease: 'easeOut',
-              }}
-              whileHover={{ scale: 1.2, y: -2 }}
-              whileTap={{ scale: 0.9 }}
-              className="text-(--blue-11) transition-colors duration-200 hover:text-(--blue-12)"
+              className="text-(--blue-11) transition duration-200 hover:-translate-y-0.5 hover:scale-110 hover:text-(--blue-12) active:scale-95"
             >
               <Icon className="h-5 w-5" />
-            </motion.a>
+            </a>
           ))}
         </div>
 

@@ -2,7 +2,6 @@ import { AppNavigation } from '@/shared/constants/navigation.constants';
 import { TEXT } from '@/shared/constants/style.constants';
 import { cn } from '@/shared/utils/cn';
 import { Box, Card, Container, Link, Text } from '@radix-ui/themes';
-import { motion } from 'motion/react';
 import { useEffect, useRef, useState } from 'react';
 import { NavLink } from 'react-router';
 import { MagneticShinyButton } from './MagneticShinyButton';
@@ -61,16 +60,11 @@ export default function TopBar() {
 
   return (
     <Box asChild className="fixed top-4 z-50 w-full px-4">
-      <motion.header
-        initial={{ y: -80, opacity: 0 }}
-        animate={{
-          y: hidden ? '-120%' : '0%',
-          opacity: hidden ? 0 : 1,
-        }}
-        transition={{
-          duration: hidden ? 0.45 : 0.35,
-          ease: hidden ? 'easeIn' : 'easeOut',
-        }}
+      <header
+        className={cn(
+          'transition-transform duration-300 ease-out',
+          hidden ? '-translate-y-[120%] opacity-0' : 'translate-y-0 opacity-100',
+        )}
         style={{ willChange: 'transform, opacity' }}
       >
         <Container size={{ initial: '3' }}>
@@ -86,12 +80,7 @@ export default function TopBar() {
             )}
             style={{ outlineColor: 'var(--gray-6)' }}
           >
-            <motion.div
-              className="flex w-full items-center justify-between gap-4"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ delay: 0.15, duration: 0.5, ease: 'easeOut' }}
-            >
+            <div className="flex w-full items-center justify-between gap-4">
               {/* Brand logo */}
               <Link asChild underline="none" className="shrink-0">
                 <NavLink
@@ -114,10 +103,10 @@ export default function TopBar() {
               <MagneticShinyButton />
 
               <TopBarMobile />
-            </motion.div>
+            </div>
           </Card>
         </Container>
-      </motion.header>
+      </header>
     </Box>
   );
 }

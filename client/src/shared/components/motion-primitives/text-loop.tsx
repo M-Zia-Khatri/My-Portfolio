@@ -1,23 +1,20 @@
-'use client';
 import { cn } from '@/shared/utils/cn';
-import {
-  AnimatePresence,
-  motion,
-  type AnimatePresenceProps,
-  type Transition,
-  type Variants,
-} from 'motion/react';
 import { Children, useEffect, useState } from 'react';
+
+type Transition = {
+  duration?: number;
+  [key: string]: unknown;
+};
 
 export type TextLoopProps = {
   children: React.ReactNode[];
   className?: string;
   interval?: number;
   transition?: Transition;
-  variants?: Variants;
+  variants?: unknown;
   onIndexChange?: (index: number) => void;
   trigger?: boolean;
-  mode?: AnimatePresenceProps['mode'];
+  mode?: string;
 };
 
 export function TextLoop({
@@ -25,7 +22,7 @@ export function TextLoop({
   className,
   interval = 2,
   transition = { duration: 0.3 },
-  variants,
+  variants: _variants,
   onIndexChange,
   trigger = true,
   mode = 'popLayout',
@@ -47,26 +44,17 @@ export function TextLoop({
     return () => clearInterval(timer);
   }, [items.length, interval, onIndexChange, trigger]);
 
-  const motionVariants: Variants = {
-    initial: { y: 20, opacity: 0 },
-    animate: { y: 0, opacity: 1 },
-    exit: { y: -20, opacity: 0 },
-  };
+  const animationDuration = transition.duration ?? 0.3;
 
   return (
     <div className={cn('relative inline-block whitespace-nowrap', className)}>
-      <AnimatePresence mode={mode} initial={false}>
-        <motion.div
-          key={currentIndex}
-          initial="initial"
-          animate="animate"
-          exit="exit"
-          transition={transition}
-          variants={variants || motionVariants}
-        >
-          {items[currentIndex]}
-        </motion.div>
-      </AnimatePresence>
+      <div
+        key={`${mode}-${currentIndex}`}
+        style={{ animationDuration: `${animationDuration}s` }}
+        className="animate-[fadeUp_ease_forwards]"
+      >
+        {items[currentIndex]}
+      </div>
     </div>
   );
 }
