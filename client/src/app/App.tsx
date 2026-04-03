@@ -20,25 +20,15 @@ export default function App() {
     const root = document.getElementById('root');
     const loader = document.getElementById('initial-loader');
 
-    if (!loader) {
-      if (root) {
-        root.style.opacity = '1';
-        root.style.filter = 'blur(0)';
-      }
-      return;
+    if (root) {
+      root.style.visibility = 'visible';
+      root.style.opacity = '1';
     }
 
-    loader.style.opacity = '0';
-    loader.style.filter = 'blur(2px)';
-    loader.style.pointerEvents = 'none';
-
-    window.setTimeout(() => {
-      loader.remove();
-      if (root) {
-        root.style.opacity = '1';
-        root.style.filter = 'blur(0)';
-      }
-    }, 420);
+    if (loader) {
+      loader.style.opacity = '0';
+      window.setTimeout(() => loader.remove(), 300);
+    }
   }, []);
 
   return (
