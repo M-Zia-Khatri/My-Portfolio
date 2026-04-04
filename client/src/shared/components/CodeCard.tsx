@@ -177,7 +177,6 @@ const CodeCardBase = forwardRef<CodeCardHandle, CodeCardProps>(function CodeCard
                     line={line}
                     index={i}
                     isActiveLine={false}
-                    isDoneLine={true}
                     color={skill.color}
                   />
                 ))}
@@ -189,7 +188,6 @@ const CodeCardBase = forwardRef<CodeCardHandle, CodeCardProps>(function CodeCard
                     line={currentLine}
                     index={deferredCompletedLines.length}
                     isActiveLine={true}
-                    isDoneLine={false}
                     color={skill.color}
                   />
                 )}
@@ -203,7 +201,6 @@ const CodeCardBase = forwardRef<CodeCardHandle, CodeCardProps>(function CodeCard
                       key={`${skill.name}-active-${activeLineIndex}`}
                       line={line}
                       index={i}
-                      isDoneLine={true}
                       isActiveLine={false}
                       color={skill.color}
                     />
