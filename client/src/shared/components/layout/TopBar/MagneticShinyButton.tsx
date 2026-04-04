@@ -37,11 +37,11 @@ export const MagneticShinyButton = () => {
   };
 
   return (
-    <Button asChild radius="full" color="gray" className="shrink-0 hidden md:block">
+    <Button asChild radius="full" color="gray" className="shrink-0">
       <motion.a
         ref={ref}
         href="mailto:muhammadziakhatri@gmail.com"
-        className="relative overflow-hidden inline-flex items-center justify-center px-5 py-2 text-center"
+        className="relative overflow-hidden md:inline-flex items-center justify-center px-5 py-2 text-center hidden"
         style={{
           x: springX,
           y: springY,
