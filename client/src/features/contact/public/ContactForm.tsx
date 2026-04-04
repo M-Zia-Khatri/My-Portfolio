@@ -1,7 +1,6 @@
 import { submitContactForm, type ContactFormData } from '@/features/contact/api';
 import { HEADING, TEXT } from '@/shared/constants/style.constants';
 import { CheckCircledIcon, EnvelopeClosedIcon, PaperPlaneIcon } from '@radix-ui/react-icons';
-import type { AxiosError } from 'axios';
 import {
   Button,
   Callout,
@@ -15,8 +14,8 @@ import {
   TextField,
 } from '@radix-ui/themes';
 import { useMutation } from '@tanstack/react-query';
-import React from 'react';
-import { useState } from 'react';
+import type { AxiosError } from 'axios';
+import React, { useState } from 'react';
 
 interface FormErrors {
   fullName?: string;
@@ -98,123 +97,126 @@ export default function ContactForm() {
 
       <Separator my="4" size="4" />
 
-      
-        {isSuccess ? (
-          <div key="success" className="animate-in fade-in zoom-in-95 duration-300">
-            <Callout.Root color="green" variant="surface" size="2">
-              <Callout.Icon>
-                <CheckCircledIcon width={18} height={18} />
-              </Callout.Icon>
-              <Callout.Text>Your message was sent! I&apos;ll get back to you soon.</Callout.Text>
-            </Callout.Root>
-            <Button mt="4" variant="ghost" size="2" onClick={() => setIsSuccess(false)}>
-              Send another message
-            </Button>
-          </div>
-        ) : (
-          <form key="form" className="animate-in fade-in duration-200" onSubmit={handleSubmit} noValidate>
-            <Flex direction="column" gap="4">
-              <Flex direction={{ initial: 'column', sm: 'row' }} gap="4">
-                {/* Full Name */}
-                <Flex direction="column" gap={{ initial: '1' }} flexGrow="1">
-                  <Text as="label" size={TEXT.base.size} weight="medium">
-                    Full name
-                  </Text>
-                  <TextField.Root
-                    placeholder="Your Name"
-                    value={form.fullName}
-                    onChange={handleChange('fullName')}
-                    color={errors.fullName ? 'red' : undefined}
-                    disabled={isLoading}
-                    aria-invalid={!!errors.fullName}
-                  />
-                  {errors.fullName && (
-                    <Text size={TEXT.sm.size} color="red">
-                      {errors.fullName}
-                    </Text>
-                  )}
-                </Flex>
-
-                {/* Email */}
-                <Flex direction="column" gap={{ initial: '1' }} flexGrow="1">
-                  <Text as="label" size={TEXT.base.size} weight="medium">
-                    Email Address
-                  </Text>
-                  <TextField.Root
-                    type="email"
-                    placeholder="you@example.com"
-                    value={form.email}
-                    onChange={handleChange('email')}
-                    color={errors.email ? 'red' : undefined}
-                    disabled={isLoading}
-                    aria-invalid={!!errors.email}
-                  >
-                    <TextField.Slot>
-                      <EnvelopeClosedIcon width={14} height={14} />
-                    </TextField.Slot>
-                  </TextField.Root>
-                  {errors.email && (
-                    <Text size={TEXT.sm.size} color="red">
-                      {errors.email}
-                    </Text>
-                  )}
-                </Flex>
-              </Flex>
-
-              {/* Message */}
-              <Flex direction="column" gap={{ initial: '1' }}>
+      {isSuccess ? (
+        <div key="success" className="animate-in fade-in zoom-in-95 duration-300">
+          <Callout.Root color="green" variant="surface" size="2">
+            <Callout.Icon>
+              <CheckCircledIcon width={18} height={18} />
+            </Callout.Icon>
+            <Callout.Text>Your message was sent! I&apos;ll get back to you soon.</Callout.Text>
+          </Callout.Root>
+          <Button mt="4" variant="ghost" size="2" onClick={() => setIsSuccess(false)}>
+            Send another message
+          </Button>
+        </div>
+      ) : (
+        <form
+          key="form"
+          className="animate-in fade-in duration-200"
+          onSubmit={handleSubmit}
+          noValidate
+        >
+          <Flex direction="column" gap="4">
+            <Flex direction={{ initial: 'column', sm: 'row' }} gap="4">
+              {/* Full Name */}
+              <Flex direction="column" gap={{ initial: '1' }} flexGrow="1">
                 <Text as="label" size={TEXT.base.size} weight="medium">
-                  Your Message
+                  Full name
                 </Text>
-                <TextArea
-                  rows={5}
-                  placeholder="Tell me about your project,"
-                  value={form.message}
-                  onChange={handleChange('message')}
-                  color={errors.message ? 'red' : undefined}
+                <TextField.Root
+                  placeholder="Your Name"
+                  value={form.fullName}
+                  onChange={handleChange('fullName')}
+                  color={errors.fullName ? 'red' : undefined}
                   disabled={isLoading}
-                  aria-invalid={!!errors.message}
+                  aria-invalid={!!errors.fullName}
                 />
-                {errors.message && (
+                {errors.fullName && (
                   <Text size={TEXT.sm.size} color="red">
-                    {errors.message}
+                    {errors.fullName}
                   </Text>
                 )}
               </Flex>
 
-              <Text size="1" color="blue" weight="medium">
-                I&apos;ll never share your data with anyone else. Pinky promise!
-              </Text>
-
-              {contactMutation.isError && (
-                <Callout.Root color="red" variant="surface" size="1">
-                  <Callout.Text>{errorMessage}</Callout.Text>
-                </Callout.Root>
-              )}
-
-              <Button
-                type="submit"
-                size="3"
-                variant="solid"
-                disabled={isLoading}
-                className="w-full cursor-pointer"
-              >
-                {isLoading ? (
-                  <Flex align="center" gap="2">
-                    <Spinner size="2" />
-                    Sending…
-                  </Flex>
-                ) : (
-                  <Flex align="center" gap="2">
-                    Send Message
-                    <PaperPlaneIcon width={15} height={15} />
-                  </Flex>
+              {/* Email */}
+              <Flex direction="column" gap={{ initial: '1' }} flexGrow="1">
+                <Text as="label" size={TEXT.base.size} weight="medium">
+                  Email Address
+                </Text>
+                <TextField.Root
+                  type="email"
+                  placeholder="you@example.com"
+                  value={form.email}
+                  onChange={handleChange('email')}
+                  color={errors.email ? 'red' : undefined}
+                  disabled={isLoading}
+                  aria-invalid={!!errors.email}
+                >
+                  <TextField.Slot>
+                    <EnvelopeClosedIcon width={14} height={14} />
+                  </TextField.Slot>
+                </TextField.Root>
+                {errors.email && (
+                  <Text size={TEXT.sm.size} color="red">
+                    {errors.email}
+                  </Text>
                 )}
-              </Button>
+              </Flex>
             </Flex>
-          </form>
-        )}
-      
+
+            {/* Message */}
+            <Flex direction="column" gap={{ initial: '1' }}>
+              <Text as="label" size={TEXT.base.size} weight="medium">
+                Your Message
+              </Text>
+              <TextArea
+                rows={5}
+                placeholder="Tell me about your project,"
+                value={form.message}
+                onChange={handleChange('message')}
+                color={errors.message ? 'red' : undefined}
+                disabled={isLoading}
+                aria-invalid={!!errors.message}
+              />
+              {errors.message && (
+                <Text size={TEXT.sm.size} color="red">
+                  {errors.message}
+                </Text>
+              )}
+            </Flex>
+
+            <Text size="1" color="blue" weight="medium">
+              I&apos;ll never share your data with anyone else. Pinky promise!
+            </Text>
+
+            {contactMutation.isError && (
+              <Callout.Root color="red" variant="surface" size="1">
+                <Callout.Text>{errorMessage}</Callout.Text>
+              </Callout.Root>
+            )}
+
+            <Button
+              type="submit"
+              size="3"
+              variant="solid"
+              disabled={isLoading}
+              className="w-full cursor-pointer"
+            >
+              {isLoading ? (
+                <Flex align="center" gap="2">
+                  <Spinner size="2" />
+                  Sending…
+                </Flex>
+              ) : (
+                <Flex align="center" gap="2">
+                  Send Message
+                  <PaperPlaneIcon width={15} height={15} />
+                </Flex>
+              )}
+            </Button>
+          </Flex>
+        </form>
+      )}
     </Card>
   );
 }

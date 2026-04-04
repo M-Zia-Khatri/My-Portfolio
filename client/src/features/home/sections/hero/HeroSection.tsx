@@ -1,6 +1,6 @@
-import { Suspense, lazy, useEffect, useState } from 'react';
 import { TextLoop } from '@/shared/components/motion-primitives/text-loop.tsx';
 import { cn } from '@/shared/utils/cn.ts';
+import { Suspense, lazy, useEffect, useState } from 'react';
 
 const BgScene = lazy(() => import('./BgScene'));
 
@@ -14,7 +14,9 @@ export default function HeroSection() {
 
   useEffect(() => {
     if (typeof window === 'undefined') return;
-    const media = window.matchMedia('(min-width: 1024px) and (prefers-reduced-motion: no-preference)');
+    const media = window.matchMedia(
+      '(min-width: 1024px) and (prefers-reduced-motion: no-preference)',
+    );
     setShowBgScene(media.matches);
   }, []);
 

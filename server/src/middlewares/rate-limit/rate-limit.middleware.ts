@@ -23,7 +23,8 @@ export function rateLimit(config: RateLimitConfig) {
     throw new Error(`[rateLimit] "action" and at least one "tier" are required.`);
   }
 
-  const bypassInDev = process.env.RATE_LIMIT_BYPASS === 'true' && process.env.NODE_ENV !== 'production';
+  const bypassInDev =
+    process.env.RATE_LIMIT_BYPASS === 'true' && process.env.NODE_ENV !== 'production';
 
   return async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     if (bypassInDev) return next();

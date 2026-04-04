@@ -20,4 +20,3 @@ export async function fetchPublicPortfolio(): Promise<PortfolioApiRow[]> {
   const { data } = await api.get<ApiResponse<PortfolioApiRow[]>>('/portfolio');
   return data.data ?? [];
 }
-

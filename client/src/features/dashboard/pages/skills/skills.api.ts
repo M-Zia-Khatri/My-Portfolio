@@ -1,6 +1,6 @@
+import type { ApiSkill } from '@/features/skills/types';
 import { api } from '@/shared/api/axios';
 import { getETag } from '@/shared/api/etag-store';
-import type { ApiSkill } from '@/features/skills/types';
 
 // ─── ETag helper ─────────────────────────────────────────────────────────────
 // Fetches a fresh ETag for the given skill.

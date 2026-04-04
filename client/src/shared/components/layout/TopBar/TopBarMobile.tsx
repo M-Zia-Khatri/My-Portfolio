@@ -1,8 +1,8 @@
 import { Button, Dialog, Flex } from '@radix-ui/themes';
 import { Menu } from 'lucide-react';
+import { MagneticShinyButton } from './MagneticShinyButton';
 import { navItems } from './TopBar.constants';
 import { TopBarItem } from './TopBarItem';
-import { MagneticShinyButton } from './MagneticShinyButton';
 
 export function TopBarMobile() {
   return (

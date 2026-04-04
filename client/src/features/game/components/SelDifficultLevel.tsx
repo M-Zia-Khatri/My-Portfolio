@@ -21,7 +21,8 @@ export default function SelDifficultLevel() {
   } = useGameSet();
 
   const [dialogOpen, setDialogOpen] = useState(false);
-  const selectedValue = customLevels.find((lvl) => lvl.name === difficultLevel)?.id ?? difficultLevel;
+  const selectedValue =
+    customLevels.find((lvl) => lvl.name === difficultLevel)?.id ?? difficultLevel;
 
   const handleChange = (val: string) => {
     // Special sentinel — open dialog instead of selecting

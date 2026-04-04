@@ -1,7 +1,7 @@
 import ContactCodeCard from '@/features/contact/public/ContactCodeCard';
 import ContactForm from '@/features/contact/public/ContactForm';
-import { useGsapStagger } from '@/shared/hooks/useGsapAnimations';
 import SecComponent from '@/shared/components/SecContainer';
+import { useGsapStagger } from '@/shared/hooks/useGsapAnimations';
 import { Flex } from '@radix-ui/themes';
 import { useRef } from 'react';
 import { useSectionActive } from '../hooks/useSectionActive';

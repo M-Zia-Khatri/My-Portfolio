@@ -11,8 +11,8 @@ import { useGsapStagger } from '@/shared/hooks/gsap/useGsapStagger';
 import { useGsapTypingEffect } from '@/shared/hooks/gsap/useGsapTypingEffect';
 import { cn } from '@/shared/utils/cn';
 import { Box, Flex, Heading, Spinner, Text } from '@radix-ui/themes';
-import { memo, useCallback, useMemo, useRef, useState } from 'react';
 import type { RefObject } from 'react';
+import { memo, useCallback, useMemo, useRef, useState } from 'react';
 import { useSectionActive } from '../hooks/useSectionActive';
 
 const PERSPECTIVE_STYLE = { perspective: 800 } as const;
@@ -42,10 +42,17 @@ const SkillChips = memo(function SkillChips({
   handlers: Record<string, () => void>;
 }) {
   return (
-    <div ref={cardsRef} className={cn('flex flex-wrap justify-center', 'gap-2 md:gap-2.5 lg:gap-3 2xl:gap-4')}>
+    <div
+      ref={cardsRef}
+      className={cn('flex flex-wrap justify-center', 'gap-2 md:gap-2.5 lg:gap-3 2xl:gap-4')}
+    >
       {skills.map((skill) => (
         <div key={skill.name}>
-          <SkillChip skill={skill} active={activeName === skill.name} onClick={handlers[skill.name]} />
+          <SkillChip
+            skill={skill}
+            active={activeName === skill.name}
+            onClick={handlers[skill.name]}
+          />
         </div>
       ))}
     </div>
@@ -126,10 +133,18 @@ function SkillsSection() {
 
   return (
     <SecComponent>
-      <Box ref={sectionRef} className="mx-auto flex w-full max-w-xs flex-col items-center gap-8 sm:max-w-xl md:gap-12">
+      <Box
+        ref={sectionRef}
+        className="mx-auto flex w-full max-w-xs flex-col items-center gap-8 sm:max-w-xl md:gap-12"
+      >
         <SkillsHeading />
 
-        <SkillChips cardsRef={cardsRef} skills={mappedSkills} activeName={resolvedSkill?.name} handlers={chipHandlers} />
+        <SkillChips
+          cardsRef={cardsRef}
+          skills={mappedSkills}
+          activeName={resolvedSkill?.name}
+          handlers={chipHandlers}
+        />
 
         <div className="relative w-full" style={PERSPECTIVE_STYLE}>
           {isLoading ? (
@@ -148,12 +163,21 @@ function SkillsSection() {
               className="min-h-[300px] rounded-xl border border-white/10 p-4"
             >
               <CodeEmptyState />
-              <Text size="2" color="red" className="text-center">Couldn&apos;t load skills right now.</Text>
+              <Text size="2" color="red" className="text-center">
+                Couldn&apos;t load skills right now.
+              </Text>
             </Flex>
           ) : !resolvedSkill ? (
-            <Flex direction="column" align="center" justify="center" className="min-h-[300px] rounded-xl border border-white/10 p-4">
+            <Flex
+              direction="column"
+              align="center"
+              justify="center"
+              className="min-h-[300px] rounded-xl border border-white/10 p-4"
+            >
               <CodeEmptyState />
-              <Text size="2" color="gray" className="text-center">No skills available yet.</Text>
+              <Text size="2" color="gray" className="text-center">
+                No skills available yet.
+              </Text>
             </Flex>
           ) : (
             <CodeCard

@@ -9,7 +9,7 @@ const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
       staleTime: 1000 * 60 * 7.5, // 7.5 min
-      gcTime: 1000 * 60 * 15,     // 15 min
+      gcTime: 1000 * 60 * 15, // 15 min
       retry: false,
     },
   },

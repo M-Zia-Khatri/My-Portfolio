@@ -26,7 +26,19 @@ const SkillChip = memo(function SkillChip({ skill, active, onClick }: SkillChipP
     ripple.style.background = `${skill.color}30`;
     btn.appendChild(ripple);
 
-    gsap.fromTo(ripple, { width: 0, height: 0, x: 0, y: 0, opacity: 1 }, { width: 120, height: 120, x: -60, y: -60, opacity: 0, duration: 0.55, onComplete: () => ripple.remove() });
+    gsap.fromTo(
+      ripple,
+      { width: 0, height: 0, x: 0, y: 0, opacity: 1 },
+      {
+        width: 120,
+        height: 120,
+        x: -60,
+        y: -60,
+        opacity: 0,
+        duration: 0.55,
+        onComplete: () => ripple.remove(),
+      },
+    );
     onClick();
   };
 
@@ -36,7 +48,9 @@ const SkillChip = memo(function SkillChip({ skill, active, onClick }: SkillChipP
     <button
       ref={btnRef}
       onClick={handleClick}
-      className={cn('relative flex cursor-pointer items-center gap-2 overflow-hidden rounded-lg border px-3 py-[7px] text-[13px] font-medium transition-all duration-200 hover:-translate-y-0.5 hover:scale-[1.04] active:scale-95')}
+      className={cn(
+        'relative flex cursor-pointer items-center gap-2 overflow-hidden rounded-lg border px-3 py-[7px] text-[13px] font-medium transition-all duration-200 hover:-translate-y-0.5 hover:scale-[1.04] active:scale-95',
+      )}
       style={{
         background: active ? `${skill.color}16` : 'rgba(255,255,255,0.03)',
         borderColor: active ? `${skill.color}55` : 'rgba(255,255,255,0.08)',
@@ -45,9 +59,16 @@ const SkillChip = memo(function SkillChip({ skill, active, onClick }: SkillChipP
         willChange: 'transform',
       }}
     >
-      <span className={cn('transition-transform duration-500', active && 'rotate-[360deg]')}><Icon size={15} /></span>
+      <span className={cn('transition-transform duration-500', active && 'rotate-[360deg]')}>
+        <Icon size={15} />
+      </span>
       <span>{skill.name}</span>
-      {active && <span className="pointer-events-none absolute inset-0 rounded-lg" style={{ border: `1px solid ${skill.color}50` }} />}
+      {active && (
+        <span
+          className="pointer-events-none absolute inset-0 rounded-lg"
+          style={{ border: `1px solid ${skill.color}50` }}
+        />
+      )}
     </button>
   );
 });

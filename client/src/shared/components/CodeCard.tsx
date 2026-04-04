@@ -3,10 +3,10 @@ import CodeLine from '@/features/skills/components/CodeLine';
 import CodeTabBar from '@/features/skills/components/CodeTabBar';
 import TerminalView from '@/features/skills/components/TerminalView';
 import type { Skill } from '@/features/skills/types';
-import { useGsapTypingEffect as useGsapTimeline } from '@/shared/hooks/useGsapAnimations';
 import TabScrollbarStyle from '@/shared/components/TabScrollbarStyle';
-import { forwardRef, memo, useEffect, useImperativeHandle, useMemo, useRef, useState } from 'react';
+import { useGsapTypingEffect as useGsapTimeline } from '@/shared/hooks/useGsapAnimations';
 import type { RefObject } from 'react';
+import { forwardRef, memo, useEffect, useImperativeHandle, useMemo, useRef, useState } from 'react';
 
 const ContentScrollbarStyle = memo(function ContentScrollbarStyle({ color }: { color: string }) {
   return (
@@ -32,7 +32,16 @@ export interface CodeCardProps {
 }
 
 const CodeCardBase = forwardRef<CodeCardHandle, CodeCardProps>(function CodeCard(
-  { skill, openTabs, onTabClick, onTabClose, onTypingComplete, started = true, isActive = true, codeContainerRef },
+  {
+    skill,
+    openTabs,
+    onTabClick,
+    onTabClose,
+    onTypingComplete,
+    started = true,
+    isActive = true,
+    codeContainerRef,
+  },
   ref,
 ) {
   const [completedLines, setCompletedLines] = useState<string[]>([]);
@@ -53,13 +62,16 @@ const CodeCardBase = forwardRef<CodeCardHandle, CodeCardProps>(function CodeCard
 
       skill.code.forEach((line, li) => {
         for (let ci = 1; ci <= line.length; ci++) {
-          timeline.to({}, {
-            duration: line[ci - 1] === ' ' ? 0.018 : 0.03,
-            onComplete: () => {
-              setCompletedLines(skill.code.slice(0, li));
-              setCurrentLine(line.slice(0, ci));
+          timeline.to(
+            {},
+            {
+              duration: line[ci - 1] === ' ' ? 0.018 : 0.03,
+              onComplete: () => {
+                setCompletedLines(skill.code.slice(0, li));
+                setCurrentLine(line.slice(0, ci));
+              },
             },
-          });
+          );
         }
         timeline.to({}, { duration: 0.05 });
       });
@@ -113,7 +125,12 @@ const CodeCardBase = forwardRef<CodeCardHandle, CodeCardProps>(function CodeCard
             minHeight: 300,
           }}
         >
-          <CodeTabBar skill={skill} openTabs={openTabs} onTabClick={onTabClick} onTabClose={onTabClose} />
+          <CodeTabBar
+            skill={skill}
+            openTabs={openTabs}
+            onTabClick={onTabClick}
+            onTabClose={onTabClose}
+          />
 
           <div
             ref={contentRef}

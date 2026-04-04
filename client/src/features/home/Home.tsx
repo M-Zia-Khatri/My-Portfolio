@@ -1,6 +1,6 @@
+import { cn } from '@/shared/utils/cn';
 import { Spinner } from '@radix-ui/themes';
 import { Suspense, useEffect, useRef, useState, type ReactNode } from 'react';
-import { cn } from '@/shared/utils/cn';
 import { sectionClassName, sections } from './Home.config';
 
 function DeferredSection({
@@ -38,7 +38,11 @@ function DeferredSection({
 
   return (
     <section ref={ref} id={id} className={className}>
-      {shouldRender ? children : <div className="h-full min-h-[inherit] w-full" aria-hidden="true" />}
+      {shouldRender ? (
+        children
+      ) : (
+        <div className="h-full min-h-[inherit] w-full" aria-hidden="true" />
+      )}
     </section>
   );
 }

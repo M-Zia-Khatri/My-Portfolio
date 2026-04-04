@@ -99,13 +99,12 @@
 }
 
 .radix-themes :is(h1, h2, h3, h4, .rt-Heading) {
-    font-family: var(--font-gothic-expanded) !important;
+  font-family: var(--font-gothic-expanded) !important;
 }
 
 .radix-themes {
   --default-font-family: var(--font-inter);
   --heading-font-family: var(--font-gothic-expanded);
-
 }
 
 @supports (color: color(display-p3 1 1 1)) {
@@ -189,8 +188,6 @@
   }
 }
 
-
-
 /* -------------------------------------------------------
    HIDE SCROLLBAR
 ------------------------------------------------------- */
@@ -198,7 +195,6 @@
 ::-webkit-scrollbar {
   display: none;
 }
-
 
 html.lenis {
   height: auto;

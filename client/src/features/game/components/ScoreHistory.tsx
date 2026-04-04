@@ -41,7 +41,12 @@ const ScoreHistoryRow = memo(function ScoreHistoryRow({
         </button>
       )}
       <span className="font-semibold">{Math.round(record.score)}</span>
-      <Badge color={record.result === 'win' ? 'green' : 'red'} variant="soft" radius="full" size="1">
+      <Badge
+        color={record.result === 'win' ? 'green' : 'red'}
+        variant="soft"
+        radius="full"
+        size="1"
+      >
         {record.result}
       </Badge>
       <span>{record.difficultLevel}</span>

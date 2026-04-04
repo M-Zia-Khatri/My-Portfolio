@@ -46,7 +46,7 @@ export const setupInterceptors = (api: AxiosInstance): void => {
       const explicitETag = config.headers['X-Explicit-ETag'] as string | undefined;
       // Fallback to stored ETag
       const storedETag = getETag(url);
-      
+
       const etag = explicitETag || storedETag;
 
       if (etag) {
@@ -84,7 +84,9 @@ export const setupInterceptors = (api: AxiosInstance): void => {
         if (originalRequest.url) {
           clearETag(originalRequest.url);
         }
-        return Promise.reject(new Error('This item was modified by another user. Please refresh and try again.'));
+        return Promise.reject(
+          new Error('This item was modified by another user. Please refresh and try again.'),
+        );
       }
 
       // Handle 428 - Missing If-Match
@@ -136,6 +138,6 @@ export const setupInterceptors = (api: AxiosInstance): void => {
       } finally {
         isRefreshing = false;
       }
-    }
+    },
   );
 };

@@ -31,12 +31,15 @@ export default function ContactPage() {
     });
   }, [contacts, debouncedSearch]);
 
-  const handleDelete = useCallback(async (id: string) => {
-    if (window.confirm('Are you sure?')) {
-      await deleteMutation.mutateAsync(id);
-      setSelectedContact(null);
-    }
-  }, [deleteMutation]);
+  const handleDelete = useCallback(
+    async (id: string) => {
+      if (window.confirm('Are you sure?')) {
+        await deleteMutation.mutateAsync(id);
+        setSelectedContact(null);
+      }
+    },
+    [deleteMutation],
+  );
 
   const handleSelect = useCallback((contact: Contact) => setSelectedContact(contact), []);
 
