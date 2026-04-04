@@ -31,11 +31,13 @@ export default tseslint.config(
     plugins: {
       // Wrap the Hooks plugin to fix missing legacy context methods
       'react-hooks': fixupPluginRules(pluginReactHooks),
+      'react-compiler': reactCompilerConfig,
     },
     rules: {
       ...pluginReactHooks.configs.recommended.rules,
       'react-hooks/rules-of-hooks': 'error',
       'react-hooks/exhaustive-deps': 'warn',
+      'react-compiler/react-compiler': 'error',
     },
   },
   {

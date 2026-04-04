@@ -1,8 +1,8 @@
 import cookieParser from 'cookie-parser';
 import cors from 'cors';
 import express from 'express';
-import './lib/utills/redis.ts';
-import routes from './routes/index.ts';
+import './lib/utills/redis.js';
+import router from './routes/index.js';
 
 const app = express();
 const DEFAULT_ORIGIN = 'http://localhost:5173';
@@ -28,7 +28,7 @@ app.use(express.json());
 app.use(cookieParser());
 app.use(express.urlencoded({ extended: true }));
 
-app.use('/api', routes);
+app.use('/api', router);
 
 app.get('/', (req, res) => {
   res.json({ status: 'OK', message: 'Server running' });

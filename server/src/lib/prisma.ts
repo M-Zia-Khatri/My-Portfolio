@@ -1,6 +1,6 @@
 import { PrismaMariaDb } from '@prisma/adapter-mariadb';
 import 'dotenv/config';
-import { PrismaClient } from '../../generated/prisma/client.js'; // ← your generated path
+import { PrismaClient } from '../../generated/prisma/client.js';
 
 const adapter = new PrismaMariaDb({
   host: process.env.DATABASE_HOST,

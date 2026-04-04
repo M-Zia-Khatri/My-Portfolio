@@ -12,8 +12,8 @@ import { catchError } from '@/lib/utills/catch-error';
 import { send } from '@/lib/utills/send';
 import { createSkillSchema, updateSkillSchema } from '@/lib/validators/skill.validation';
 import type { Request, Response } from 'express';
-import { Prisma, SkillMode } from 'generated/prisma/client';
 import prisma from '../lib/prisma';
+import { Prisma, SkillMode } from '../../generated/prisma/client';
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 // Prisma requires Prisma.JsonNull (not plain null) to explicitly store NULL

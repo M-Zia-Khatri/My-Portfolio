@@ -5,18 +5,20 @@
     "moduleResolution": "bundler",
     "outDir": "./dist",
     "rootDir": ".",
-    "baseUrl": "./", // Base directory for resolution
     "paths": {
-      "@/*": ["./src/*"] // Example alias mapping
+      "@/*": ["./src/*"]
     },
-    "allowImportingTsExtensions": true,
+
     "strict": true,
     "esModuleInterop": true,
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true,
     "resolveJsonModule": true,
     "sourceMap": true,
-    "noEmit": true
+
+    /* CRITICAL CHANGES BELOW */
+    "noEmit": false, // Set to false so 'tsc' actually generates the /dist folder
+    "allowImportingTsExtensions": false // Set to false if you want 'tsc' to emit JS files
   },
   "include": ["src/**/*"],
   "exclude": ["node_modules", "dist", "generated"]
