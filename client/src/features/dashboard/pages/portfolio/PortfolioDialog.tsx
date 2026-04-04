@@ -41,8 +41,8 @@ const editSchema = z.object({
   description: z.string().optional(),
 })
 
-type CreateSchema = z.infer<typeof createSchema>
-type EditSchema = z.infer<typeof editSchema>
+// type CreateSchema = z.infer<typeof createSchema>
+// type EditSchema = z.infer<typeof editSchema>
 
 // ─── Props ────────────────────────────────────────────────────────────────────
 
@@ -70,7 +70,7 @@ function Field({
         as="label"
         size="1"
         weight="medium"
-        className={cn("text-[var(--gray-11)]")}
+        className={cn("text-(--gray-11)")}
       >
         {label}
       </Text>
@@ -83,7 +83,7 @@ function Field({
             exit={{ opacity: 0, height: 0 }}
             transition={{ duration: 0.15 }}
           >
-            <Text size="1" className={cn("text-[var(--red-9)]")}>
+            <Text size="1" className={cn("text-(--red-9)")}>
               {error}
             </Text>
           </motion.div>
@@ -205,12 +205,12 @@ export function PortfolioDialog({
     <Dialog.Root open={open} onOpenChange={onOpenChange}>
       <Dialog.Content
         maxWidth="520px"
-        className={cn("bg-[var(--gray-2)] border border-[var(--gray-4)]")}
+        className={cn("bg-(--gray-2) border border-(--gray-4)")}
       >
-        <Dialog.Title className={cn("text-[var(--gray-12)]")}>
+        <Dialog.Title className={cn("text-(--gray-12)")}>
           {isEdit ? "Edit Portfolio Item" : "Add Portfolio Item"}
         </Dialog.Title>
-        <Dialog.Description size="2" className={cn("text-[var(--gray-10)]")}>
+        <Dialog.Description size="2" className={cn("text-(--gray-10)")}>
           {isEdit
             ? "Update the details for this portfolio entry."
             : "Fill in the details to add a new portfolio entry."}
@@ -244,7 +244,7 @@ export function PortfolioDialog({
                 placeholder="My Awesome Project"
                 {...register("site_name")}
                 className={cn(
-                  errors.site_name ? "border-[var(--red-7)]" : ""
+                  errors.site_name ? "border-(--red-7)" : ""
                 )}
               />
             </Field>
@@ -264,7 +264,7 @@ export function PortfolioDialog({
                 type="url"
                 {...register("site_url")}
                 className={cn(
-                  errors.site_url ? "border-[var(--red-7)]" : ""
+                  errors.site_url ? "border-(--red-7)" : ""
                 )}
               />
             </Field>
@@ -279,8 +279,8 @@ export function PortfolioDialog({
               <div
                 className={cn(
                   "relative flex flex-col items-center justify-center gap-2",
-                  "border-2 border-dashed rounded-[var(--radius-3)] p-4 cursor-pointer",
-                  "border-[var(--gray-6)] hover:border-[var(--blue-7)]",
+                  "border-2 border-dashed rounded-(--radius-3) p-4 cursor-pointer",
+                  "border-(--gray-6) hover:border-(--blue-7)",
                   "transition-colors duration-150 overflow-hidden"
                 )}
                 onClick={() => fileInputRef.current?.click()}
@@ -296,7 +296,7 @@ export function PortfolioDialog({
                       exit={{ opacity: 0, scale: 0.97 }}
                       transition={{ duration: 0.2 }}
                       className={cn(
-                        "w-full max-h-32 object-cover rounded-[var(--radius-2)]"
+                        "w-full max-h-32 object-cover rounded-(--radius-2)"
                       )}
                     />
                   ) : (
@@ -310,11 +310,11 @@ export function PortfolioDialog({
                     >
                       <ImageIcon
                         size={24}
-                        className={cn("text-[var(--gray-8)]")}
+                        className={cn("text-(--gray-8)")}
                       />
                       <Text
                         size="1"
-                        className={cn("text-[var(--gray-9)]")}
+                        className={cn("text-(--gray-9)")}
                       >
                         Click to upload image
                       </Text>

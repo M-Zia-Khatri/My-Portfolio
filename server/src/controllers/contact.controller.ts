@@ -102,7 +102,7 @@ export async function getContacts(req: Request, res: Response): Promise<void> {
 // ─── DELETE MESSAGE (Admin only) ──────────────────────────────────────────────
 export async function deleteContact(req: Request, res: Response): Promise<void> {
   try {
-    const { id } = req.params;
+    const id = Array.isArray(req.params.id) ? req.params.id[0] : req.params.id;
 
     // Try cache first for existence check (may be stale but that's ok for auth check)
     const cached = await cacheRemember(`contact:${id}`, {

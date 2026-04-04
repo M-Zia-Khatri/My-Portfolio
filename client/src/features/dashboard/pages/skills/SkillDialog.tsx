@@ -155,7 +155,7 @@ export default function SkillDialog({
                 />
               ) : (
                 <Flex direction="column" gap="2">
-                  <Box className="max-h-[300px] overflow-y-auto pr-2">
+                  <Box className="max-h-75 overflow-y-auto pr-2">
                     {fields.map((field, index) => (
                       <Card key={field.id} size="1" mb="2">
                         <Flex align="center" gap="2">
@@ -199,11 +199,13 @@ export default function SkillDialog({
                             <TrashIcon />
                           </IconButton>
                         </Flex>
-                        {errors.commands?.[index]?.text && (
-                          <Text color="red" size="1" mt="1">
-                            {errors.commands[index]?.text?.message}
-                          </Text>
-                        )}
+                        {watch(`commands.${index}.kind`) !== 'blank' &&
+                          errors.commands?.[index] &&
+                          'text' in errors.commands[index] && (
+                            <Text color="red" size="1" mt="1">
+                              {(errors.commands[index] as any)?.text?.message}
+                            </Text>
+                          )}
                       </Card>
                     ))}
                   </Box>

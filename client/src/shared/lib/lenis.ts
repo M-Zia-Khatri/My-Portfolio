@@ -15,7 +15,9 @@ const defaultOptions: ConstructorParameters<typeof Lenis>[0] = {
 };
 
 function prefersReducedMotion() {
-  return typeof window !== 'undefined' && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  return (
+    typeof window !== 'undefined' && window.matchMedia('(prefers-reduced-motion: reduce)').matches
+  );
 }
 
 function onVisibilityChange() {
@@ -68,7 +70,11 @@ export function scrollToTarget(target: string | Element, offset = TOPBAR_OFFSET)
 
   const lenis = getLenis();
   if (lenis) {
-    lenis.scrollTo(target, { offset });
+    if (target instanceof HTMLElement) {
+      lenis.scrollTo(target, { offset });
+    } else if (typeof target === 'string') {
+      lenis.scrollTo(target, { offset });
+    }
     return;
   }
 

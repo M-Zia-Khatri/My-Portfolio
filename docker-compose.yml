@@ -4,11 +4,13 @@ services:
     image: mariadb:11
     container_name: portfolio-db
     restart: unless-stopped
+    env_file:
+      - ./server/.env.production
     environment:
-      MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASSWORD:-rootpassword}
+      MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASSWORD:-1qZIA!@#MYSQL_MY_ROOT}
       MYSQL_DATABASE: ${DATABASE_NAME:-portfolio}
-      MYSQL_USER: ${DATABASE_USER:-portfolio_user}
-      MYSQL_PASSWORD: ${DATABASE_PASSWORD:-portfolio_pass}
+      MYSQL_USER: ${DATABASE_USER:-zia123user}
+      MYSQL_PASSWORD: ${DATABASE_PASSWORD:-1qZIA!@#MYSQL_MY_USER}
     ports:
       - '${DATABASE_PORT:-3306}:3306'
     volumes:
@@ -44,6 +46,8 @@ services:
     build:
       context: ./server
       dockerfile: Dockerfile
+    env_file:
+      - ./server/.env.production
     container_name: portfolio-server
     restart: unless-stopped
     environment:
@@ -52,8 +56,8 @@ services:
       DATABASE_URL: ${DATABASE_URL}
       DATABASE_HOST: ${DATABASE_HOST:-db}
       DATABASE_PORT: ${DATABASE_PORT:-3306}
-      DATABASE_USER: ${DATABASE_USER:-portfolio_user}
-      DATABASE_PASSWORD: ${DATABASE_PASSWORD:-portfolio_pass}
+      DATABASE_USER: ${DATABASE_USER:-zia123user}
+      DATABASE_PASSWORD: ${DATABASE_PASSWORD:-1qZIA!@#MYSQL_MY_USER}
       DATABASE_NAME: ${DATABASE_NAME:-portfolio}
       REDIS_HOST: redis
       REDIS_PORT: 6379

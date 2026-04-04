@@ -1,3 +1,4 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900');
 @font-face {
   font-family: 'Special Gothic Expanded One';
   src: url('../fonts/SpecialGothicExpandedOne-Regular.ttf') format('truetype');
@@ -5,8 +6,6 @@
   font-style: normal;
   font-display: swap; /* Recommended for better performance */
 }
-
-@import url('https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900');
 
 /* 1. Tailwind BASE pehle */
 @import 'tailwindcss/theme';

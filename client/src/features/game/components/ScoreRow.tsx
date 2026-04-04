@@ -11,7 +11,7 @@ interface ScoreRowProps {
   onSave: (newName: string) => void;
 }
 
-function ScoreRow({ record, idx, isEditing, onEdit, onCancel, onSave }: ScoreRowProps) {
+function ScoreRow({ record, idx, isEditing, onCancel, onSave }: ScoreRowProps) {
   const inputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
@@ -50,7 +50,7 @@ function ScoreRow({ record, idx, isEditing, onEdit, onCancel, onSave }: ScoreRow
               if (e.key === 'Enter') onSave(e.currentTarget.value.trim());
               if (e.key === 'Escape') onCancel();
             }}
-            className="w-full max-w-[120px] rounded px-2 py-0.5 text-center text-xs"
+            className="w-full max-w-30 rounded px-2 py-0.5 text-center text-xs"
             style={{
               // background: 'var(--gray-3)',
               border: '1px solid var(--blue-7)',
@@ -60,7 +60,7 @@ function ScoreRow({ record, idx, isEditing, onEdit, onCancel, onSave }: ScoreRow
           />
         ) : (
           <Text
-            className="max-w-[120px] cursor-pointer truncate text-left text-xs font-medium capitalize"
+            className="max-w-30 cursor-pointer truncate text-left text-xs font-medium capitalize"
             style={{ color: 'var(--blue-11)' }}
           >
             {record.name || <span style={{ color: 'var(--gray-9)', fontStyle: 'italic' }}>—</span>}

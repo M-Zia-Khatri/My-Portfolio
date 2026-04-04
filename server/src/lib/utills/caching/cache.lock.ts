@@ -3,7 +3,7 @@ import { redis } from '../redis';
 import { LOCK_RETRY_DELAY, LOCK_TTL_SECONDS, MAX_LOCK_RETRIES } from './cache.constants';
 
 export async function acquireLock(lockKey: string): Promise<boolean> {
-  const result = await redis.set(lockKey, '1', 'NX', 'EX', LOCK_TTL_SECONDS);
+  const result = await redis.set(lockKey, '1', 'EX', LOCK_TTL_SECONDS, 'NX');
   return result !== null;
 }
 

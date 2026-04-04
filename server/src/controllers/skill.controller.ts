@@ -87,7 +87,7 @@ export async function getAll(req: Request, res: Response): Promise<void> {
 // GET /api/skills/:id - Single item with ETag
 export async function getOne(req: Request, res: Response): Promise<void> {
   try {
-    const { id } = req.params;
+    const id = Array.isArray(req.params.id) ? req.params.id[0] : req.params.id;
     const clientETag = req.headers['if-none-match'] as string | undefined;
 
     const result = await cacheRememberConditional(CACHE_KEYS.one(id), {
@@ -100,7 +100,10 @@ export async function getOne(req: Request, res: Response): Promise<void> {
     res.setHeader('ETag', result.etag);
     res.setHeader('Cache-Control', 'private, must-revalidate');
 
-    if (result.status === 304) return res.status(304).end();
+    if (result.status === 304) {
+      res.status(304).end();
+      return;
+    }
 
     if (!result.data) {
       return send(res, { success: false, status: 404, message: 'Skill not found' });
@@ -181,7 +184,7 @@ export async function create(req: Request, res: Response): Promise<void> {
 
 export async function update(req: Request, res: Response): Promise<void> {
   try {
-    const { id } = req.params;
+    const id = Array.isArray(req.params.id) ? req.params.id[0] : req.params.id;
     const clientETag = req.headers['if-match'] as string | undefined;
 
     if (!clientETag) {
@@ -271,7 +274,7 @@ export async function update(req: Request, res: Response): Promise<void> {
 // ─── DELETE /api/skills/:id ───────────────────────────────────────────────────
 export async function remove(req: Request, res: Response): Promise<void> {
   try {
-    const { id } = req.params;
+    const id = Array.isArray(req.params.id) ? req.params.id[0] : req.params.id;
 
     // Check existence (lightweight, hits cache if warm)
     const existing = await cacheRemember(CACHE_KEYS.one(id), {

@@ -115,7 +115,7 @@ export async function getAllPortfolioItems(req: Request, res: Response): Promise
 
 export async function getPortfolioItemById(req: Request, res: Response): Promise<void> {
   try {
-    const { id } = req.params;
+    const id = Array.isArray(req.params.id) ? req.params.id[0] : req.params.id;
     const clientETag = req.headers['if-none-match'] as string | undefined;
 
     const result = await cacheRememberConditional(CACHE_KEYS.one(id), {
@@ -211,7 +211,7 @@ export async function updatePortfolioItem(req: Request, res: Response): Promise<
   let newImage: string | undefined;
 
   try {
-    const { id } = req.params;
+    const id = Array.isArray(req.params.id) ? req.params.id[0] : req.params.id;
     const body = req.body as UpdatePortfolioDto;
     // Client sends the standard If-Match header for optimistic locking
     const clientETag = req.headers['if-match'] as string | undefined;
@@ -332,7 +332,7 @@ export async function updatePortfolioItem(req: Request, res: Response): Promise<
 
 export async function deletePortfolioItem(req: Request, res: Response): Promise<void> {
   try {
-    const { id } = req.params;
+    const id = Array.isArray(req.params.id) ? req.params.id[0] : req.params.id;
 
     // Fast existence check via cache (only needs id)
     const cached = await cacheRemember(CACHE_KEYS.one(id), {

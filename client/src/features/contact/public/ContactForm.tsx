@@ -121,7 +121,6 @@ export default function ContactForm() {
                     Full name
                   </Text>
                   <TextField.Root
-                    size={TEXT.base.size}
                     placeholder="Your Name"
                     value={form.fullName}
                     onChange={handleChange('fullName')}
@@ -142,7 +141,6 @@ export default function ContactForm() {
                     Email Address
                   </Text>
                   <TextField.Root
-                    size={TEXT.base.size}
                     type="email"
                     placeholder="you@example.com"
                     value={form.email}
@@ -169,7 +167,6 @@ export default function ContactForm() {
                   Your Message
                 </Text>
                 <TextArea
-                  size={TEXT.base.size}
                   rows={5}
                   placeholder="Tell me about your project,"
                   value={form.message}
