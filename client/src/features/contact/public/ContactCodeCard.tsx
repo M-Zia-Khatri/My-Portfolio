@@ -3,7 +3,7 @@ import type { Skill } from '@/features/skills/types';
 import type { CodeCardHandle } from '@/shared/components/CodeCard';
 import CodeCard from '@/shared/components/CodeCard';
 import { useGsapReveal } from '@/shared/hooks/useGsapAnimations';
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { memo, startTransition, useCallback, useEffect, useRef, useState } from 'react';
 
 const CONTACT_SKILLS = skills.filter(
   (s): s is Skill & { mode: 'code' } =>
@@ -72,6 +72,9 @@ function ProgressRail({ autoIndex, isDone }: { autoIndex: number; isDone: boolea
   );
 }
 
+const MemoizedStatusBadge = memo(StatusBadge);
+const MemoizedProgressRail = memo(ProgressRail);
+
 export default function ContactCodeCard({ isActive }: { isActive: boolean }) {
   const [autoIndex, setAutoIndex] = useState(0);
   const autoIndexRef = useRef(0);
@@ -89,15 +92,21 @@ export default function ContactCodeCard({ isActive }: { isActive: boolean }) {
   const advanceToNext = useCallback(() => {
     const currentIndex = autoIndexRef.current;
     if (currentIndex === CONTACT_SKILLS.length - 1) return setCardStatus('done');
+
     setCardStatus('advancing');
+
     setTimeout(() => {
       const nextIdx = currentIndex + 1;
       const nextSkill = CONTACT_SKILLS[nextIdx];
+
       autoIndexRef.current = nextIdx;
       setAutoIndex(nextIdx);
-      setOpenTabs((prev) =>
-        prev.find((t) => t.name === nextSkill.name) ? prev : [...prev, nextSkill],
-      );
+
+      setOpenTabs((prev) => {
+        if (prev.some((t) => t.name === nextSkill.name)) return prev;
+        return [...prev, nextSkill];
+      });
+
       setActiveSkill(nextSkill);
       setCardStatus('typing');
     }, 700);
@@ -116,7 +125,10 @@ export default function ContactCodeCard({ isActive }: { isActive: boolean }) {
       if (skill.name === liveSkill.name) {
         codeCardRef.current?.resume();
         setCardStatus('typing');
-        setActiveSkill(liveSkill);
+
+        startTransition(() => {
+          setActiveSkill(skill);
+        });
         return;
       }
 
@@ -140,7 +152,7 @@ export default function ContactCodeCard({ isActive }: { isActive: boolean }) {
   return (
     <div ref={wrapRef} className="flex flex-col gap-2">
       <div className="flex h-5 justify-end pr-1">
-        <StatusBadge
+        <MemoizedStatusBadge
           status={cardStatus}
           color={CONTACT_SKILLS[autoIndex].color}
           secondsLeft={secondsLeft}
@@ -159,7 +171,7 @@ export default function ContactCodeCard({ isActive }: { isActive: boolean }) {
           onTypingComplete={cardStatus !== 'done' ? advanceToNext : undefined}
         />
       </div>
-      <ProgressRail autoIndex={autoIndex} isDone={cardStatus === 'done'} />
+      <MemoizedProgressRail autoIndex={autoIndex} isDone={cardStatus === 'done'} />
     </div>
   );
 }

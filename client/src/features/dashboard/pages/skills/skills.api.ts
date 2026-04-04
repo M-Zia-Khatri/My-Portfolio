@@ -36,7 +36,8 @@ async function fetchSkillETag(id: string): Promise<string | null> {
 
 export async function fetchSkills(): Promise<ApiSkill[]> {
   const res = await api.get<{ data: ApiSkill[] }>('/skills');
-  return res.data.data ?? [];
+  const data = res.data?.data ?? res.data;
+  return Array.isArray(data) ? data : [];
 }
 
 // ─── POST /api/skills ─────────────────────────────────────────────────────────

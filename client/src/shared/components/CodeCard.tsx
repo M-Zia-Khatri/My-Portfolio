@@ -6,7 +6,15 @@ import type { Skill } from '@/features/skills/types';
 import TabScrollbarStyle from '@/shared/components/TabScrollbarStyle';
 import { useGsapTypingEffect as useGsapTimeline } from '@/shared/hooks/useGsapAnimations';
 import type { RefObject } from 'react';
-import { forwardRef, memo, useEffect, useImperativeHandle, useMemo, useRef, useState } from 'react';
+import {
+  forwardRef,
+  memo,
+  useDeferredValue,
+  useEffect,
+  useImperativeHandle,
+  useRef,
+  useState,
+} from 'react';
 
 const ContentScrollbarStyle = memo(function ContentScrollbarStyle({ color }: { color: string }) {
   return (
@@ -20,6 +28,7 @@ export interface CodeCardHandle {
   pause: () => void;
   resume: () => void;
 }
+
 export interface CodeCardProps {
   skill: Skill;
   openTabs: Skill[];
@@ -47,38 +56,57 @@ const CodeCardBase = forwardRef<CodeCardHandle, CodeCardProps>(function CodeCard
   const [completedLines, setCompletedLines] = useState<string[]>([]);
   const [currentLine, setCurrentLine] = useState('');
   const [isTyping, setIsTyping] = useState(false);
-  const [cursor, setCursor] = useState(true);
+
   const contentRef = useRef<HTMLDivElement>(null);
   const cardRef = useRef<HTMLDivElement>(null);
 
+  // 1. Use useDeferredValue for the list of lines.
+  // This tells React to prioritize the "currentLine" typing animation
+  // and render the long list of background lines during idle time.
+  const deferredCompletedLines = useDeferredValue(completedLines);
+
+  // 2. Strict Reset: Prevents the "writing multiple times" bug
+  useEffect(() => {
+    setCompletedLines([]);
+    setCurrentLine('');
+    setIsTyping(started && skill.mode === 'code');
+  }, [skill.name, skill.mode, started]);
+
   const tlRef = useGsapTimeline(
     cardRef,
-    [skill.name, started, skill.mode],
+    [skill.name, started],
     (timeline: any) => {
       if (skill.mode !== 'code' || !started) return;
-      setCompletedLines([]);
-      setCurrentLine('');
-      setIsTyping(true);
 
-      skill.code.forEach((line, li) => {
+      skill.code.forEach((line, lineIdx) => {
+        // Typing Phase
         for (let ci = 1; ci <= line.length; ci++) {
           timeline.to(
             {},
             {
-              duration: line[ci - 1] === ' ' ? 0.018 : 0.03,
-              onComplete: () => {
-                setCompletedLines(skill.code.slice(0, li));
-                setCurrentLine(line.slice(0, ci));
+              duration: line[ci - 1] === ' ' ? 0.01 : 0.02,
+              onStart: () => {
+                if (ci === 1) setIsTyping(true);
               },
+              onComplete: () => setCurrentLine(line.slice(0, ci)),
             },
           );
         }
+
+        // Commit Phase: Push whole line to state
+        timeline.call(() => {
+          setCompletedLines((prev) => {
+            // Safety check: Don't add the same line twice if GSAP restarts
+            if (prev.length > lineIdx) return prev;
+            return [...prev, line];
+          });
+          setCurrentLine('');
+        });
+
         timeline.to({}, { duration: 0.05 });
       });
 
       timeline.call(() => {
-        setCompletedLines(skill.code);
-        setCurrentLine('');
         setIsTyping(false);
         onTypingComplete?.();
       });
@@ -95,21 +123,14 @@ const CodeCardBase = forwardRef<CodeCardHandle, CodeCardProps>(function CodeCard
     [tlRef],
   );
 
-  useEffect(() => {
-    const id = setInterval(() => setCursor((c) => !c), 530);
-    return () => clearInterval(id);
-  }, []);
-
+  // Auto-scroll logic
   useEffect(() => {
     const el = contentRef.current;
     if (el) el.scrollTop = el.scrollHeight;
-  }, [completedLines, currentLine]);
+  }, [deferredCompletedLines, currentLine]);
 
-  const allLines = useMemo(
-    () => (isTyping ? [...completedLines, currentLine] : completedLines),
-    [completedLines, currentLine, isTyping],
-  );
-  const activeLineI = isTyping ? allLines.length - 1 : -1;
+  const activeLineIndex = completedLines.length;
+
   const isTerminal = skill.mode === 'terminal';
 
   return (
@@ -135,11 +156,11 @@ const CodeCardBase = forwardRef<CodeCardHandle, CodeCardProps>(function CodeCard
           <div
             ref={contentRef}
             className="content-scrollbar flex-1 py-3"
-            style={{ minHeight: 260, maxHeight: 320, overflowY: 'auto', overflowX: 'hidden' }}
+            style={{ height: 300, overflowY: 'auto', overflowX: 'hidden' }}
           >
             {openTabs.length === 0 ? (
               <CodeEmptyState />
-            ) : skill.mode === 'terminal' ? (
+            ) : isTerminal ? (
               <TerminalView
                 key={skill.name}
                 skillName={skill.name}
@@ -149,17 +170,44 @@ const CodeCardBase = forwardRef<CodeCardHandle, CodeCardProps>(function CodeCard
               />
             ) : (
               <div ref={codeContainerRef}>
-                {allLines.map((line, i) => (
+                {/* Render the deferred "History" of lines */}
+                {deferredCompletedLines.map((line, i) => (
                   <CodeLine
-                    key={`${skill.name}-${i}`}
+                    key={`${skill.name}-done-${i}`}
                     line={line}
                     index={i}
-                    isActiveLine={i === activeLineI}
-                    isDoneLine={i < activeLineI || !isTyping}
-                    cursor={cursor}
+                    isActiveLine={false}
+                    isDoneLine={true}
                     color={skill.color}
                   />
                 ))}
+
+                {/* Render the "Active" typing line immediately (High priority) */}
+                {isTyping && (
+                  <CodeLine
+                    key={`${skill.name}-active`}
+                    line={currentLine}
+                    index={deferredCompletedLines.length}
+                    isActiveLine={true}
+                    isDoneLine={false}
+                    color={skill.color}
+                  />
+                )}
+
+                {/* If typing is finished and we aren't in terminal, 
+                    ensure full code is shown if state hasn't caught up */}
+                {!isTyping &&
+                  deferredCompletedLines.length === 0 &&
+                  skill.code.map((line, i) => (
+                    <CodeLine
+                      key={`${skill.name}-active-${activeLineIndex}`}
+                      line={line}
+                      index={i}
+                      isDoneLine={true}
+                      isActiveLine={false}
+                      color={skill.color}
+                    />
+                  ))}
               </div>
             )}
           </div>

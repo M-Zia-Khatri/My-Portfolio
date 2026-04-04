@@ -1,5 +1,5 @@
 import gsap from 'gsap';
-import { useLayoutEffect, useRef } from 'react';
+import { memo, useLayoutEffect, useRef } from 'react';
 import type { Skill } from '../types';
 
 interface CodeTabBarProps {
@@ -11,7 +11,7 @@ interface CodeTabBarProps {
 
 const TAB_PADDING_PX = 12;
 
-export default function CodeTabBar({ skill, openTabs, onTabClick, onTabClose }: CodeTabBarProps) {
+const CodeTabBar = memo(({ skill, openTabs, onTabClick, onTabClose }: CodeTabBarProps) => {
   const tabBarRef = useRef<HTMLDivElement>(null);
 
   useLayoutEffect(() => {
@@ -106,4 +106,6 @@ export default function CodeTabBar({ skill, openTabs, onTabClick, onTabClose }: 
       </div>
     </div>
   );
-}
+});
+
+export default CodeTabBar;

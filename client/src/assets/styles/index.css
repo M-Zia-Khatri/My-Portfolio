@@ -222,3 +222,55 @@ html.lenis {
     transform: translate3d(0, 0, 0);
   }
 }
+
+/* client/src/assets/styles/code-editor.css */
+.code-line {
+  --line-hl: color-mix(in srgb, var(--line-color), transparent 95%);
+  --line-active: color-mix(in srgb, var(--line-color), transparent 97%);
+  position: relative;
+  min-height: 1.6rem;
+}
+
+/* Background highlights handled by CSS */
+.code-line:hover::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: var(--line-hl);
+  border-left: 2px solid color-mix(in srgb, var(--line-color), transparent 60%);
+  pointer-events: none;
+}
+
+.code-line.is-active::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: var(--line-active);
+  border-left: 2px solid color-mix(in srgb, var(--line-color), transparent 70%);
+  pointer-events: none;
+}
+
+/* Line number color transitions */
+.line-num {
+  color: rgba(255, 255, 255, 0.18);
+  transition: color 0.15s;
+}
+
+.code-line:hover .line-num { color: color-mix(in srgb, var(--line-color), white 20%); }
+.code-line.is-active .line-num { color: var(--line-color); opacity: 1; }
+
+/* The Cursor */
+.code-cursor {
+  display: inline-block;
+  margin-left: 1px;
+  height: 13px;
+  width: 2px;
+  background: var(--line-color);
+  vertical-align: middle;
+  animation: code-blink 1s step-end infinite;
+}
+
+@keyframes code-blink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0; }
+}

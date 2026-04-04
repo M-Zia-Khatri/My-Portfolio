@@ -8,7 +8,6 @@ import SecComponent from '@/shared/components/SecContainer';
 import { HEADING, TEXT } from '@/shared/constants/style.constants';
 import { useGsapReveal } from '@/shared/hooks/gsap/useGsapReveal';
 import { useGsapStagger } from '@/shared/hooks/gsap/useGsapStagger';
-import { useGsapTypingEffect } from '@/shared/hooks/gsap/useGsapTypingEffect';
 import { cn } from '@/shared/utils/cn';
 import { Box, Flex, Heading, Spinner, Text } from '@radix-ui/themes';
 import type { RefObject } from 'react';
@@ -123,13 +122,6 @@ function SkillsSection() {
     () => Object.fromEntries(mappedSkills.map((s) => [s.name, () => handleChipClick(s)])),
     [handleChipClick, mappedSkills],
   );
-
-  useGsapTypingEffect(codeRef, {
-    speed: 0.05,
-    replayKey: resolvedSkill?.name ?? 'none',
-    lineSelector: '.code-line',
-    cursorSelector: '[data-code-cursor="true"]',
-  });
 
   return (
     <SecComponent>

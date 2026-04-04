@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 
-const VISIBILITY_THRESHOLD = 0.5;
+const VISIBILITY_THRESHOLD = 0.3;
 
 type Subscriber = (isActive: boolean) => void;
 
@@ -19,16 +19,27 @@ function createObserver() {
     (entries) => {
       entries.forEach((entry) => {
         pending.set(entry.target.id, entry.intersectionRatio >= VISIBILITY_THRESHOLD);
+
+        const nextState = entry.intersectionRatio >= VISIBILITY_THRESHOLD;
+        if (sectionState.get(entry.target.id) !== nextState) {
+          pending.set(entry.target.id, nextState);
+        }
+
+        if (entry.isIntersecting) {
+          // Force GSAP to recognize the newly mounted/visible section
+          import('gsap/ScrollTrigger').then((m) => m.ScrollTrigger.refresh());
+        }
       });
 
       if (rafId !== null) return;
       rafId = window.requestAnimationFrame(() => {
         pending.forEach((isActive, sectionId) => {
           const prev = sectionState.get(sectionId);
-          if (prev === isActive) return;
-
-          sectionState.set(sectionId, isActive);
-          subscriberMap.get(sectionId)?.forEach((notify) => notify(isActive));
+          // ONLY update if state actually flipped
+          if (prev !== isActive) {
+            sectionState.set(sectionId, isActive);
+            subscriberMap.get(sectionId)?.forEach((notify) => notify(isActive));
+          }
         });
 
         pending.clear();

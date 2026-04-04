@@ -15,7 +15,7 @@ import {
 } from '@radix-ui/themes';
 import { useMutation } from '@tanstack/react-query';
 import type { AxiosError } from 'axios';
-import React, { useState } from 'react';
+import React, { memo, useState } from 'react';
 
 interface FormErrors {
   fullName?: string;
@@ -37,7 +37,7 @@ function validate(data: ContactFormData): FormErrors {
   return errors;
 }
 
-export default function ContactForm() {
+function ContactForm() {
   const [form, setForm] = useState<ContactFormData>({
     fullName: '',
     email: '',
@@ -220,3 +220,5 @@ export default function ContactForm() {
     </Card>
   );
 }
+
+export default memo(ContactForm)

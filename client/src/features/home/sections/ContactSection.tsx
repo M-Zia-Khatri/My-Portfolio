@@ -16,9 +16,7 @@ export default function ContactSection() {
     <SecComponent className="w-full">
       <Flex ref={sectionRef} direction="column" align="center" gap="2">
         <div className="mt-4 grid w-full grid-cols-1 gap-6 lg:grid-cols-2">
-          <div data-gsap="contact-card">
-            <ContactForm />
-          </div>
+          <ContactForm />
 
           <div
             data-gsap="contact-card"

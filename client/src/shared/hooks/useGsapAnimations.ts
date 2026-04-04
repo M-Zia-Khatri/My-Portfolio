@@ -5,6 +5,13 @@ import { useLayoutEffect, useRef } from 'react';
 
 gsap.registerPlugin(ScrollTrigger);
 
+interface GsapStaggerOptions {
+  y?: number;
+  duration?: number;
+  stagger?: number;
+  once?: boolean;
+}
+
 export function useGsapReveal(
   scopeRef: RefObject<HTMLElement | null>,
   target: string,
@@ -40,14 +47,21 @@ export function useGsapReveal(
 }
 
 export function useGsapStagger(
-  scopeRef: RefObject<HTMLElement | null>,
+  parentRef: RefObject<HTMLElement | null>,
   target: string,
-  options?: { y?: number; stagger?: number; duration?: number },
+  options: GsapStaggerOptions = {},
 ) {
+  const hasAnimatedRef = useRef(false);
+  const { y = 20, duration = 0.6, stagger = 0.1, once = true } = options;
   useLayoutEffect(() => {
-    if (!scopeRef.current) return;
+    if (!parentRef.current) return;
 
     const ctx = gsap.context(() => {
+      const children = Array.from(parentRef.current?.children ?? []);
+      // FIX: Don't mark as complete if there are no children yet (loading state)
+      if (children.length === 0) return;
+      if (once && hasAnimatedRef.current) return;
+
       gsap.fromTo(
         target,
         { autoAlpha: 0, y: options?.y ?? 16, willChange: 'transform,opacity' },
@@ -58,17 +72,21 @@ export function useGsapStagger(
           stagger: options?.stagger ?? 0.08,
           ease: 'power2.out',
           clearProps: 'willChange',
+          onComplete: () => {
+            hasAnimatedRef.current = true;
+            ScrollTrigger.refresh(); // Ensure markers are correct after height change
+          },
           scrollTrigger: {
-            trigger: scopeRef.current,
+            trigger: parentRef.current,
             start: 'top 78%',
             once: true,
           },
         },
       );
-    }, scopeRef);
+    }, parentRef);
 
     return () => ctx.revert();
-  }, [scopeRef, target, options?.duration, options?.stagger, options?.y]);
+  }, [parentRef, y, duration, stagger, once, parentRef.current?.children.length]);
 }
 
 export function useGsapTypingEffect(
