@@ -1,5 +1,5 @@
 import ContactCodeCard from '@/features/contact/public/ContactCodeCard';
-import ContactForm from '@/features/contact/public/ContactForm';
+import ContactFormCard from '@/features/contact/public/ContactForm';
 import SecComponent from '@/shared/components/SecContainer';
 import { useGsapStagger } from '@/shared/hooks/useGsapAnimations';
 import { Flex } from '@radix-ui/themes';
@@ -16,7 +16,7 @@ export default function ContactSection() {
     <SecComponent className="w-full">
       <Flex ref={sectionRef} direction="column" align="center" gap="2">
         <div className="mt-4 grid w-full grid-cols-1 gap-6 lg:grid-cols-2">
-          <ContactForm />
+          <ContactFormCard />
 
           <div
             data-gsap="contact-card"
