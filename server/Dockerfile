@@ -1,57 +1,76 @@
-# Build stage
+# =========================
+# 1. Build Stage
+# =========================
 FROM node:20-alpine AS builder
 
 WORKDIR /app
 
-# Enable pnpm
-RUN corepack enable && corepack prepare pnpm@latest --activate
+# Pin pnpm version (IMPORTANT for reproducibility)
+RUN corepack enable && corepack prepare pnpm@9.15.4 --activate
 
-# Copy package files
+# Copy only dependency files first (better caching)
 COPY package.json pnpm-lock.yaml ./
 
-# Install dependencies
+# Install ALL deps (including dev for build)
 RUN pnpm install --frozen-lockfile
 
-# Copy source code
+# Copy rest of the source
 COPY . .
 
-# Set a dummy DATABASE_URL for build-time Prisma generation
+# Dummy DB for Prisma generate
 ENV DATABASE_URL="mysql://dummy:dummy@localhost:3306/dummy"
 
 # Generate Prisma Client
 RUN pnpm exec prisma generate
 
-# Compile TypeScript
+# Build TypeScript
 RUN pnpm build
 
-# Production stage
+
+# =========================
+# 2. Production Stage
+# =========================
 FROM node:20-alpine
+
 WORKDIR /app
-RUN corepack enable && corepack prepare pnpm@latest --activate
+
+# Pin pnpm again (must match builder)
+RUN corepack enable && corepack prepare pnpm@9.15.4 --activate
+
+# Copy only required files
 COPY package.json pnpm-lock.yaml ./
+
+# Install ONLY production deps
 RUN pnpm install --frozen-lockfile --prod
 
-COPY --from=builder /app/generated ./generated
-COPY --from=builder /app/prisma ./prisma
+# Copy built output + prisma schema
 COPY --from=builder /app/dist ./dist
+COPY --from=builder /app/prisma ./prisma
 
-# Create a CORRECT startup script
+# ✅ Generate Prisma client AGAIN (safe + required)
+ENV DATABASE_URL="mysql://dummy:dummy@localhost:3306/dummy"
+RUN pnpm exec prisma generate
+
+# =========================
+# 3. Startup Script
+# =========================
 RUN echo '#!/bin/sh' > /app/start.sh && \
     echo 'set -e' >> /app/start.sh && \
-    echo 'echo "Running database migrations..."' >> /app/start.sh && \
-    # Use prisma to deploy migrations, not node server
-    echo 'pnpm exec prisma migrate deploy' >> /app/start.sh && \
+    echo 'echo "Waiting for database & running migrations..."' >> /app/start.sh && \
+    echo 'until pnpm exec prisma migrate deploy; do' >> /app/start.sh && \
+    echo '  echo "Migration failed, retrying in 5s..."' >> /app/start.sh && \
+    echo '  sleep 5' >> /app/start.sh && \
+    echo 'done' >> /app/start.sh && \
     echo 'echo "Starting application..."' >> /app/start.sh && \
-    # Only one exec at the end to start the compiled JS
     echo 'exec node dist/src/server.js' >> /app/start.sh && \
     chmod +x /app/start.sh
 
-# Expose port
+# =========================
+# 4. Runtime Config
+# =========================
 EXPOSE 5000
 
-# Health check
 HEALTHCHECK --interval=30s --timeout=3s --start-period=40s --retries=3 \
-    CMD node -e "require('http').get('http://localhost:5000/', (r) => {process.exit(r.statusCode === 200 ? 0 : 1)})"
+  CMD node -e "require('http').get('http://localhost:5000/', (r) => process.exit(r.statusCode === 200 ? 0 : 1))"
 
-# Start application
 CMD ["/app/start.sh"]
