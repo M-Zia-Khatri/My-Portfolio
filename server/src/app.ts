@@ -5,7 +5,7 @@ import './lib/utills/redis.js';
 import router from './routes/index.js';
 
 const app = express();
-const DEFAULT_ORIGIN = 'http://localhost:5173';
+const DEFAULT_ORIGIN = 'http://localhost:80';
 const allowedOrigins = (process.env.CORS_ORIGINS ?? process.env.CLIENT_URL ?? DEFAULT_ORIGIN)
   .split(',')
   .map((origin) => origin.trim())

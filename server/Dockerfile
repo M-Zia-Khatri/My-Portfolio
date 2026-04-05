@@ -26,34 +26,24 @@ RUN pnpm build
 
 # Production stage
 FROM node:20-alpine
-
 WORKDIR /app
-
-# Enable pnpm
 RUN corepack enable && corepack prepare pnpm@latest --activate
-
-# Copy package files
 COPY package.json pnpm-lock.yaml ./
-
-# Install production dependencies only
 RUN pnpm install --frozen-lockfile --prod
 
-# Copy generated Prisma Client from builder
 COPY --from=builder /app/generated ./generated
-
-# Copy Prisma schema for runtime migrations
 COPY --from=builder /app/prisma ./prisma
-
-# Copy application code
 COPY --from=builder /app/dist ./dist
 
-# Create a startup script
+# Create a CORRECT startup script
 RUN echo '#!/bin/sh' > /app/start.sh && \
     echo 'set -e' >> /app/start.sh && \
     echo 'echo "Running database migrations..."' >> /app/start.sh && \
-    echo 'exec node dist/server.js' >> /app/start.sh && \
+    # Use prisma to deploy migrations, not node server
+    echo 'pnpm exec prisma migrate deploy' >> /app/start.sh && \
     echo 'echo "Starting application..."' >> /app/start.sh && \
-    echo 'exec node src/server.js' >> /app/start.sh && \
+    # Only one exec at the end to start the compiled JS
+    echo 'exec node dist/src/server.js' >> /app/start.sh && \
     chmod +x /app/start.sh
 
 # Expose port
