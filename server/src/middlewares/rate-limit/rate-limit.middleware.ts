@@ -1,10 +1,10 @@
+import { getConfig } from '@/config/env';
 import { redis } from '@/lib/utills/redis';
 import { NextFunction, Request, Response } from 'express';
 import { fallbackCheck } from './rate-limit.fallback';
 import { buildRedisKey, getIp, setRateLimitHeaders, uniqueRequestId } from './rate-limit.helpers';
 import { SLIDING_WINDOW_SCRIPT } from './rate-limit.script';
 import { RateLimitConfig } from './rate-limit.types';
-
 export type { RateLimitConfig, Tier } from './rate-limit.types';
 
 // ─── Middleware Factory ────────────────────────────────────────────────────
@@ -23,10 +23,10 @@ export function rateLimit(config: RateLimitConfig) {
     throw new Error(`[rateLimit] "action" and at least one "tier" are required.`);
   }
 
-  const bypassInDev =
-    process.env.RATE_LIMIT_BYPASS === 'true' && process.env.NODE_ENV !== 'production';
-
   return async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+    const appConfig = getConfig(); // Fetch fresh config
+    const bypassInDev = appConfig.rateLimit.bypass && appConfig.isDev;
+
     if (bypassInDev) return next();
     if (skip?.(req)) return next();
 

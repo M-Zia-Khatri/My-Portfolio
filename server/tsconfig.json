@@ -20,6 +20,6 @@
     "noEmit": false, // Set to false so 'tsc' actually generates the /dist folder
     "allowImportingTsExtensions": false // Set to false if you want 'tsc' to emit JS files
   },
-  "include": ["src/**/*"],
+  "include": ["src/**/*", "prisma/seeds/admin.ts"],
   "exclude": ["node_modules", "dist", "generated"]
 }

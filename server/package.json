@@ -4,10 +4,13 @@
   "description": "",
   "main": "dist/server.js",
   "scripts": {
-    "dev": "nodemon --watch src --exec tsx src/server.ts",
+    "dev": "nodemon --exec 'tsx -r dotenv/config src/server.ts' -- --dotenv_config_path=.env.development",
     "build": "tsc",
     "start": "node dist/server.js",
     "lint": "eslint src --ext .ts"
+  },
+  "prisma": {
+    "seed": "tsx prisma/seed.ts"
   },
   "keywords": [],
   "author": "",

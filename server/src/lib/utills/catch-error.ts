@@ -1,5 +1,8 @@
+import { getConfig } from '@/config/env';
 import type { Response } from 'express';
 import { send } from './send';
+
+const config = getConfig();
 
 export function catchError(res: Response, err: unknown): void {
   console.error('[Server]', err);
@@ -8,11 +11,10 @@ export function catchError(res: Response, err: unknown): void {
     success: false,
     status: 500,
     message: 'Internal server error',
-    error:
-      process.env.NODE_ENV !== 'production'
-        ? err instanceof Error
-          ? { name: err.name, detail: err.message }
-          : { detail: String(err) }
-        : undefined,
+    error: config.isDev
+      ? err instanceof Error
+        ? { name: err.name, detail: err.message }
+        : { detail: String(err) }
+      : undefined,
   });
 }

@@ -14,16 +14,19 @@ import { send } from '@/lib/utills/send';
 import bcrypt from 'bcrypt';
 import type { Request, Response } from 'express';
 import { sendOtpEmail } from '../lib/utills/mailer';
+import { getConfig } from '@/config/env';
+
+const config = getConfig();
+
 
 // ─── Constants ────────────────────────────────────────────────────────────────
-
 const REFRESH_TOKEN_COOKIE = 'refreshToken';
 const REFRESH_TOKEN_MAX_AGE = 7 * 24 * 60 * 60 * 1_000; // 7 days in ms
 const ACCESS_TOKEN_EXPIRES_IN = 15 * 60; // 15 min in seconds
 
 const COOKIE_OPTIONS = {
   httpOnly: true,
-  secure: process.env.NODE_ENV === 'production',
+  secure: config.isDev === false,
   sameSite: 'strict' as const,
   maxAge: REFRESH_TOKEN_MAX_AGE,
   path: '/',

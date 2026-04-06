@@ -1,12 +1,15 @@
 import cookieParser from 'cookie-parser';
 import cors from 'cors';
 import express from 'express';
+import { getConfig } from './config/env.js';
 import './lib/utills/redis.js';
 import router from './routes/index.js';
 
 const app = express();
+const config = getConfig();
+
 const DEFAULT_ORIGIN = 'http://localhost:5173';
-const allowedOrigins = (process.env.CORS_ORIGINS ?? process.env.CLIENT_URL ?? DEFAULT_ORIGIN)
+const allowedOrigins = (config.cors.origins ?? config.client.url ?? DEFAULT_ORIGIN)
   .split(',')
   .map((origin) => origin.trim())
   .filter(Boolean);

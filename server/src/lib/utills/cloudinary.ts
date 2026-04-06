@@ -1,13 +1,16 @@
+import { getConfig } from '@/config/env';
 import { v2 as cloudinary } from 'cloudinary';
+
+const { cloudinary: cloudinaryConfig } = getConfig();
 
 /**
  * Cloudinary Configuration
  * Uses environment variables for secure setup
  */
 cloudinary.config({
-  cloud_name: process.env.CLOUDINARY_CLOUD_NAME!,
-  api_key: process.env.CLOUDINARY_API_KEY!,
-  api_secret: process.env.CLOUDINARY_API_SECRET!,
+  cloud_name: cloudinaryConfig.cloudName!,
+  api_key: cloudinaryConfig.apiKey!,
+  api_secret: cloudinaryConfig.apiSecret!,
 });
 
 /**

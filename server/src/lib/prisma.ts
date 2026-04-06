@@ -1,16 +1,26 @@
+// src/lib/prisma.ts
 import { PrismaMariaDb } from '@prisma/adapter-mariadb';
-import 'dotenv/config';
 import { PrismaClient } from '../../generated/prisma/client.js';
+import { getConfig } from '../config/env.js';
 
-const adapter = new PrismaMariaDb({
-  host: process.env.DATABASE_HOST,
-  port: Number(process.env.DATABASE_PORT) || 3306,
-  user: process.env.DATABASE_USER,
-  password: process.env.DATABASE_PASSWORD,
-  database: process.env.DATABASE_NAME,
-  connectionLimit: 5,
-});
+let prisma: PrismaClient;
 
-const prisma = new PrismaClient({ adapter });
+export function getPrisma() {
+  if (prisma) return prisma;
 
-export default prisma;
+  const config = getConfig(); // Call it when needed
+
+  const adapter = new PrismaMariaDb({
+    host: config.db.host,
+    port: config.db.port,
+    user: config.db.user,
+    password: config.db.password,
+    database: config.db.database,
+    connectionLimit: 5,
+  });
+
+  prisma = new PrismaClient({ adapter });
+  return prisma;
+}
+
+export default getPrisma();

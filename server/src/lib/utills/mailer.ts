@@ -1,12 +1,16 @@
+import { getConfig } from '@/config/env';
 import nodemailer from 'nodemailer';
 
+const {mailer} = getConfig();
+
+
 const transporter = nodemailer.createTransport({
-  host: process.env.SMTP_HOST,
-  port: Number(process.env.SMTP_PORT ?? 587),
-  secure: process.env.SMTP_SECURE === 'true',
+  host: mailer.host,
+  port: mailer.port,
+  secure: mailer.secure,
   auth: {
-    user: process.env.SMTP_USER,
-    pass: process.env.SMTP_PASS,
+    user: mailer.user,
+    pass: mailer.pass,
   },
 });
 
@@ -25,7 +29,7 @@ export async function sendOtpEmail(
   otpCode: string,
 ): Promise<void> {
   await transporter.sendMail({
-    from: `"Admin Portal" <${process.env.SMTP_FROM}>`,
+    from: `"Admin Portal" <${mailer.from}>`,
     to: toEmail,
     subject: 'Your Admin Login OTP',
     text: `Hi ${fullName},\n\nYour one-time password is: ${otpCode}\n\nIt expires in 5 minutes. Do not share it with anyone.`,
@@ -54,8 +58,8 @@ export async function sendContactEmail(
   createdAt: Date,
 ): Promise<void> {
   await transporter.sendMail({
-    from: `"Portfolio Contact" <${process.env.SMTP_FROM}>`, // was: process.env.Seed
-    to: process.env.SEED_ADMIN_EMAIL,
+    from: `"Portfolio Contact" <${mailer.from}>`, // was: process.env.Seed
+    to: mailer.adminEmail,
     replyTo: email,
     subject: `New message from ${fullName}`,
     text: `New contact form submission\n\nName:    ${fullName}\nEmail:   ${email}\nDate:    ${createdAt.toISOString()}\n\n${message}`,
