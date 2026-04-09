@@ -5,20 +5,9 @@ import { useMemo } from 'react';
 import { useGameEngine, useGameTimer, useGameUserInput } from '../context/GuessNumContext';
 import SelDifficultLevel from './SelDifficultLevel';
 
-export default function HiddenNumber() {
-  const {
-    restartGame,
-    randomNumber,
-    showNumber,
-    guessResults,
-    started,
-    setStarted,
-  } = useGameEngine();
-
+function GameTimerDisplay() {
   const { timeLeft } = useGameTimer();
-  const { nameInput, setNameInput } = useGameUserInput();
-
-  const isWin = useMemo(() => guessResults.some((r) => r.message === 'you win'), [guessResults]);
+  const { started, showNumber } = useGameEngine();
 
   const formattedTime = useMemo(() => {
     const m = Math.floor(timeLeft / 60);
@@ -27,7 +16,52 @@ export default function HiddenNumber() {
   }, [timeLeft]);
 
   const isUrgent = timeLeft <= 30 && started && !showNumber;
+
+  return (
+    <Text
+      size={TEXT.lg.size}
+      className="flex items-center font-extrabold"
+      color={isUrgent ? 'red' : 'blue'}
+    >
+      <Timer size={16} />
+      &nbsp; {formattedTime}
+    </Text>
+  );
+}
+
+function StartSection() {
+  const { setStarted } = useGameEngine();
+  const { nameInput, setNameInput } = useGameUserInput();
   const canStart = nameInput.trim().length > 0;
+
+  return (
+    <div className="flex flex-col items-center gap-4">
+      <TextField.Root
+        placeholder="Enter your name"
+        value={nameInput}
+        onChange={(e) => setNameInput(e.target.value)}
+        size="3"
+        style={{ maxWidth: 280, width: '100%' }}
+      />
+      <Button
+        size="3"
+        variant="solid"
+        color="blue"
+        onClick={() => setStarted(true)}
+        disabled={!canStart}
+        style={{ minWidth: 120 }}
+      >
+        Start
+      </Button>
+    </div>
+  );
+}
+
+function GameOverSection() {
+  const { restartGame, setStarted, guessResults } = useGameEngine();
+  const { timeLeft } = useGameTimer();
+
+  const isWin = useMemo(() => guessResults.some((r) => r.message === 'you win'), [guessResults]);
 
   const handlePlayAgain = () => {
     restartGame();
@@ -35,17 +69,46 @@ export default function HiddenNumber() {
   };
 
   return (
+    <div className="flex flex-col items-center gap-3 text-center">
+      <Text
+        size="4"
+        weight="bold"
+        style={{ color: isWin ? 'var(--green-11)' : 'var(--red-11)' }}
+      >
+        {isWin
+          ? '🎉 You got it!'
+          : timeLeft === 0
+            ? "⏰ Time's up — try again"
+            : 'You lose — try again'}
+      </Text>
+      <Button
+        size="3"
+        variant="solid"
+        color={isWin ? 'green' : 'blue'}
+        onClick={handlePlayAgain}
+        style={{ minWidth: 140 }}
+      >
+        Play Again
+      </Button>
+    </div>
+  );
+}
+
+export default function HiddenNumber() {
+  const {
+    randomNumber,
+    showNumber,
+    guessResults,
+    started,
+  } = useGameEngine();
+
+  const isWin = useMemo(() => guessResults.some((r) => r.message === 'you win'), [guessResults]);
+
+  return (
     <section className="flex flex-col gap-5">
       {/* Timer row + Difficulty selector */}
       <div className="flex items-center justify-between gap-3">
-        <Text
-          size={TEXT.lg.size}
-          className="flex items-center font-extrabold"
-          color={isUrgent ? 'red' : 'blue'}
-        >
-          <Timer size={16} />
-          &nbsp; {formattedTime}
-        </Text>
+        <GameTimerDisplay />
 
         {/* Disabled once game is in progress */}
         <div
@@ -59,27 +122,7 @@ export default function HiddenNumber() {
       </div>
 
       {/* Pre-start: enter name & play */}
-      {!started && !showNumber && (
-        <div className="flex flex-col items-center gap-4">
-          <TextField.Root
-            placeholder="Enter your name"
-            value={nameInput}
-            onChange={(e) => setNameInput(e.target.value)}
-            size="3"
-            style={{ maxWidth: 280, width: '100%' }}
-          />
-          <Button
-            size="3"
-            variant="solid"
-            color="blue"
-            onClick={() => setStarted(true)}
-            disabled={!canStart}
-            style={{ minWidth: 120 }}
-          >
-            Start
-          </Button>
-        </div>
-      )}
+      {!started && !showNumber && <StartSection />}
 
       {/* Hidden number display */}
       {started && (
@@ -108,30 +151,7 @@ export default function HiddenNumber() {
       )}
 
       {/* Post-game result & replay */}
-      {showNumber && (
-        <div className="flex flex-col items-center gap-3 text-center">
-          <Text
-            size="4"
-            weight="bold"
-            style={{ color: isWin ? 'var(--green-11)' : 'var(--red-11)' }}
-          >
-            {isWin
-              ? '🎉 You got it!'
-              : timeLeft === 0
-                ? "⏰ Time's up — try again"
-                : 'You lose — try again'}
-          </Text>
-          <Button
-            size="3"
-            variant="solid"
-            color={isWin ? 'green' : 'blue'}
-            onClick={handlePlayAgain}
-            style={{ minWidth: 140 }}
-          >
-            Play Again
-          </Button>
-        </div>
-      )}
+      {showNumber && <GameOverSection />}
     </section>
   );
 }
