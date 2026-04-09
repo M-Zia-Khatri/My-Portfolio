@@ -5,6 +5,7 @@ import React, {
   useEffect,
   useReducer,
   useState,
+  useTransition,
   type ReactNode,
 } from 'react';
 import useTimer from '../hooks/useTimer';
@@ -43,27 +44,37 @@ function calculateScore({
   return attemptScore + timeScore + closeBonus + levelBonus;
 }
 
-interface GuessNumContextType {
+// --- 1. Game Engine Context (Stable State & Actions) ---
+interface GameEngineContextType {
   randomNumber: number | null;
   guessResults: GuessResultType[];
   showNumber: boolean;
   guessTurn: number;
-  timeLeft: number;
   started: boolean;
-  nameInput: string;
-
   startGame: () => void;
   makeGuess: (guess: number) => void;
   restartGame: () => void;
-
   setStarted: (val: boolean) => void;
-  setNameInput: React.Dispatch<React.SetStateAction<string>>;
-
   clearHistory: VoidFunction;
-  clearAndReloadHistory: VoidFunction; // Add this function
+  clearAndReloadHistory: VoidFunction;
 }
 
-const GuessNumContext = createContext<GuessNumContextType | undefined>(undefined);
+const GameEngineContext = createContext<GameEngineContextType | undefined>(undefined);
+
+// --- 2. Game Timer Context (High Frequency Updates) ---
+interface GameTimerContextType {
+  timeLeft: number;
+}
+
+const GameTimerContext = createContext<GameTimerContextType | undefined>(undefined);
+
+// --- 3. Game User Input Context (High Frequency Updates) ---
+interface GameUserInputContextType {
+  nameInput: string;
+  setNameInput: React.Dispatch<React.SetStateAction<string>>;
+}
+
+const GameUserInputContext = createContext<GameUserInputContextType | undefined>(undefined);
 
 type Props = { children: ReactNode };
 
@@ -78,14 +89,12 @@ export const GuessNumProvider: React.FC<Props> = ({ children }) => {
     clearScoreHistory,
   } = useGameSet();
 
-  // Core game state via reducer
   const [state, dispatch] = useReducer(gameReducer, initialGameState(guessLimit));
   const { randomNumber, guessResults, showNumber, guessTurn, started } = state;
 
-  // Player name
   const [nameInput, setNameInput] = useState('');
+  const [isPending, startTransition] = useTransition();
 
-  // Countdown timer
   const { timeLeft, reset: resetTimer } = useTimer({
     initialTime: initialTimeLimit,
     isActive: started && !showNumber,
@@ -128,26 +137,29 @@ export const GuessNumProvider: React.FC<Props> = ({ children }) => {
     if (last && last.guessResults === guessResults) return;
 
     const isWin = guessResults.some((r) => r.message === 'you win');
-    const record: ScoreRecord = {
-      id: generateId(8),
-      name: nameInput,
-      score: calculateScore({
-        guessResults,
-        guessLimit,
-        initialTimeLimit,
-        timeLeft,
-        difficultLevel,
-      }),
-      result: isWin ? 'win' : 'lose',
-      attempts: guessResults.length,
-      timeTaken: initialTimeLimit - timeLeft,
-      date: new Date(),
-      guessLimit,
-      difficultLevel,
-      guessResults,
-    };
 
-    addScoreRecord(record);
+    // Use transition for non-urgent state update (adding to history)
+    startTransition(() => {
+      const record: ScoreRecord = {
+        id: generateId(8),
+        name: nameInput,
+        score: calculateScore({
+          guessResults,
+          guessLimit,
+          initialTimeLimit,
+          timeLeft,
+          difficultLevel,
+        }),
+        result: isWin ? 'win' : 'lose',
+        attempts: guessResults.length,
+        timeTaken: initialTimeLimit - timeLeft,
+        date: new Date(),
+        guessLimit,
+        difficultLevel,
+        guessResults,
+      };
+      addScoreRecord(record);
+    });
   }, [
     showNumber,
     guessResults,
@@ -160,44 +172,71 @@ export const GuessNumProvider: React.FC<Props> = ({ children }) => {
     addScoreRecord,
   ]);
 
-  // Clear all history and reset game state
   const clearAndReloadHistory = useCallback(() => {
-    clearScoreHistory(); // Clear the history
-    startGame(); // Restart the game
+    clearScoreHistory();
+    startGame();
   }, [clearScoreHistory, startGame]);
 
-  // Initial game start
   useEffect(startGame, [startGame]);
 
+  const engineValue: GameEngineContextType = {
+    randomNumber,
+    guessResults,
+    showNumber,
+    guessTurn,
+    started,
+    startGame,
+    makeGuess,
+    restartGame,
+    setStarted: (b) => dispatch({ type: 'SET_STARTED', payload: b }),
+    clearHistory: clearScoreHistory,
+    clearAndReloadHistory,
+  };
+
+  const timerValue: GameTimerContextType = {
+    timeLeft,
+  };
+
+  const inputValue: GameUserInputContextType = {
+    nameInput,
+    setNameInput,
+  };
+
   return (
-    <GuessNumContext.Provider
-      value={{
-        randomNumber,
-        guessResults,
-        showNumber,
-        guessTurn,
-        timeLeft,
-        started,
-        nameInput,
-
-        startGame,
-        makeGuess,
-        restartGame,
-
-        setStarted: (b) => dispatch({ type: 'SET_STARTED', payload: b }),
-        setNameInput,
-
-        clearHistory: clearScoreHistory,
-        clearAndReloadHistory, // Add this to the context
-      }}
-    >
-      {children}
-    </GuessNumContext.Provider>
+    <GameEngineContext.Provider value={engineValue}>
+      <GameTimerContext.Provider value={timerValue}>
+        <GameUserInputContext.Provider value={inputValue}>
+          {children}
+        </GameUserInputContext.Provider>
+      </GameTimerContext.Provider>
+    </GameEngineContext.Provider>
   );
 };
 
-export function useGuessNum(): GuessNumContextType {
-  const ctx = useContext(GuessNumContext);
-  if (!ctx) throw new Error('useGuessNum must be used within GuessNumProvider');
+// --- Specialized Hooks ---
+
+export function useGameEngine(): GameEngineContextType {
+  const ctx = useContext(GameEngineContext);
+  if (!ctx) throw new Error('useGameEngine must be used within GuessNumProvider');
   return ctx;
+}
+
+export function useGameTimer(): GameTimerContextType {
+  const ctx = useContext(GameTimerContext);
+  if (!ctx) throw new Error('useGameTimer must be used within GuessNumProvider');
+  return ctx;
+}
+
+export function useGameUserInput(): GameUserInputContextType {
+  const ctx = useContext(GameUserInputContext);
+  if (!ctx) throw new Error('useGameUserInput must be used within GuessNumProvider');
+  return ctx;
+}
+
+// Deprecated compatibility hook - will be replaced in Task #4
+export function useGuessNum(): GameEngineContextType & GameTimerContextType & GameUserInputContextType {
+  const engine = useGameEngine();
+  const timer = useGameTimer();
+  const input = useGameUserInput();
+  return { ...engine, ...timer, ...input };
 }

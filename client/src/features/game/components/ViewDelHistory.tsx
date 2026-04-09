@@ -1,10 +1,10 @@
 import { AlertDialog, Button, Flex } from '@radix-ui/themes';
-import { useGuessNum } from '../context/GuessNumContext';
+import { useGameEngine } from '../context/GuessNumContext';
 import useGameSet from '../store/GameSetStore';
 
 export default function ViewDelHistory() {
   const { scoreHistory } = useGameSet();
-  const { clearHistory } = useGuessNum();
+  const { clearHistory } = useGameEngine();
 
   if (scoreHistory.length === 0) {
     return (

@@ -1,11 +1,11 @@
 import { Button } from '@radix-ui/themes';
 import { useMemo } from 'react';
-import { useGuessNum } from '../context/GuessNumContext';
+import { useGameEngine } from '../context/GuessNumContext';
 import useGameSet from '../store/GameSetStore';
 import type { GuessResultType } from '../types/guessNumContextTypes';
 
 export default function CheckHiddenNumber() {
-  const { makeGuess, showNumber, guessResults, started } = useGuessNum();
+  const { makeGuess, showNumber, guessResults, started } = useGameEngine();
   const { maxNumber } = useGameSet();
 
   const numbers = useMemo(() => Array.from({ length: maxNumber }, (_, i) => i + 1), [maxNumber]);

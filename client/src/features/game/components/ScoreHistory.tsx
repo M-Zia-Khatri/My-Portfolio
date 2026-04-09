@@ -52,7 +52,7 @@ export default function ScoreHistory() {
   const scoreHistory = useGameSet((state) => state.scoreHistory);
 
   // Empty state
-  if (!scoreHistory.length) {
+  if (scoreHistory.length === 0) {
     return (
       <div
         className="rounded-xl p-6 text-center"
