@@ -1,12 +1,12 @@
 import { AlertDialog, Button, Flex } from '@radix-ui/themes';
-import { useGuessNum } from '../context/GuessNumContext';
+import { useGuessNumActions } from '../context/GuessNumContext';
 import useGameSet from '../store/GameSetStore';
 
 export default function ViewDelHistory() {
-  const { scoreHistory } = useGameSet();
-  const { clearHistory } = useGuessNum();
+  const scoreHistoryLength = useGameSet((state) => state.scoreHistory.length);
+  const { clearHistory } = useGuessNumActions();
 
-  if (scoreHistory.length === 0) {
+  if (scoreHistoryLength === 0) {
     return (
       <p className="text-center text-sm italic" style={{ color: 'var(--gray-10)' }}>
         No history available.

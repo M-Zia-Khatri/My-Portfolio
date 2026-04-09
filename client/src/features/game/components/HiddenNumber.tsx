@@ -2,21 +2,13 @@ import { TEXT } from '@/shared/constants/style.constants';
 import { Button, Text, TextField } from '@radix-ui/themes';
 import { Timer } from 'lucide-react';
 import { useMemo } from 'react';
-import { useGuessNum } from '../context/GuessNumContext';
+import { useGuessNumActions, useGuessNumState, useGuessNumTimer } from '../context/GuessNumContext';
 import SelDifficultLevel from './SelDifficultLevel';
 
 export default function HiddenNumber() {
-  const {
-    restartGame,
-    randomNumber,
-    showNumber,
-    guessResults,
-    timeLeft,
-    started,
-    setStarted,
-    nameInput,
-    setNameInput,
-  } = useGuessNum();
+  const { randomNumber, showNumber, guessResults, started, nameInput } = useGuessNumState();
+  const { timeLeft } = useGuessNumTimer();
+  const { restartGame, setStarted, setNameInput } = useGuessNumActions();
 
   const isWin = useMemo(() => guessResults.some((r) => r.message === 'you win'), [guessResults]);
 

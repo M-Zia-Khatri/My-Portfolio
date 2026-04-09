@@ -3,8 +3,11 @@ import React, {
   useCallback,
   useContext,
   useEffect,
+  useMemo,
   useReducer,
+  useRef,
   useState,
+  useTransition,
   type ReactNode,
 } from 'react';
 import useTimer from '../hooks/useTimer';
@@ -43,49 +46,49 @@ function calculateScore({
   return attemptScore + timeScore + closeBonus + levelBonus;
 }
 
-interface GuessNumContextType {
+interface GuessNumStateContextType {
   randomNumber: number | null;
   guessResults: GuessResultType[];
   showNumber: boolean;
   guessTurn: number;
-  timeLeft: number;
   started: boolean;
   nameInput: string;
+}
 
+interface GuessNumTimerContextType {
+  timeLeft: number;
+}
+
+interface GuessNumActionsContextType {
   startGame: () => void;
   makeGuess: (guess: number) => void;
   restartGame: () => void;
-
   setStarted: (val: boolean) => void;
   setNameInput: React.Dispatch<React.SetStateAction<string>>;
-
   clearHistory: VoidFunction;
-  clearAndReloadHistory: VoidFunction; // Add this function
+  clearAndReloadHistory: VoidFunction;
 }
 
-const GuessNumContext = createContext<GuessNumContextType | undefined>(undefined);
+const GuessNumStateContext = createContext<GuessNumStateContextType | undefined>(undefined);
+const GuessNumTimerContext = createContext<GuessNumTimerContextType | undefined>(undefined);
+const GuessNumActionsContext = createContext<GuessNumActionsContextType | undefined>(undefined);
 
 type Props = { children: ReactNode };
 
 export const GuessNumProvider: React.FC<Props> = ({ children }) => {
-  const {
-    maxNumber,
-    guessLimit,
-    timeLimit: initialTimeLimit,
-    difficultLevel,
-    scoreHistory,
-    addScoreRecord,
-    clearScoreHistory,
-  } = useGameSet();
+  const maxNumber = useGameSet((state) => state.maxNumber);
+  const guessLimit = useGameSet((state) => state.guessLimit);
+  const initialTimeLimit = useGameSet((state) => state.timeLimit);
+  const difficultLevel = useGameSet((state) => state.difficultLevel);
+  const addScoreRecord = useGameSet((state) => state.addScoreRecord);
+  const clearScoreHistory = useGameSet((state) => state.clearScoreHistory);
 
-  // Core game state via reducer
   const [state, dispatch] = useReducer(gameReducer, initialGameState(guessLimit));
   const { randomNumber, guessResults, showNumber, guessTurn, started } = state;
 
-  // Player name
   const [nameInput, setNameInput] = useState('');
+  const [_, startTransition] = useTransition();
 
-  // Countdown timer
   const { timeLeft, reset: resetTimer } = useTimer({
     initialTime: initialTimeLimit,
     isActive: started && !showNumber,
@@ -117,15 +120,24 @@ export const GuessNumProvider: React.FC<Props> = ({ children }) => {
     [randomNumber, showNumber, maxNumber],
   );
 
+  const setStarted = useCallback((val: boolean) => {
+    dispatch({ type: 'SET_STARTED', payload: val });
+  }, []);
+
   const restartGame = useCallback(() => {
     startGame();
-    dispatch({ type: 'SET_STARTED', payload: true });
-  }, [startGame]);
+    setStarted(true);
+  }, [startGame, setStarted]);
+
+  const gameSignature = useMemo(
+    () => `${showNumber}-${guessResults.length}-${timeLeft}-${guessTurn}`,
+    [showNumber, guessResults.length, timeLeft, guessTurn],
+  );
+  const lastSavedSignatureRef = useRef<string>('');
 
   useEffect(() => {
     if (!showNumber || guessResults.length === 0) return;
-    const last = scoreHistory[scoreHistory.length - 1];
-    if (last && last.guessResults === guessResults) return;
+    if (lastSavedSignatureRef.current === gameSignature) return;
 
     const isWin = guessResults.some((r) => r.message === 'you win');
     const record: ScoreRecord = {
@@ -147,57 +159,80 @@ export const GuessNumProvider: React.FC<Props> = ({ children }) => {
       guessResults,
     };
 
-    addScoreRecord(record);
+    startTransition(() => {
+      addScoreRecord(record);
+    });
+    lastSavedSignatureRef.current = gameSignature;
   }, [
     showNumber,
     guessResults,
     timeLeft,
     nameInput,
-    scoreHistory,
     guessLimit,
     initialTimeLimit,
     difficultLevel,
+    gameSignature,
     addScoreRecord,
   ]);
 
-  // Clear all history and reset game state
   const clearAndReloadHistory = useCallback(() => {
-    clearScoreHistory(); // Clear the history
-    startGame(); // Restart the game
+    clearScoreHistory();
+    startGame();
   }, [clearScoreHistory, startGame]);
 
-  // Initial game start
   useEffect(startGame, [startGame]);
 
+  const stateValue = useMemo(
+    () => ({ randomNumber, guessResults, showNumber, guessTurn, started, nameInput }),
+    [randomNumber, guessResults, showNumber, guessTurn, started, nameInput],
+  );
+
+  const timerValue = useMemo(() => ({ timeLeft }), [timeLeft]);
+
+  const actionsValue = useMemo(
+    () => ({
+      startGame,
+      makeGuess,
+      restartGame,
+      setStarted,
+      setNameInput,
+      clearHistory: clearScoreHistory,
+      clearAndReloadHistory,
+    }),
+    [startGame, makeGuess, restartGame, setStarted, clearScoreHistory, clearAndReloadHistory],
+  );
+
   return (
-    <GuessNumContext.Provider
-      value={{
-        randomNumber,
-        guessResults,
-        showNumber,
-        guessTurn,
-        timeLeft,
-        started,
-        nameInput,
-
-        startGame,
-        makeGuess,
-        restartGame,
-
-        setStarted: (b) => dispatch({ type: 'SET_STARTED', payload: b }),
-        setNameInput,
-
-        clearHistory: clearScoreHistory,
-        clearAndReloadHistory, // Add this to the context
-      }}
-    >
-      {children}
-    </GuessNumContext.Provider>
+    <GuessNumActionsContext.Provider value={actionsValue}>
+      <GuessNumTimerContext.Provider value={timerValue}>
+        <GuessNumStateContext.Provider value={stateValue}>{children}</GuessNumStateContext.Provider>
+      </GuessNumTimerContext.Provider>
+    </GuessNumActionsContext.Provider>
   );
 };
 
-export function useGuessNum(): GuessNumContextType {
-  const ctx = useContext(GuessNumContext);
-  if (!ctx) throw new Error('useGuessNum must be used within GuessNumProvider');
+export function useGuessNumState(): GuessNumStateContextType {
+  const ctx = useContext(GuessNumStateContext);
+  if (!ctx) throw new Error('useGuessNumState must be used within GuessNumProvider');
   return ctx;
+}
+
+export function useGuessNumTimer(): GuessNumTimerContextType {
+  const ctx = useContext(GuessNumTimerContext);
+  if (!ctx) throw new Error('useGuessNumTimer must be used within GuessNumProvider');
+  return ctx;
+}
+
+export function useGuessNumActions(): GuessNumActionsContextType {
+  const ctx = useContext(GuessNumActionsContext);
+  if (!ctx) throw new Error('useGuessNumActions must be used within GuessNumProvider');
+  return ctx;
+}
+
+export function useGuessNum() {
+  return {
+    ...useGuessNumState(),
+    ...useGuessNumTimer(),
+    ...useGuessNumActions(),
+  };
 }
