@@ -1,11 +1,11 @@
-import { prisma } from '@/lib/prisma.js';
+import { prisma } from '../lib/prisma.js';
 import {
   cacheForget,
   cacheInvalidatePrefix,
   cacheRemember,
   cacheRememberConditional,
   TTL,
-} from '@/lib/utills/caching/cache.js';
+} from '../lib/utills/caching/cache.js';
 import type { Request, Response } from 'express';
 import { catchError } from '../lib/utills/catch-error.js';
 import { sendContactEmail } from '../lib/utills/mailer.js';

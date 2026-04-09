@@ -8,19 +8,24 @@ import router from './routes/index.js';
 const app = express();
 const config = getConfig();
 
-const DEFAULT_ORIGIN = 'http://localhost:5173';
-const allowedOrigins = (config.cors.origins ?? config.client.url ?? DEFAULT_ORIGIN)
-  .split(',')
-  .map((origin) => origin.trim())
-  .filter(Boolean);
+const DEV_DEFAULT_ORIGINS = ['http://localhost:3000', 'http://localhost:5173'];
+const allowedOrigins = new Set(
+  config.cors.originList.length > 0
+    ? config.cors.originList
+    : config.isDev
+      ? DEV_DEFAULT_ORIGINS
+      : [config.client.url].filter((origin): origin is string => Boolean(origin?.trim())),
+);
 
 app.use(
   cors({
     origin: (origin, callback) => {
       // Allow non-browser clients (curl/postman/server-to-server).
       if (!origin) return callback(null, true);
-      if (allowedOrigins.includes(origin)) return callback(null, true);
-      return callback(new Error(`CORS blocked for origin: ${origin}`));
+      if (allowedOrigins.has(origin)) return callback(null, true);
+
+      console.warn(`[cors] blocked origin: ${origin}`);
+      return callback(null, false);
     },
     credentials: true,
     exposedHeaders: ['ETag'],

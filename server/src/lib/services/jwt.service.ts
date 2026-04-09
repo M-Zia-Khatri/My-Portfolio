@@ -1,4 +1,4 @@
-import { getConfig } from '@/config/env.js';
+import { getConfig } from '../../config/env.js';
 import crypto from 'crypto';
 import jwt from 'jsonwebtoken';
 import { prisma } from '../prisma.js';

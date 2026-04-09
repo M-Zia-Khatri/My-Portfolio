@@ -1,4 +1,4 @@
-import { rateLimit } from '@/middlewares/rate-limit/rate-limit.middleware.js';
+import { rateLimit } from '../middlewares/rate-limit/rate-limit.middleware.js';
 import { Router } from 'express';
 import {
   createPortfolioItem,

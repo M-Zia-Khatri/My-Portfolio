@@ -1,4 +1,4 @@
-import { getConfig } from '@/config/env.js';
+import { getConfig } from '../../config/env.js';
 import type { Response } from 'express';
 import { send } from './send.js';
 

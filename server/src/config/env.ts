@@ -16,6 +16,10 @@ function initialize() {
 
 export const getConfig = () => {
   initialize(); // Ensures dotenv runs before we read values
+  const corsOrigins = (process.env.CORS_ORIGINS ?? '')
+    .split(',')
+    .map((origin) => origin.trim())
+    .filter(Boolean);
 
   return {
     isDev: process.env.NODE_ENV !== 'production',
@@ -41,6 +45,7 @@ export const getConfig = () => {
 
     cors: {
       origins: process.env.CORS_ORIGINS,
+      originList: corsOrigins,
     },
 
     client: {

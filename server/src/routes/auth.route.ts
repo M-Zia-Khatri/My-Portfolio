@@ -5,9 +5,9 @@ import {
   me,
   refresh,
   verifyOtpHandler,
-} from '@/controllers/auth.controller.js';
-import { requireAdmin } from '@/middlewares/auth.middleware.js';
-import { rateLimit } from '@/middlewares/rate-limit/rate-limit.middleware.js';
+} from '../controllers/auth.controller.js';
+import { requireAdmin } from '../middlewares/auth.middleware.js';
+import { rateLimit } from '../middlewares/rate-limit/rate-limit.middleware.js';
 import { Router } from 'express';
 
 const authRouter = Router();

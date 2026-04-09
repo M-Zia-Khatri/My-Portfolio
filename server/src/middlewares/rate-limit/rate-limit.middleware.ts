@@ -1,5 +1,5 @@
-import { getConfig } from '@/config/env.js';
-import { redis } from '@/lib/utills/redis.js';
+import { getConfig } from '../../config/env.js';
+import { redis } from '../../lib/utills/redis.js';
 import { NextFunction, Request, Response } from 'express';
 import { fallbackCheck } from './rate-limit.fallback.js';
 import {

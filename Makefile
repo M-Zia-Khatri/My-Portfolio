@@ -22,6 +22,7 @@ help:
 	@echo "  make shell-server   - Access server container shell"
 	@echo "  make shell-db       - Access database container shell"
 	@echo "  make migrate        - Run database migrations"
+	@echo "  make seed           - Run database seed"
 	@echo "  make clean          - Stop containers and remove volumes"
 	@echo "  make rebuild        - Rebuild and restart all containers"
 	@echo "  make prune          - Remove unused Docker resources"
@@ -72,6 +73,10 @@ shell-db:
 # Run migrations
 migrate:
 	$(DOCKER_COMPOSE) exec server pnpm prisma migrate deploy
+
+# Run seed
+seed:
+	$(DOCKER_COMPOSE) exec server pnpm prisma db seed
 
 # Clean up
 clean:

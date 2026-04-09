@@ -1,10 +1,10 @@
-import { prisma } from '@/lib/prisma.js';
+import { prisma } from '../lib/prisma.js';
 import {
   CreatePortfolioDto,
   PortfolioItem,
   UpdatePortfolioDto,
-} from '@/lib/types/portfolio.types.js';
-import { generateETag } from '@/lib/utills/caching/cache.etag.js';
+} from '../lib/types/portfolio.types.js';
+import { generateETag } from '../lib/utills/caching/cache.etag.js';
 import {
   cacheForget,
   cacheInvalidatePrefix,
@@ -12,8 +12,8 @@ import {
   cacheRemember,
   cacheRememberConditional,
   TTL,
-} from '@/lib/utills/caching/cache.js';
-import { deleteFromCloudinary } from '@/lib/utills/cloudinary.js';
+} from '../lib/utills/caching/cache.js';
+import { deleteFromCloudinary } from '../lib/utills/cloudinary.js';
 import type { Request, Response } from 'express';
 import { Portfolio_item, Prisma } from '../../generated/prisma/client.js';
 import { catchError } from '../lib/utills/catch-error.js';
@@ -79,14 +79,23 @@ function validateUpdate(body: UpdatePortfolioDto): string | null {
   return null;
 }
 
+function isStringArray(value: Prisma.JsonValue): value is string[] {
+  return Array.isArray(value) && value.every((tech) => typeof tech === 'string');
+}
+
 function toPortfolioResponse(item: Portfolio_item): PortfolioItem {
+  const useTech = item.use_tech;
+  if (!isStringArray(useTech)) {
+    throw new Error('Invalid portfolio data: use_tech must be a string array');
+  }
+
   return {
     id: item.id,
     siteName: item.site_name,
     siteRole: item.site_role,
     siteUrl: item.site_url,
     siteImageUrl: item.site_image_url,
-    useTech: item.use_tech as string[], // Cast the JsonValue to string array
+    useTech,
     description: item.description,
     createdAt: item.created_at,
     updatedAt: item.updated_at,
@@ -249,7 +258,7 @@ export async function updatePortfolioItem(req: Request, res: Response): Promise<
     }
 
     // ─── Fetch Cached + Validate ETag ────────────────────────────────────────
-    const cached = await cacheRememberConditional<CreatePortfolioDto | null>(CACHE_KEYS.one(id), {
+    const cached = await cacheRememberConditional<Portfolio_item | null>(CACHE_KEYS.one(id), {
       ttl: TTL.ONE_DAY,
       ifMatch: clientETag,
       callback: () => prisma.portfolio_item.findUnique({ where: { id } }),

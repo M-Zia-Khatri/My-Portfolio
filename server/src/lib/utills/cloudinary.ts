@@ -1,4 +1,4 @@
-import { getConfig } from '@/config/env.js';
+import { getConfig } from '../../config/env.js';
 import { v2 as cloudinary } from 'cloudinary';
 
 const { cloudinary: cloudinaryConfig } = getConfig();

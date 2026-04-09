@@ -1,5 +1,5 @@
-import { SkillRow, toSkillResponse } from '@/lib/types/skill.types.js';
-import { generateETag } from '@/lib/utills/caching/cache.etag.js';
+import { SkillRow, toSkillResponse } from '../lib/types/skill.types.js';
+import { generateETag } from '../lib/utills/caching/cache.etag.js';
 import {
   cacheForget,
   cacheInvalidatePrefix,
@@ -7,10 +7,10 @@ import {
   cacheRemember,
   cacheRememberConditional,
   TTL,
-} from '@/lib/utills/caching/cache.js';
-import { catchError } from '@/lib/utills/catch-error.js';
-import { send } from '@/lib/utills/send.js';
-import { createSkillSchema, updateSkillSchema } from '@/lib/validators/skill.validation.js';
+} from '../lib/utills/caching/cache.js';
+import { catchError } from '../lib/utills/catch-error.js';
+import { send } from '../lib/utills/send.js';
+import { createSkillSchema, updateSkillSchema } from '../lib/validators/skill.validation.js';
 import type { Request, Response } from 'express';
 import { Prisma, Skill } from '../../generated/prisma/client.js';
 import { prisma } from '../lib/prisma.js';
@@ -18,12 +18,11 @@ import { SkillMode } from './../../generated/prisma/enums.js';
 import { SkillModel } from './../../generated/prisma/models/Skill.js';
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
-// Prisma requires Prisma.JsonNull (not plain null) to explicitly store NULL
-// in a nullable Json column.
-function toJson(value: unknown[] | null | undefined): Prisma.InputJsonValue {
+function toNullableJsonInput(
+  value: unknown | null | undefined,
+): Prisma.NullableJsonNullValueInput | Prisma.InputJsonValue {
   if (value === null || value === undefined) {
-    // Explicitly cast to unknown then to InputJsonValue to bypass the index signature error
-    return Prisma.JsonNull as unknown as Prisma.InputJsonValue;
+    return Prisma.NullableJsonNullValueInput.JsonNull;
   }
   return value as Prisma.InputJsonValue;
 }
@@ -49,8 +48,10 @@ const CACHE_KEYS = {
   prefix: 'skills',
 };
 
-function toPrismaJson(value: unknown): Prisma.InputJsonValue {
-  if (value === null || value === undefined) return Prisma.JsonNull;
+function toPrismaJson(
+  value: unknown,
+): Prisma.NullableJsonNullValueInput | Prisma.InputJsonValue {
+  if (value === null || value === undefined) return Prisma.NullableJsonNullValueInput.JsonNull;
   return value as Prisma.InputJsonValue;
 }
 
@@ -161,8 +162,8 @@ export async function create(req: Request, res: Response): Promise<void> {
         lang: input.lang,
         color: input.color,
         mode: input.mode,
-        code: toJson(input.mode === 'code' ? input.code : null),
-        commands: toJson(input.mode === 'terminal' ? input.commands : null),
+        code: toNullableJsonInput(input.mode === 'code' ? input.code : null),
+        commands: toNullableJsonInput(input.mode === 'terminal' ? input.commands : null),
       },
     });
 

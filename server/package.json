@@ -2,11 +2,11 @@
   "name": "server",
   "version": "1.0.0",
   "description": "",
-  "main": "dist/server.js",
+  "main": "dist/src/server.js",
   "scripts": {
     "dev": "nodemon --exec 'tsx -r dotenv/config src/server.ts' -- --dotenv_config_path=.env.development",
     "build": "tsc",
-    "start": "node dist/server.js",
+    "start": "node dist/src/server.js",
     "lint": "eslint src --ext .ts",
     "db:migrate": "prisma migrate deploy",
     "db:seed": "prisma db seed"

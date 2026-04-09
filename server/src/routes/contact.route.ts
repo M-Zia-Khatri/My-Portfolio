@@ -1,5 +1,5 @@
-import { requireAdmin } from '@/middlewares/auth.middleware.js';
-import { rateLimit } from '@/middlewares/rate-limit/rate-limit.middleware.js';
+import { requireAdmin } from '../middlewares/auth.middleware.js';
+import { rateLimit } from '../middlewares/rate-limit/rate-limit.middleware.js';
 import { Router } from 'express';
 import { deleteContact, getContacts, submitContact } from '../controllers/contact.controller.js';
 import { validateContact } from '../middlewares/contact.middleware.js';

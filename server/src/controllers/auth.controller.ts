@@ -1,17 +1,17 @@
 // src/controllers/auth.controller.ts
-import { getConfig } from '@/config/env.js';
-import { prisma } from '@/lib/prisma.js';
+import { getConfig } from '../config/env.js';
+import { prisma } from '../lib/prisma.js';
 import {
   revokeAllRefreshTokens,
   revokeRefreshToken,
   rotateRefreshToken,
   signAccessToken,
   signRefreshToken,
-} from '@/lib/services/jwt.service.js';
-import { generateOtp, verifyOtp } from '@/lib/services/otp.service.js';
-import type { AuthRequest, LoginBody, VerifyOtpBody } from '@/lib/types/auth.types.js';
-import { catchError } from '@/lib/utills/catch-error.js';
-import { send } from '@/lib/utills/send.js';
+} from '../lib/services/jwt.service.js';
+import { generateOtp, verifyOtp } from '../lib/services/otp.service.js';
+import type { AuthRequest, LoginBody, VerifyOtpBody } from '../lib/types/auth.types.js';
+import { catchError } from '../lib/utills/catch-error.js';
+import { send } from '../lib/utills/send.js';
 import bcrypt from 'bcrypt';
 import type { Request, Response } from 'express';
 import { sendOtpEmail } from '../lib/utills/mailer.js';
