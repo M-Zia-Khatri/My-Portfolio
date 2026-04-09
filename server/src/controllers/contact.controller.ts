@@ -1,15 +1,15 @@
-import prisma from '@/lib/prisma';
+import { prisma } from '@/lib/prisma.js';
 import {
   cacheForget,
   cacheInvalidatePrefix,
   cacheRemember,
   cacheRememberConditional,
   TTL,
-} from '@/lib/utills/caching';
+} from '@/lib/utills/caching/cache.js';
 import type { Request, Response } from 'express';
-import { catchError } from '../lib/utills/catch-error';
-import { sendContactEmail } from '../lib/utills/mailer';
-import { send } from '../lib/utills/send';
+import { catchError } from '../lib/utills/catch-error.js';
+import { sendContactEmail } from '../lib/utills/mailer.js';
+import { send } from '../lib/utills/send.js';
 
 const CACHE_KEYS = {
   list: (page: number, pageSize: number) => `contacts:list:${page}:${pageSize}`,

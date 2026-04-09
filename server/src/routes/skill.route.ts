@@ -1,8 +1,8 @@
 // server/src/routes/skill.route.ts
-import { rateLimit } from '@/middlewares/rate-limit/rate-limit.middleware';
+import { rateLimit } from '@/middlewares/rate-limit/rate-limit.middleware.js';
 import { Router } from 'express';
-import * as skill from '../controllers/skill.controller';
-import { requireAdmin } from '../middlewares/auth.middleware';
+import * as skill from '../controllers/skill.controller.js';
+import { requireAdmin } from '../middlewares/auth.middleware.js';
 
 const router = Router();
 

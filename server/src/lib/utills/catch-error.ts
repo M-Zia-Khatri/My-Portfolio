@@ -1,6 +1,6 @@
-import { getConfig } from '@/config/env';
+import { getConfig } from '@/config/env.js';
 import type { Response } from 'express';
-import { send } from './send';
+import { send } from './send.js';
 
 const config = getConfig();
 

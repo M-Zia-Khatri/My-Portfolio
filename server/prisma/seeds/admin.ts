@@ -1,7 +1,7 @@
 // prisma/seeds/admin.ts
 import bcrypt from 'bcrypt';
-import Prisma from '../../src/lib/prisma'; // Ensure this points to your prisma instance
-import { getConfig } from '../../src/config/env'; // Use relative path for safety
+import { getConfig } from '../../src/config/env.js'; // Use relative path for safety
+import { prisma } from '../../src/lib/prisma.js'; // Ensure this points to your prisma instance
 
 export async function seedAdmin() {
   const config = getConfig(); // Get fresh config
@@ -10,10 +10,10 @@ export async function seedAdmin() {
   const email = adminObj.email || 'admin@example.com';
   const password = adminObj.password || 'ChangeMe123!';
   const fullName = adminObj.name || 'Super Admin';
-  
+
   const passwordHash = await bcrypt.hash(password, 12);
 
-  const admin = await Prisma.admin.upsert({
+  const admin = await prisma.admin.upsert({
     where: { email },
     update: { passwordHash, fullName },
     create: { email, passwordHash, fullName },

@@ -1,8 +1,8 @@
 import { getConfig } from '@/config/env.js';
-import Redis from 'ioredis';
+import * as IORedis from 'ioredis';
 const { redis: redisConfig } = getConfig();
 
-const redis = new Redis({
+const redis = new IORedis.Redis({
   host: redisConfig.host || 'localhost',
   port: Number(redisConfig.port) || 6379,
 });

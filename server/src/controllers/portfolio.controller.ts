@@ -1,18 +1,23 @@
-import prisma from '@/lib/prisma';
-import { CreatePortfolioDto, UpdatePortfolioDto } from '@/lib/types/portfolio.types';
+import { prisma } from '@/lib/prisma.js';
+import {
+  CreatePortfolioDto,
+  PortfolioItem,
+  UpdatePortfolioDto,
+} from '@/lib/types/portfolio.types.js';
+import { generateETag } from '@/lib/utills/caching/cache.etag.js';
 import {
   cacheForget,
   cacheInvalidatePrefix,
   cachePut,
   cacheRemember,
   cacheRememberConditional,
-  generateETag,
   TTL,
-} from '@/lib/utills/caching';
-import { deleteFromCloudinary } from '@/lib/utills/cloudinary';
+} from '@/lib/utills/caching/cache.js';
+import { deleteFromCloudinary } from '@/lib/utills/cloudinary.js';
 import type { Request, Response } from 'express';
-import { catchError } from '../lib/utills/catch-error';
-import { send } from '../lib/utills/send';
+import { Portfolio_item, Prisma } from '../../generated/prisma/client.js';
+import { catchError } from '../lib/utills/catch-error.js';
+import { send } from '../lib/utills/send.js';
 
 // ─── Cache Keys ──────────────────────────────────────────────────────────────
 
@@ -74,6 +79,20 @@ function validateUpdate(body: UpdatePortfolioDto): string | null {
   return null;
 }
 
+function toPortfolioResponse(item: Portfolio_item): PortfolioItem {
+  return {
+    id: item.id,
+    siteName: item.site_name,
+    siteRole: item.site_role,
+    siteUrl: item.site_url,
+    siteImageUrl: item.site_image_url,
+    useTech: item.use_tech as string[], // Cast the JsonValue to string array
+    description: item.description,
+    createdAt: item.created_at,
+    updatedAt: item.updated_at,
+  };
+}
+
 // ─── GET /api/portfolio ───────────────────────────────────────────────────────
 
 export async function getAllPortfolioItems(req: Request, res: Response): Promise<void> {
@@ -104,7 +123,7 @@ export async function getAllPortfolioItems(req: Request, res: Response): Promise
       status: 200,
       message: 'Portfolio items retrieved successfully',
       data: result.data,
-      meta: { total: result.data?.length ?? 0 },
+      meta: { total: Array.isArray(result.data) ? result.data.length : 0 },
     });
   } catch (err) {
     catchError(res, err);
@@ -118,7 +137,7 @@ export async function getPortfolioItemById(req: Request, res: Response): Promise
     const id = Array.isArray(req.params.id) ? req.params.id[0] : req.params.id;
     const clientETag = req.headers['if-none-match'] as string | undefined;
 
-    const result = await cacheRememberConditional(CACHE_KEYS.one(id), {
+    const result = await cacheRememberConditional<Portfolio_item | null>(CACHE_KEYS.one(id), {
       ttl: TTL.ONE_DAY,
       staleTtl: TTL.ONE_WEEK,
       ifNoneMatch: clientETag,
@@ -147,7 +166,7 @@ export async function getPortfolioItemById(req: Request, res: Response): Promise
       success: true,
       status: 200,
       message: 'Portfolio item retrieved successfully',
-      data: result.data,
+      data: toPortfolioResponse(result.data as Portfolio_item),
     });
   } catch (err) {
     catchError(res, err);
@@ -230,13 +249,24 @@ export async function updatePortfolioItem(req: Request, res: Response): Promise<
     }
 
     // ─── Fetch Cached + Validate ETag ────────────────────────────────────────
-    const cached = await cacheRememberConditional(CACHE_KEYS.one(id), {
+    const cached = await cacheRememberConditional<CreatePortfolioDto | null>(CACHE_KEYS.one(id), {
       ttl: TTL.ONE_DAY,
       ifMatch: clientETag,
       callback: () => prisma.portfolio_item.findUnique({ where: { id } }),
     });
 
     const existing = cached.data;
+    // ─── 404 Not Found ────────────────────────────────────────────────────────
+    if (!existing) {
+      if (newImage) await deleteFromCloudinary(newImage);
+
+      return send(res, {
+        success: false,
+        status: 404,
+        message: 'Portfolio item not found',
+        error: { detail: `No item with id "${id}"` },
+      });
+    }
 
     // ─── 412 Precondition Failed ─────────────────────────────────────────────
     if (cached.status === 412) {
@@ -249,18 +279,6 @@ export async function updatePortfolioItem(req: Request, res: Response): Promise<
         status: 412,
         message: 'Resource modified by another request',
         error: { currentETag: cached.etag },
-      });
-    }
-
-    // ─── 404 Not Found ────────────────────────────────────────────────────────
-    if (!existing) {
-      if (newImage) await deleteFromCloudinary(newImage);
-
-      return send(res, {
-        success: false,
-        status: 404,
-        message: 'Portfolio item not found',
-        error: { detail: `No item with id "${id}"` },
       });
     }
 
@@ -288,12 +306,13 @@ export async function updatePortfolioItem(req: Request, res: Response): Promise<
     const updatedItem = await prisma.portfolio_item.update({
       where: { id },
       data: {
-        ...(site_name !== undefined && { site_name }),
-        ...(site_role !== undefined && { site_role }),
-        ...(site_url !== undefined && { site_url }),
-        ...(site_image_url !== undefined && { site_image_url }),
-        ...(use_tech !== undefined && { use_tech }),
-        ...(description !== undefined && { description }),
+        site_name: body.site_name,
+        site_role: body.site_role,
+        site_url: body.site_url,
+        site_image_url: body.site_image_url,
+        // Ensure type compatibility for JSON
+        use_tech: body.use_tech ? (body.use_tech as Prisma.InputJsonValue) : undefined,
+        description: body.description,
       },
     });
 
@@ -315,9 +334,9 @@ export async function updatePortfolioItem(req: Request, res: Response): Promise<
       success: true,
       status: 200,
       message: 'Portfolio item updated successfully',
-      data: updatedItem,
+      data: toPortfolioResponse(updatedItem),
     });
-  } catch (err) {
+  } catch (err: unknown) {
     try {
       if (newImage) await deleteFromCloudinary(newImage);
     } catch {

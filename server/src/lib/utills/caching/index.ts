@@ -9,11 +9,11 @@ export {
   configureCache,
   onCacheEvent,
   setCacheMetrics,
-} from './cache';
+} from './cache.js';
 
-export { cacheRememberCollection } from './cache.collections';
+export { cacheRememberCollection } from './cache.collections.js';
 
-export { generateCompositeETag, generateETag, matchETag } from './cache.etag';
+export { generateCompositeETag, generateETag, matchETag } from './cache.etag.js';
 
 export type {
   CacheConditionalOptions,
@@ -22,4 +22,4 @@ export type {
   CacheOptions,
   CachePayload,
   CacheResult,
-} from './cache.types';
+} from './cache.types.js';

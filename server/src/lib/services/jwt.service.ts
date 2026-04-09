@@ -1,8 +1,8 @@
-import { getConfig } from '@/config/env';
+import { getConfig } from '@/config/env.js';
 import crypto from 'crypto';
 import jwt from 'jsonwebtoken';
-import prisma from '../prisma';
-import type { AccessTokenPayload, RefreshTokenPayload } from '../types/auth.types';
+import { prisma } from '../prisma.js';
+import type { AccessTokenPayload, RefreshTokenPayload } from '../types/auth.types.js';
 
 const { jwt: jwtConfig } = getConfig();
 

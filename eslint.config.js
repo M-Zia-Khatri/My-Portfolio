@@ -38,12 +38,14 @@ export default tseslint.config(
       'react-hooks/rules-of-hooks': 'error',
       'react-hooks/exhaustive-deps': 'warn',
       'react-compiler/react-compiler': 'error',
+      'import/extensions': ['error', 'always'],
     },
   },
   {
     files: ['server/**/*.ts'],
     rules: {
       'no-console': 'off',
+      'import/extensions': ['error', 'always'],
     },
   },
 );

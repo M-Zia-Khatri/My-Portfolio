@@ -1,4 +1,4 @@
-import { rateLimit } from '@/middlewares/rate-limit/rate-limit.middleware';
+import { rateLimit } from '@/middlewares/rate-limit/rate-limit.middleware.js';
 import { Router } from 'express';
 import {
   createPortfolioItem,
@@ -6,8 +6,8 @@ import {
   getAllPortfolioItems,
   getPortfolioItemById,
   updatePortfolioItem,
-} from '../controllers/portfolio.controller';
-import { requireAdmin } from '../middlewares/auth.middleware';
+} from '../controllers/portfolio.controller.js';
+import { requireAdmin } from '../middlewares/auth.middleware.js';
 
 const portfolioRouter = Router();
 

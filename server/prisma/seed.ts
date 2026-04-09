@@ -1,5 +1,5 @@
 // prisma/seed.ts
-import Prisma from '../src/lib/prisma';
+import { prisma } from '../src/lib/prisma';
 import { seedAdmin } from './seeds/admin';
 
 async function main() {
@@ -12,7 +12,7 @@ async function main() {
     process.exit(1);
   } finally {
     // Crucial: Disconnect Prisma so the script can exit
-    await Prisma.$disconnect();
+    await prisma.$disconnect();
   }
 }
 

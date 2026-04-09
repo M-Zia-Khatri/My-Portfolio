@@ -1,8 +1,8 @@
 // cache.serializer.ts
 import { promisify } from 'util';
 import { gunzip, gzip } from 'zlib';
-import { COMPRESSION_THRESHOLD_BYTES, MAX_PAYLOAD_BYTES } from './cache.constants';
-import type { CachePayload } from './cache.types';
+import { COMPRESSION_THRESHOLD_BYTES, MAX_PAYLOAD_BYTES } from './cache.constants.js';
+import type { CachePayload } from './cache.types.js';
 
 const gzipAsync = promisify(gzip);
 const gunzipAsync = promisify(gunzip);

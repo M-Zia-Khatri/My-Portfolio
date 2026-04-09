@@ -1,18 +1,18 @@
 // cache.ts
 import { EventEmitter } from 'events';
-import { redis } from '../redis';
-import { isCircuitOpen, recordFailure, recordSuccess } from './cache.circuit';
+import { redis } from '../redis.js';
+import { isCircuitOpen, recordFailure, recordSuccess } from './cache.circuit.js';
 import {
   CACHE_PREFIX,
   DEFAULT_CONFIG,
   LOCK_RETRY_DELAY,
   MAX_CALLBACK_DURATION_MS,
   SCAN_BATCH_SIZE,
-} from './cache.constants';
-import { generateETag, matchETag } from './cache.etag';
-import { buildKey, buildLockKey } from './cache.keys';
-import { acquireLock, acquireLockWithBackoff, releaseLock, sleep } from './cache.lock';
-import { deserialize, serialize } from './cache.serializer';
+} from './cache.constants.js';
+import { generateETag, matchETag } from './cache.etag.js';
+import { buildKey, buildLockKey } from './cache.keys.js';
+import { acquireLock, acquireLockWithBackoff, releaseLock, sleep } from './cache.lock.js';
+import { deserialize, serialize } from './cache.serializer.js';
 import type {
   CacheConditionalOptions,
   CacheConfig,
@@ -20,10 +20,10 @@ import type {
   CacheOptions,
   CachePayload,
   CacheResult,
-} from './cache.types';
+} from './cache.types.js';
 
-export { TTL } from './cache.constants';
-export type { CacheConfig, CacheMetrics, CacheOptions, CacheResult } from './cache.types';
+export { TTL } from './cache.constants.js';
+export type { CacheConfig, CacheMetrics, CacheOptions, CacheResult } from './cache.types.js';
 
 let config: CacheConfig = DEFAULT_CONFIG;
 let metrics: CacheMetrics | null = null;
@@ -357,7 +357,7 @@ export async function cacheInvalidatePrefix(prefix: string): Promise<number> {
       if (keys.length > 0) {
         // Stream deletes in batches to avoid memory buildup
         const pipeline = redis.pipeline();
-        keys.forEach((k) => pipeline.del(k));
+        keys.forEach((k: any) => pipeline.del(k));
         await pipeline.exec();
         totalDeleted += keys.length;
       }

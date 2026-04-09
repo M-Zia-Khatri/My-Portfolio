@@ -1,6 +1,6 @@
 // cache.circuit.ts
 import { EventEmitter } from 'events';
-import { FAILURE_THRESHOLD, RECOVERY_WINDOW_MS } from './cache.constants';
+import { FAILURE_THRESHOLD, RECOVERY_WINDOW_MS } from './cache.constants.js';
 
 type CircuitState = 'CLOSED' | 'OPEN' | 'HALF_OPEN';
 

@@ -4,14 +4,13 @@
 // Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
 // Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
 
+datasource db {
+  provider = "mysql"
+}
+
 generator client {
   provider = "prisma-client"
   output   = "../generated/prisma"
-  previewFeatures = ["driverAdapters"]
-}
-
-datasource db {
-  provider = "mysql"
 }
 
 // ─── ADMIN ────────────────────────────────────────────────────────────────────

@@ -1,5 +1,5 @@
 // cache.keys.ts
-import { CACHE_PREFIX } from './cache.constants';
+import { CACHE_PREFIX } from './cache.constants.js';
 
 export function buildKey(key: string): string {
   return `${CACHE_PREFIX}:${key}`;

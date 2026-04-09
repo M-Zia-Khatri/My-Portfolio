@@ -1,19 +1,19 @@
+// prisma.config.ts
 import dotenv from 'dotenv';
-import 'dotenv/config';
-import { defineConfig, env } from 'prisma/config';
-
-// Load env based on NODE_ENV
 dotenv.config({
-  path: `.env.${process.env.NODE_ENV ?? 'development'}`,
+  path: process.env.NODE_ENV === 'production' ? '.env.production' : '.env.development',
 });
+
+import { defineConfig, env } from 'prisma/config';
 
 export default defineConfig({
   schema: 'prisma/schema.prisma',
   migrations: {
     path: 'prisma/migrations',
-    seed: 'tsx prisma/seed.ts',
+    seed: 'npx tsx prisma/seed.ts',
   },
   datasource: {
+    // Direct link to the environment variable
     url: env('DATABASE_URL'),
   },
 });

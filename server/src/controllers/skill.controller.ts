@@ -1,40 +1,46 @@
-import { SkillRow, toSkillResponse } from '@/lib/types/skill.types';
+import { SkillRow, toSkillResponse } from '@/lib/types/skill.types.js';
+import { generateETag } from '@/lib/utills/caching/cache.etag.js';
 import {
   cacheForget,
   cacheInvalidatePrefix,
   cachePut,
   cacheRemember,
   cacheRememberConditional,
-  generateETag,
   TTL,
-} from '@/lib/utills/caching';
-import { catchError } from '@/lib/utills/catch-error';
-import { send } from '@/lib/utills/send';
-import { createSkillSchema, updateSkillSchema } from '@/lib/validators/skill.validation';
+} from '@/lib/utills/caching/cache.js';
+import { catchError } from '@/lib/utills/catch-error.js';
+import { send } from '@/lib/utills/send.js';
+import { createSkillSchema, updateSkillSchema } from '@/lib/validators/skill.validation.js';
 import type { Request, Response } from 'express';
-import { Prisma, SkillMode } from '../../generated/prisma/client';
-import prisma from '../lib/prisma';
+import { Prisma, Skill } from '../../generated/prisma/client.js';
+import { prisma } from '../lib/prisma.js';
+import { SkillMode } from './../../generated/prisma/enums.js';
+import { SkillModel } from './../../generated/prisma/models/Skill.js';
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 // Prisma requires Prisma.JsonNull (not plain null) to explicitly store NULL
 // in a nullable Json column.
-function toJson(
-  value: unknown[] | null | undefined,
-): Prisma.InputJsonValue | typeof Prisma.JsonNull {
-  return value != null ? (value as Prisma.InputJsonValue) : Prisma.JsonNull;
+function toJson(value: unknown[] | null | undefined): Prisma.InputJsonValue {
+  if (value === null || value === undefined) {
+    // Explicitly cast to unknown then to InputJsonValue to bypass the index signature error
+    return Prisma.JsonNull as unknown as Prisma.InputJsonValue;
+  }
+  return value as Prisma.InputJsonValue;
 }
 
 function isLangTaken(err: unknown): boolean {
-  return (
-    err instanceof Prisma.PrismaClientKnownRequestError &&
-    err.code === 'P2002' &&
-    Array.isArray((err.meta as { target?: string[] })?.target) &&
-    (err.meta as { target: string[] }).target.includes('lang')
-  );
+  if (err instanceof Prisma.PrismaClientKnownRequestError) {
+    return (
+      err.code === 'P2002' &&
+      Array.isArray((err.meta as { target?: string[] })?.target) &&
+      (err.meta as { target: string[] }).target.includes('lang')
+    );
+  }
+  return false;
 }
 
 type CustomSkillWhereInput = Prisma.SkillWhereInput & {
-  mode?: Prisma.EnumSkillModeFilter<'Skill'> | SkillMode | undefined;
+  mode?: Prisma.EnumSkillModeFilter<'Skill'> | SkillModel | undefined;
 };
 
 const CACHE_KEYS = {
@@ -43,6 +49,11 @@ const CACHE_KEYS = {
   prefix: 'skills',
 };
 
+function toPrismaJson(value: unknown): Prisma.InputJsonValue {
+  if (value === null || value === undefined) return Prisma.JsonNull;
+  return value as Prisma.InputJsonValue;
+}
+
 // GET /api/skills - Add conditional request support
 export async function getAll(req: Request, res: Response): Promise<void> {
   try {
@@ -50,7 +61,7 @@ export async function getAll(req: Request, res: Response): Promise<void> {
     const modeStr = typeof mode === 'string' ? mode : undefined;
     const clientETag = req.headers['if-none-match'] as string | undefined;
 
-    const result = await cacheRememberConditional(CACHE_KEYS.all(modeStr), {
+    const result = await cacheRememberConditional<Skill[]>(CACHE_KEYS.all(modeStr), {
       ttl: TTL.ONE_DAY,
       staleTtl: TTL.ONE_WEEK,
       ifNoneMatch: clientETag, // Enable 304 support
@@ -77,7 +88,7 @@ export async function getAll(req: Request, res: Response): Promise<void> {
       status: 200,
       message: 'Skills retrieved successfully',
       data: (result.data as unknown as SkillRow[]).map(toSkillResponse),
-      meta: { total: result.data?.length },
+      meta: { total: Array.isArray(result.data) ? result.data.length : 0 },
     });
   } catch (err) {
     catchError(res, err);
@@ -196,7 +207,7 @@ export async function update(req: Request, res: Response): Promise<void> {
     }
 
     // Check cache first for existing (faster than DB)
-    const cached = await cacheRememberConditional(CACHE_KEYS.one(id), {
+    const cached = await cacheRememberConditional<Skill | null>(CACHE_KEYS.one(id), {
       ttl: TTL.ONE_DAY,
       ifMatch: clientETag, // 412 if someone else modified it
       callback: () => prisma.skill.findUnique({ where: { id } }),
@@ -242,8 +253,8 @@ export async function update(req: Request, res: Response): Promise<void> {
         lang: input.lang ?? cached.data.lang,
         color: input.color ?? cached.data.color,
         mode: resolvedMode,
-        code: toJson(resolvedCode as unknown[]),
-        commands: toJson(resolvedCommands as unknown[]),
+        code: input.code !== undefined ? toPrismaJson(input.code) : undefined,
+        commands: input.commands !== undefined ? toPrismaJson(input.commands) : undefined,
       },
     });
 

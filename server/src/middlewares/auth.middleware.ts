@@ -1,7 +1,7 @@
 // src/middlewares/auth.middleware.ts
-import { verifyAccessToken } from '@/lib/services/jwt.service';
-import { AuthRequest } from '@/lib/types/auth.types';
-import { ApiResponse } from '@/lib/types/globle.types';
+import { verifyAccessToken } from '@/lib/services/jwt.service.js';
+import { AuthRequest } from '@/lib/types/auth.types.js';
+import { ApiResponse } from '@/lib/types/globle.types.js';
 import type { NextFunction, Response } from 'express';
 
 // ─── HELPER ───────────────────────────────────────────────────────────────────

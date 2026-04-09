@@ -1,23 +1,22 @@
 // src/controllers/auth.controller.ts
-import prisma from '@/lib/prisma';
+import { getConfig } from '@/config/env.js';
+import { prisma } from '@/lib/prisma.js';
 import {
   revokeAllRefreshTokens,
   revokeRefreshToken,
   rotateRefreshToken,
   signAccessToken,
   signRefreshToken,
-} from '@/lib/services/jwt.service';
-import { generateOtp, verifyOtp } from '@/lib/services/otp.service';
-import type { AuthRequest, LoginBody, VerifyOtpBody } from '@/lib/types/auth.types';
-import { catchError } from '@/lib/utills/catch-error';
-import { send } from '@/lib/utills/send';
+} from '@/lib/services/jwt.service.js';
+import { generateOtp, verifyOtp } from '@/lib/services/otp.service.js';
+import type { AuthRequest, LoginBody, VerifyOtpBody } from '@/lib/types/auth.types.js';
+import { catchError } from '@/lib/utills/catch-error.js';
+import { send } from '@/lib/utills/send.js';
 import bcrypt from 'bcrypt';
 import type { Request, Response } from 'express';
-import { sendOtpEmail } from '../lib/utills/mailer';
-import { getConfig } from '@/config/env';
+import { sendOtpEmail } from '../lib/utills/mailer.js';
 
 const config = getConfig();
-
 
 // ─── Constants ────────────────────────────────────────────────────────────────
 const REFRESH_TOKEN_COOKIE = 'refreshToken';

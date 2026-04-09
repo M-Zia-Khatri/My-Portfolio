@@ -45,7 +45,7 @@ export function toSkillResponse(row: SkillRow): SkillResponse {
     lang: row.lang,
     color: row.color,
     mode: row.mode,
-    code: row.code,
+    code: row.code as string[] | null,
     commands: row.commands,
     createdAt: row.created_at.toISOString(),
     updatedAt: row.updated_at.toISOString(),

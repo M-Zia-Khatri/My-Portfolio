@@ -1,6 +1,6 @@
 import bcrypt from 'bcrypt';
 import crypto from 'crypto';
-import prisma from '../prisma';
+import { prisma } from '../prisma.js';
 
 const OTP_EXPIRY_MS = 5 * 60 * 1000; // 5 minutes
 const OTP_BCRYPT_SALT = 12;

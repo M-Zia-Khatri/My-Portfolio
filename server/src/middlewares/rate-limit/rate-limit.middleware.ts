@@ -1,11 +1,16 @@
-import { getConfig } from '@/config/env';
-import { redis } from '@/lib/utills/redis';
+import { getConfig } from '@/config/env.js';
+import { redis } from '@/lib/utills/redis.js';
 import { NextFunction, Request, Response } from 'express';
-import { fallbackCheck } from './rate-limit.fallback';
-import { buildRedisKey, getIp, setRateLimitHeaders, uniqueRequestId } from './rate-limit.helpers';
-import { SLIDING_WINDOW_SCRIPT } from './rate-limit.script';
-import { RateLimitConfig } from './rate-limit.types';
-export type { RateLimitConfig, Tier } from './rate-limit.types';
+import { fallbackCheck } from './rate-limit.fallback.js';
+import {
+  buildRedisKey,
+  getIp,
+  setRateLimitHeaders,
+  uniqueRequestId,
+} from './rate-limit.helpers.js';
+import { SLIDING_WINDOW_SCRIPT } from './rate-limit.script.js';
+import { RateLimitConfig } from './rate-limit.types.js';
+export type { RateLimitConfig, Tier } from './rate-limit.types.js';
 
 // ─── Middleware Factory ────────────────────────────────────────────────────
 

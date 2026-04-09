@@ -1,8 +1,8 @@
 {
   "compilerOptions": {
     "target": "ES2022",
-    "module": "ESNext",
-    "moduleResolution": "bundler",
+    "module": "NodeNext",
+    "moduleResolution": "NodeNext",
     "outDir": "./dist",
     "rootDir": ".",
     "paths": {
@@ -18,7 +18,9 @@
 
     /* CRITICAL CHANGES BELOW */
     "noEmit": false, // Set to false so 'tsc' actually generates the /dist folder
-    "allowImportingTsExtensions": false // Set to false if you want 'tsc' to emit JS files
+    "allowImportingTsExtensions": false, // Set to false if you want 'tsc' to emit JS files
+
+    "types": ["ioredis"]
   },
   "include": ["src/**/*", "prisma/seeds/admin.ts"],
   "exclude": ["node_modules", "dist", "generated"]

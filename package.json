@@ -46,6 +46,7 @@
     "@eslint/compat": "^2.0.3",
     "@eslint/js": "^10.0.1",
     "eslint": "^10.1.0",
+    "eslint-plugin-import": "^2.32.0",
     "eslint-plugin-react": "^7.37.5",
     "eslint-plugin-react-hooks": "^7.0.1",
     "globals": "^17.4.0",

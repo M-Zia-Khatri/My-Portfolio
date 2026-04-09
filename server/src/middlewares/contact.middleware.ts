@@ -1,5 +1,5 @@
 import type { NextFunction, Request, Response } from 'express';
-import { send } from '../lib/utills/send';
+import { send } from '../lib/utills/send.js';
 
 export function validateContact(req: Request, res: Response, next: NextFunction): void {
   const { fullName, email, message } = req.body;
