@@ -1,6 +1,6 @@
 import { Button } from '@radix-ui/themes';
 import { memo, useMemo } from 'react';
-import { useGuessNumActions, useGuessNumMeta, useGuessNumResults } from '../context/GuessNumContext';
+import { useGuessNumActions, useGuessNumStatus, useGuessNumProgress } from '../context/GuessNumContext';
 import useGameSet from '../store/GameSetStore';
 import type { GuessResultType } from '../types/guessNumContextTypes';
 
@@ -38,8 +38,8 @@ const SpreadButton = memo(function SpreadButton({ number, disabled, result, onGu
 });
 
 export default function CheckHiddenNumber() {
-  const { showNumber, started } = useGuessNumMeta();
-  const { guessResults } = useGuessNumResults();
+  const { showNumber, started } = useGuessNumStatus();
+  const { guessResults } = useGuessNumProgress();
   const { makeGuess } = useGuessNumActions();
   const maxNumber = useGameSet((state) => state.maxNumber);
 

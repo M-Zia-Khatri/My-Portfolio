@@ -1,10 +1,10 @@
 import { CheckCircledIcon, Cross2Icon, InfoCircledIcon } from '@radix-ui/react-icons';
 import { Callout } from '@radix-ui/themes';
 import { useEffect, useState } from 'react';
-import { useGuessNumResults } from '../context/GuessNumContext';
+import { useGuessNumProgress } from '../context/GuessNumContext';
 
 export default function Feedback() {
-  const { guessResults } = useGuessNumResults();
+  const { guessResults } = useGuessNumProgress();
   const [visible, setVisible] = useState(false);
   const [message, setMessage] = useState<string>('');
 

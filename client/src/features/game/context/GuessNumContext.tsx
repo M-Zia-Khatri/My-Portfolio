@@ -8,7 +8,7 @@ import React, {
   useTransition,
   type ReactNode,
 } from 'react';
-import useTimer from '../hooks/useTimer';
+import useGameTimer from '../hooks/useGameTimer';
 import { generateId } from '../services/idGenerator';
 import useGameSet, { type ScoreRecord } from '../store/GameSetStore';
 import type { GuessResultType } from '../types/guessNumContextTypes';
@@ -44,16 +44,16 @@ function calculateScore({
   return attemptScore + timeScore + closeBonus + levelBonus;
 }
 
-interface GuessNumMetaContextType {
+interface GuessNumStatusContextType {
   randomNumber: number | null;
   showNumber: boolean;
-  guessTurn: number;
   started: boolean;
   playerName: string;
   didWin: boolean;
 }
 
-interface GuessNumResultsContextType {
+interface GuessNumProgressContextType {
+  guessTurn: number;
   guessResults: GuessResultType[];
 }
 
@@ -70,8 +70,8 @@ interface GuessNumActionsContextType {
   clearAndReloadHistory: VoidFunction;
 }
 
-const GuessNumMetaContext = createContext<GuessNumMetaContextType | undefined>(undefined);
-const GuessNumResultsContext = createContext<GuessNumResultsContextType | undefined>(undefined);
+const GuessNumStatusContext = createContext<GuessNumStatusContextType | undefined>(undefined);
+const GuessNumProgressContext = createContext<GuessNumProgressContextType | undefined>(undefined);
 const GuessNumTimerContext = createContext<GuessNumTimerContextType | undefined>(undefined);
 const GuessNumActionsContext = createContext<GuessNumActionsContextType | undefined>(undefined);
 
@@ -98,7 +98,7 @@ export const GuessNumProvider: React.FC<Props> = ({ children }) => {
     showNumberRef.current = showNumber;
   }, [randomNumber, showNumber]);
 
-  const { timeLeft, reset: resetTimer } = useTimer({
+  const { timeLeft, reset: resetTimer } = useGameTimer({
     initialTime: initialTimeLimit,
     isActive: started && !showNumber,
     onExpire: () => dispatch({ type: 'REVEAL_NUMBER' }),
@@ -202,38 +202,38 @@ export const GuessNumProvider: React.FC<Props> = ({ children }) => {
 
   useEffect(() => {
     actionsValue.startGame();
-  }, [actionsValue]);
+    // run only on initial mount
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
-  const metaValue = useMemo(
-    () => ({ randomNumber, showNumber, guessTurn, started, playerName, didWin }),
-    [didWin, guessTurn, playerName, randomNumber, showNumber, started],
+  const statusValue = useMemo(
+    () => ({ randomNumber, showNumber, started, playerName, didWin }),
+    [didWin, playerName, randomNumber, showNumber, started],
   );
 
-  const resultsValue = useMemo(() => ({ guessResults }), [guessResults]);
+  const progressValue = useMemo(() => ({ guessTurn, guessResults }), [guessTurn, guessResults]);
   const timerValue = useMemo(() => ({ timeLeft }), [timeLeft]);
 
   return (
     <GuessNumActionsContext.Provider value={actionsValue}>
       <GuessNumTimerContext.Provider value={timerValue}>
-        <GuessNumMetaContext.Provider value={metaValue}>
-          <GuessNumResultsContext.Provider value={resultsValue}>
-            {children}
-          </GuessNumResultsContext.Provider>
-        </GuessNumMetaContext.Provider>
+        <GuessNumStatusContext.Provider value={statusValue}>
+          <GuessNumProgressContext.Provider value={progressValue}>{children}</GuessNumProgressContext.Provider>
+        </GuessNumStatusContext.Provider>
       </GuessNumTimerContext.Provider>
     </GuessNumActionsContext.Provider>
   );
 };
 
-export function useGuessNumMeta(): GuessNumMetaContextType {
-  const ctx = useContext(GuessNumMetaContext);
-  if (!ctx) throw new Error('useGuessNumMeta must be used within GuessNumProvider');
+export function useGuessNumStatus(): GuessNumStatusContextType {
+  const ctx = useContext(GuessNumStatusContext);
+  if (!ctx) throw new Error('useGuessNumStatus must be used within GuessNumProvider');
   return ctx;
 }
 
-export function useGuessNumResults(): GuessNumResultsContextType {
-  const ctx = useContext(GuessNumResultsContext);
-  if (!ctx) throw new Error('useGuessNumResults must be used within GuessNumProvider');
+export function useGuessNumProgress(): GuessNumProgressContextType {
+  const ctx = useContext(GuessNumProgressContext);
+  if (!ctx) throw new Error('useGuessNumProgress must be used within GuessNumProvider');
   return ctx;
 }
 
@@ -251,8 +251,8 @@ export function useGuessNumActions(): GuessNumActionsContextType {
 
 export function useGuessNum() {
   return {
-    ...useGuessNumMeta(),
-    ...useGuessNumResults(),
+    ...useGuessNumStatus(),
+    ...useGuessNumProgress(),
     ...useGuessNumTimer(),
     ...useGuessNumActions(),
   };
