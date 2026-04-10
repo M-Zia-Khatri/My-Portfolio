@@ -4,7 +4,14 @@ import { createSkill, deleteSkill, fetchSkills, updateSkill } from './skills.api
 export const useSkillsData = () => {
   return useQuery({
     queryKey: ['skills'],
-    queryFn: fetchSkills,
+    queryFn: () => fetchSkills(),
+  });
+};
+
+export const useSkillsCodeData = () => {
+  return useQuery({
+    queryKey: ['skills-code'],
+    queryFn: () => fetchSkills('code'),
   });
 };
 

@@ -1,4 +1,4 @@
-import type { ApiSkill } from '@/features/skills/types';
+import type { ApiSkill, ModeENUM } from '@/features/skills/types';
 import { api } from '@/shared/api/axios';
 import { getETag } from '@/shared/api/etag-store';
 
@@ -34,8 +34,8 @@ async function fetchSkillETag(id: string): Promise<string | null> {
 
 // ─── GET /api/skills ──────────────────────────────────────────────────────────
 
-export async function fetchSkills(): Promise<ApiSkill[]> {
-  const res = await api.get<{ data: ApiSkill[] }>('/skills');
+export async function fetchSkills(mode?: ModeENUM): Promise<ApiSkill[]> {
+  const res = await api.get<{ data: ApiSkill[] }>(mode ? `/skills?mode=${mode}` : '/skills');
   const data = res.data?.data ?? res.data;
   return Array.isArray(data) ? data : [];
 }
