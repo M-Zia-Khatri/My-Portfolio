@@ -1,8 +1,7 @@
 import { TEXT } from '@/shared/constants/style.constants';
 import { CheckCircledIcon, CrossCircledIcon } from '@radix-ui/react-icons';
 import { Badge, Callout, Card, Separator, Strong, Text } from '@radix-ui/themes';
-import { useMemo } from 'react';
-import { useGuessNumState } from '../context/GuessNumContext';
+import { useGuessNumMeta, useGuessNumResults } from '../context/GuessNumContext';
 
 const feedbackColor = (message: string) => {
   if (message === 'you win') return 'green';
@@ -12,9 +11,8 @@ const feedbackColor = (message: string) => {
 };
 
 export default function GuessResult() {
-  const { guessResults, guessTurn, showNumber, randomNumber } = useGuessNumState();
-
-  const didWin = useMemo(() => guessResults.some((r) => r.message === 'you win'), [guessResults]);
+  const { guessTurn, showNumber, randomNumber, didWin } = useGuessNumMeta();
+  const { guessResults } = useGuessNumResults();
 
   return (
     <div className="flex h-full flex-col gap-4">
