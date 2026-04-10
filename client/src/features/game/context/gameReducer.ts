@@ -7,6 +7,8 @@ export interface GameState {
   showNumber: boolean;
   guessTurn: number;
   started: boolean;
+  playerName: string;
+  didWin: boolean;
 }
 
 export type GameAction =
@@ -24,6 +26,10 @@ export type GameAction =
   | {
       type: 'SET_STARTED';
       payload: boolean;
+    }
+  | {
+      type: 'SET_PLAYER_NAME';
+      payload: string;
     };
 
 export const initialGameState = (guessLimit: number): GameState => ({
@@ -32,21 +38,23 @@ export const initialGameState = (guessLimit: number): GameState => ({
   showNumber: false,
   guessTurn: guessLimit,
   started: false,
+  playerName: '',
+  didWin: false,
 });
 
 export function gameReducer(state: GameState, action: GameAction): GameState {
   switch (action.type) {
-    // start or restart: new random, reset counters/results
     case 'RESET_GAME':
       return {
+        ...state,
         randomNumber: action.payload.randomNumber,
         guessResults: [],
         showNumber: false,
         guessTurn: action.payload.guessLimit,
         started: false,
+        didWin: false,
       };
 
-    // record one guess, decrement turn, reveal if win or out of turns
     case 'MAKE_GUESS': {
       const nextTurns = Math.max(state.guessTurn - 1, 0);
       const didWin = action.payload.message === 'you win';
@@ -56,16 +64,18 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
         guessResults: [...state.guessResults, action.payload],
         guessTurn: nextTurns,
         showNumber: willShow,
+        didWin,
       };
     }
 
-    // explicitly reveal the number (e.g. timer expired)
     case 'REVEAL_NUMBER':
-      return { ...state, showNumber: true };
+      return { ...state, showNumber: true, didWin: false };
 
-    // only used if you need to toggle “started” from UI
     case 'SET_STARTED':
       return { ...state, started: action.payload };
+
+    case 'SET_PLAYER_NAME':
+      return { ...state, playerName: action.payload };
 
     default:
       return state;

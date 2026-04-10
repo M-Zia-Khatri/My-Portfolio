@@ -1,137 +1,147 @@
 import { TEXT } from '@/shared/constants/style.constants';
 import { Button, Text, TextField } from '@radix-ui/themes';
 import { Timer } from 'lucide-react';
-import { useMemo } from 'react';
-import { useGuessNum } from '../context/GuessNumContext';
-import SelDifficultLevel from './SelDifficultLevel';
+import { memo, useRef } from 'react';
+import { useGuessNumActions, useGuessNumStatus, useGuessNumTimer } from '../context/GuessNumContext';
+import LevelSelector from './LevelSelector';
 
-export default function HiddenNumber() {
-  const {
-    restartGame,
-    randomNumber,
-    showNumber,
-    guessResults,
-    timeLeft,
-    started,
-    setStarted,
-    nameInput,
-    setNameInput,
-  } = useGuessNum();
+const timerTextClassName = 'flex items-center font-extrabold';
+const centeredPanelClassName = 'flex flex-col items-center gap-3 text-center';
 
-  const isWin = useMemo(() => guessResults.some((r) => r.message === 'you win'), [guessResults]);
+const TimerDisplay = memo(function TimerDisplay() {
+  const { started, showNumber } = useGuessNumStatus();
+  const { timeLeft } = useGuessNumTimer();
 
-  const formattedTime = useMemo(() => {
-    const m = Math.floor(timeLeft / 60);
-    const s = timeLeft % 60;
-    return `${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
-  }, [timeLeft]);
-
+  const m = Math.floor(timeLeft / 60);
+  const s = timeLeft % 60;
+  const formattedTime = `${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
   const isUrgent = timeLeft <= 30 && started && !showNumber;
-  const canStart = nameInput.trim().length > 0;
 
-  const handlePlayAgain = () => {
-    restartGame();
+  return (
+    <Text size={TEXT.lg.size} className={timerTextClassName} color={isUrgent ? 'red' : 'blue'}>
+      <Timer size={16} />
+      &nbsp; {formattedTime}
+    </Text>
+  );
+});
+
+const StartControls = memo(function StartControls() {
+  const { started, showNumber, playerName } = useGuessNumStatus();
+  const { startGame, setStarted } = useGuessNumActions();
+  const startButtonRef = useRef<HTMLButtonElement | null>(null);
+  const nameDraftRef = useRef(playerName);
+
+  if (started || showNumber) return null;
+
+  const handleStart = () => {
+    const name = nameDraftRef.current.trim();
+    if (!name) return;
+    startGame(name);
     setStarted(true);
   };
 
   return (
-    <section className="flex flex-col gap-5">
-      {/* Timer row + Difficulty selector */}
-      <div className="flex items-center justify-between gap-3">
-        <Text
-          size={TEXT.lg.size}
-          className="flex items-center font-extrabold"
-          color={isUrgent ? 'red' : 'blue'}
-        >
-          <Timer size={16} />
-          &nbsp; {formattedTime}
-        </Text>
+    <div className="flex flex-col items-center gap-4">
+      <TextField.Root
+        placeholder="Enter your name"
+        defaultValue={playerName}
+        onChange={(e) => {
+          const nextValue = e.target.value;
+          nameDraftRef.current = nextValue;
+          if (startButtonRef.current) {
+            startButtonRef.current.disabled = nextValue.trim().length === 0;
+          }
+        }}
+        size="3"
+        style={{ maxWidth: 280, width: '100%' }}
+      />
+      <Button
+        size="3"
+        variant="solid"
+        color="blue"
+        onClick={handleStart}
+        disabled={!playerName.trim()}
+        ref={startButtonRef}
+        style={{ minWidth: 120 }}
+      >
+        Start
+      </Button>
+    </div>
+  );
+});
 
-        {/* Disabled once game is in progress */}
-        <div
-          style={{
-            opacity: started && !showNumber ? 0.4 : 1,
-            pointerEvents: started && !showNumber ? 'none' : 'auto',
-          }}
-        >
-          <SelDifficultLevel />
-        </div>
+const HiddenBall = memo(function HiddenBall() {
+  const { started, showNumber, randomNumber, didWin } = useGuessNumStatus();
+
+  if (!started) return null;
+
+  const hiddenBallStyle = showNumber
+    ? {
+        background: didWin ? 'var(--green-4)' : 'var(--red-4)',
+        color: didWin ? 'var(--green-11)' : 'var(--red-11)',
+        border: `3px solid ${didWin ? 'var(--green-7)' : 'var(--red-7)'}`,
+        boxShadow: `0 0 32px ${didWin ? 'var(--green-a6)' : 'var(--red-a6)'}`,
+      }
+    : {
+        background: 'var(--blue-4)',
+        color: 'transparent',
+        border: '3px solid var(--blue-7)',
+        boxShadow: '0 0 32px var(--blue-a5)',
+      };
+
+  return (
+    <div className="flex justify-center">
+      <div
+        className="flex h-28 w-28 items-center justify-center rounded-full text-5xl font-extrabold transition-all duration-500"
+        style={hiddenBallStyle}
+      >
+        {showNumber ? randomNumber : '??'}
       </div>
+    </div>
+  );
+});
 
-      {/* Pre-start: enter name & play */}
-      {!started && !showNumber && (
-        <div className="flex flex-col items-center gap-4">
-          <TextField.Root
-            placeholder="Enter your name"
-            value={nameInput}
-            onChange={(e) => setNameInput(e.target.value)}
-            size="3"
-            style={{ maxWidth: 280, width: '100%' }}
-          />
-          <Button
-            size="3"
-            variant="solid"
-            color="blue"
-            onClick={() => setStarted(true)}
-            disabled={!canStart}
-            style={{ minWidth: 120 }}
-          >
-            Start
-          </Button>
-        </div>
-      )}
+const PostGameResult = memo(function PostGameResult() {
+  const { showNumber, didWin } = useGuessNumStatus();
+  const { timeLeft } = useGuessNumTimer();
+  const { restartGame } = useGuessNumActions();
 
-      {/* Hidden number display */}
-      {started && (
-        <div className="flex justify-center">
-          <div
-            className="flex h-28 w-28 items-center justify-center rounded-full text-5xl font-extrabold transition-all duration-500"
-            style={
-              showNumber
-                ? {
-                    background: isWin ? 'var(--green-4)' : 'var(--red-4)',
-                    color: isWin ? 'var(--green-11)' : 'var(--red-11)',
-                    border: `3px solid ${isWin ? 'var(--green-7)' : 'var(--red-7)'}`,
-                    boxShadow: `0 0 32px ${isWin ? 'var(--green-a6)' : 'var(--red-a6)'}`,
-                  }
-                : {
-                    background: 'var(--blue-4)',
-                    color: 'transparent',
-                    border: '3px solid var(--blue-7)',
-                    boxShadow: '0 0 32px var(--blue-a5)',
-                  }
-            }
-          >
-            {showNumber ? randomNumber : '??'}
-          </div>
-        </div>
-      )}
+  if (!showNumber) return null;
 
-      {/* Post-game result & replay */}
-      {showNumber && (
-        <div className="flex flex-col items-center gap-3 text-center">
-          <Text
-            size="4"
-            weight="bold"
-            style={{ color: isWin ? 'var(--green-11)' : 'var(--red-11)' }}
-          >
-            {isWin
-              ? '🎉 You got it!'
-              : timeLeft === 0
-                ? "⏰ Time's up — try again"
-                : 'You lose — try again'}
-          </Text>
-          <Button
-            size="3"
-            variant="solid"
-            color={isWin ? 'green' : 'blue'}
-            onClick={handlePlayAgain}
-            style={{ minWidth: 140 }}
-          >
-            Play Again
-          </Button>
-        </div>
-      )}
+  const resultMessage = didWin
+    ? '🎉 You got it!'
+    : timeLeft === 0
+      ? "⏰ Time's up — try again"
+      : 'You lose — try again';
+
+  return (
+    <div className={centeredPanelClassName}>
+      <Text size="4" weight="bold" style={{ color: didWin ? 'var(--green-11)' : 'var(--red-11)' }}>
+        {resultMessage}
+      </Text>
+      <Button
+        size="3"
+        variant="solid"
+        color={didWin ? 'green' : 'blue'}
+        onClick={restartGame}
+        style={{ minWidth: 140 }}
+      >
+        Play Again
+      </Button>
+    </div>
+  );
+});
+
+export default function HiddenNumber() {
+  return (
+    <section className="flex flex-col gap-5">
+      <div className="flex items-center justify-between gap-3">
+        <TimerDisplay />
+        <LevelSelector />
+      </div>
+      <StartControls />
+      <HiddenBall />
+      <PostGameResult />
     </section>
   );
 }

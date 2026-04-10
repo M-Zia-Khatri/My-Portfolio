@@ -1,5 +1,5 @@
 import { Flex, Select } from '@radix-ui/themes';
-import { useState } from 'react';
+import { useCallback, useMemo, useState } from 'react';
 import useGameSet from '../store/GameSetStore';
 import CustomLevelDialog from './CustomLevelDialog';
 
@@ -11,20 +11,20 @@ const BUILTIN_PRESETS: Record<string, { max: number; limit: number; time: number
 };
 
 export default function SelDifficultLevel() {
-  const {
-    difficultLevel,
-    setDifficultLevel,
-    setMaxNumber,
-    setGuessLimit,
-    setTimeLimit,
-    customLevels,
-  } = useGameSet();
+  const difficultLevel = useGameSet((state) => state.difficultLevel);
+  const setDifficultLevel = useGameSet((state) => state.setDifficultLevel);
+  const setMaxNumber = useGameSet((state) => state.setMaxNumber);
+  const setGuessLimit = useGameSet((state) => state.setGuessLimit);
+  const setTimeLimit = useGameSet((state) => state.setTimeLimit);
+  const customLevels = useGameSet((state) => state.customLevels);
 
   const [dialogOpen, setDialogOpen] = useState(false);
-  const selectedValue =
-    customLevels.find((lvl) => lvl.name === difficultLevel)?.id ?? difficultLevel;
+  const selectedValue = useMemo(
+    () => customLevels.find((lvl) => lvl.name === difficultLevel)?.id ?? difficultLevel,
+    [customLevels, difficultLevel],
+  );
 
-  const handleChange = (val: string) => {
+  const handleChange = useCallback((val: string) => {
     // Special sentinel — open dialog instead of selecting
     if (val === '__add_custom__') {
       setDialogOpen(true);
@@ -48,7 +48,7 @@ export default function SelDifficultLevel() {
       setGuessLimit(custom.guessLimit);
       setTimeLimit(custom.totalSeconds);
     }
-  };
+  }, [customLevels, setDifficultLevel, setGuessLimit, setMaxNumber, setTimeLimit]);
 
   return (
     <Flex align="center" gap="1">

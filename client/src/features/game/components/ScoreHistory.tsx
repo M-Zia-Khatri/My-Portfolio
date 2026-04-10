@@ -1,6 +1,6 @@
 import * as Table from '@radix-ui/themes/components/table';
 import { Badge, Text } from '@radix-ui/themes';
-import { memo } from 'react';
+import { memo, useDeferredValue, useMemo } from 'react';
 import useGameSet, { type ScoreRecord } from '../store/GameSetStore';
 
 const MAX_HEIGHT = 360;
@@ -50,9 +50,21 @@ const ScoreHistoryRow = memo(function ScoreHistoryRow({
 
 export default function ScoreHistory() {
   const scoreHistory = useGameSet((state) => state.scoreHistory);
+  const deferredHistory = useDeferredValue(scoreHistory);
+  const rows = useMemo(
+    () =>
+      deferredHistory.map((record, index) => (
+        <ScoreHistoryRow
+          key={record.id}
+          record={record}
+          index={index}
+        />
+      )),
+    [deferredHistory],
+  );
 
   // Empty state
-  if (!scoreHistory.length) {
+  if (!deferredHistory.length) {
     return (
       <div
         className="rounded-xl p-6 text-center"
@@ -87,13 +99,7 @@ export default function ScoreHistory() {
 
         {/* Body */}
         <Table.Body>
-          {scoreHistory.map((record, index) => (
-            <ScoreHistoryRow
-              key={record.id}
-              record={record}
-              index={index}
-            />
-          ))}
+          {rows}
         </Table.Body>
       </Table.Root>
     </div>

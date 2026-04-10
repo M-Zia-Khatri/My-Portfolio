@@ -1,13 +1,14 @@
 import React, {
   createContext,
-  useCallback,
   useContext,
   useEffect,
+  useMemo,
   useReducer,
-  useState,
+  useRef,
+  useTransition,
   type ReactNode,
 } from 'react';
-import useTimer from '../hooks/useTimer';
+import useGameTimer from '../hooks/useGameTimer';
 import { generateId } from '../services/idGenerator';
 import useGameSet, { type ScoreRecord } from '../store/GameSetStore';
 import type { GuessResultType } from '../types/guessNumContextTypes';
@@ -43,94 +44,129 @@ function calculateScore({
   return attemptScore + timeScore + closeBonus + levelBonus;
 }
 
-interface GuessNumContextType {
+interface GuessNumStatusContextType {
   randomNumber: number | null;
-  guessResults: GuessResultType[];
   showNumber: boolean;
-  guessTurn: number;
-  timeLeft: number;
   started: boolean;
-  nameInput: string;
-
-  startGame: () => void;
-  makeGuess: (guess: number) => void;
-  restartGame: () => void;
-
-  setStarted: (val: boolean) => void;
-  setNameInput: React.Dispatch<React.SetStateAction<string>>;
-
-  clearHistory: VoidFunction;
-  clearAndReloadHistory: VoidFunction; // Add this function
+  playerName: string;
+  didWin: boolean;
 }
 
-const GuessNumContext = createContext<GuessNumContextType | undefined>(undefined);
+interface GuessNumProgressContextType {
+  guessTurn: number;
+  guessResults: GuessResultType[];
+}
+
+interface GuessNumTimerContextType {
+  timeLeft: number;
+}
+
+interface GuessNumActionsContextType {
+  startGame: (playerName?: string) => void;
+  makeGuess: (guess: number) => void;
+  restartGame: () => void;
+  setStarted: (val: boolean) => void;
+  clearHistory: VoidFunction;
+  clearAndReloadHistory: VoidFunction;
+}
+
+const GuessNumStatusContext = createContext<GuessNumStatusContextType | undefined>(undefined);
+const GuessNumProgressContext = createContext<GuessNumProgressContextType | undefined>(undefined);
+const GuessNumTimerContext = createContext<GuessNumTimerContextType | undefined>(undefined);
+const GuessNumActionsContext = createContext<GuessNumActionsContextType | undefined>(undefined);
 
 type Props = { children: ReactNode };
 
 export const GuessNumProvider: React.FC<Props> = ({ children }) => {
-  const {
-    maxNumber,
-    guessLimit,
-    timeLimit: initialTimeLimit,
-    difficultLevel,
-    scoreHistory,
-    addScoreRecord,
-    clearScoreHistory,
-  } = useGameSet();
+  const maxNumber = useGameSet((state) => state.maxNumber);
+  const guessLimit = useGameSet((state) => state.guessLimit);
+  const initialTimeLimit = useGameSet((state) => state.timeLimit);
+  const difficultLevel = useGameSet((state) => state.difficultLevel);
+  const addScoreRecord = useGameSet((state) => state.addScoreRecord);
+  const clearScoreHistory = useGameSet((state) => state.clearScoreHistory);
 
-  // Core game state via reducer
   const [state, dispatch] = useReducer(gameReducer, initialGameState(guessLimit));
-  const { randomNumber, guessResults, showNumber, guessTurn, started } = state;
+  const { randomNumber, guessResults, showNumber, guessTurn, started, playerName, didWin } = state;
 
-  // Player name
-  const [nameInput, setNameInput] = useState('');
+  const [_, startTransition] = useTransition();
 
-  // Countdown timer
-  const { timeLeft, reset: resetTimer } = useTimer({
+  const randomNumberRef = useRef<number | null>(randomNumber);
+  const showNumberRef = useRef(showNumber);
+
+  useEffect(() => {
+    randomNumberRef.current = randomNumber;
+    showNumberRef.current = showNumber;
+  }, [randomNumber, showNumber]);
+
+  const { timeLeft, reset: resetTimer } = useGameTimer({
     initialTime: initialTimeLimit,
     isActive: started && !showNumber,
     onExpire: () => dispatch({ type: 'REVEAL_NUMBER' }),
   });
 
-  const startGame = useCallback(() => {
-    const num = Math.floor(Math.random() * maxNumber) + 1;
-    dispatch({
-      type: 'RESET_GAME',
-      payload: { randomNumber: num, guessLimit },
-    });
-    resetTimer();
-  }, [maxNumber, guessLimit, resetTimer]);
+  const actionsValue = useMemo(
+    () => ({
+      startGame: (name?: string) => {
+        if (typeof name === 'string') {
+          dispatch({ type: 'SET_PLAYER_NAME', payload: name.trim() });
+        }
+        const num = Math.floor(Math.random() * maxNumber) + 1;
+        dispatch({
+          type: 'RESET_GAME',
+          payload: { randomNumber: num, guessLimit },
+        });
+        resetTimer();
+      },
+      makeGuess: (guess: number) => {
+        const currentNumber = randomNumberRef.current;
+        if (currentNumber == null || showNumberRef.current) return;
+        const dist = Math.abs(guess - currentNumber);
+        const threshold = maxNumber / 100;
+        let message: GuessResultType['message'];
+        if (guess === currentNumber) message = 'you win';
+        else if (dist <= threshold * 15) message = 'very close';
+        else if (guess < currentNumber) message = 'too low';
+        else message = 'too high';
 
-  const makeGuess = useCallback(
-    (guess: number) => {
-      if (randomNumber == null || showNumber) return;
-      const dist = Math.abs(guess - randomNumber);
-      const threshold = maxNumber / 100;
-      let message: GuessResultType['message'];
-      if (guess === randomNumber) message = 'you win';
-      else if (dist <= threshold * 15) message = 'very close';
-      else if (guess < randomNumber) message = 'too low';
-      else message = 'too high';
-
-      dispatch({ type: 'MAKE_GUESS', payload: { guess, message } });
-    },
-    [randomNumber, showNumber, maxNumber],
+        dispatch({ type: 'MAKE_GUESS', payload: { guess, message } });
+      },
+      restartGame: () => {
+        const num = Math.floor(Math.random() * maxNumber) + 1;
+        dispatch({
+          type: 'RESET_GAME',
+          payload: { randomNumber: num, guessLimit },
+        });
+        dispatch({ type: 'SET_STARTED', payload: true });
+        resetTimer();
+      },
+      setStarted: (val: boolean) => dispatch({ type: 'SET_STARTED', payload: val }),
+      clearHistory: clearScoreHistory,
+      clearAndReloadHistory: () => {
+        clearScoreHistory();
+        const num = Math.floor(Math.random() * maxNumber) + 1;
+        dispatch({
+          type: 'RESET_GAME',
+          payload: { randomNumber: num, guessLimit },
+        });
+        resetTimer();
+      },
+    }),
+    [clearScoreHistory, guessLimit, maxNumber, resetTimer],
   );
 
-  const restartGame = useCallback(() => {
-    startGame();
-    dispatch({ type: 'SET_STARTED', payload: true });
-  }, [startGame]);
+  const gameSignature = useMemo(
+    () => `${showNumber}-${guessResults.length}-${timeLeft}-${guessTurn}`,
+    [showNumber, guessResults.length, timeLeft, guessTurn],
+  );
+  const lastSavedSignatureRef = useRef<string>('');
 
   useEffect(() => {
     if (!showNumber || guessResults.length === 0) return;
-    const last = scoreHistory[scoreHistory.length - 1];
-    if (last && last.guessResults === guessResults) return;
+    if (lastSavedSignatureRef.current === gameSignature) return;
 
-    const isWin = guessResults.some((r) => r.message === 'you win');
     const record: ScoreRecord = {
       id: generateId(8),
-      name: nameInput,
+      name: playerName,
       score: calculateScore({
         guessResults,
         guessLimit,
@@ -138,7 +174,7 @@ export const GuessNumProvider: React.FC<Props> = ({ children }) => {
         timeLeft,
         difficultLevel,
       }),
-      result: isWin ? 'win' : 'lose',
+      result: didWin ? 'win' : 'lose',
       attempts: guessResults.length,
       timeTaken: initialTimeLimit - timeLeft,
       date: new Date(),
@@ -147,57 +183,77 @@ export const GuessNumProvider: React.FC<Props> = ({ children }) => {
       guessResults,
     };
 
-    addScoreRecord(record);
+    startTransition(() => {
+      addScoreRecord(record);
+    });
+    lastSavedSignatureRef.current = gameSignature;
   }, [
-    showNumber,
-    guessResults,
-    timeLeft,
-    nameInput,
-    scoreHistory,
-    guessLimit,
-    initialTimeLimit,
-    difficultLevel,
     addScoreRecord,
+    difficultLevel,
+    didWin,
+    gameSignature,
+    guessLimit,
+    guessResults,
+    initialTimeLimit,
+    playerName,
+    showNumber,
+    timeLeft,
   ]);
 
-  // Clear all history and reset game state
-  const clearAndReloadHistory = useCallback(() => {
-    clearScoreHistory(); // Clear the history
-    startGame(); // Restart the game
-  }, [clearScoreHistory, startGame]);
+  useEffect(() => {
+    actionsValue.startGame();
+    // run only on initial mount
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
-  // Initial game start
-  useEffect(startGame, [startGame]);
+  const statusValue = useMemo(
+    () => ({ randomNumber, showNumber, started, playerName, didWin }),
+    [didWin, playerName, randomNumber, showNumber, started],
+  );
+
+  const progressValue = useMemo(() => ({ guessTurn, guessResults }), [guessTurn, guessResults]);
+  const timerValue = useMemo(() => ({ timeLeft }), [timeLeft]);
 
   return (
-    <GuessNumContext.Provider
-      value={{
-        randomNumber,
-        guessResults,
-        showNumber,
-        guessTurn,
-        timeLeft,
-        started,
-        nameInput,
-
-        startGame,
-        makeGuess,
-        restartGame,
-
-        setStarted: (b) => dispatch({ type: 'SET_STARTED', payload: b }),
-        setNameInput,
-
-        clearHistory: clearScoreHistory,
-        clearAndReloadHistory, // Add this to the context
-      }}
-    >
-      {children}
-    </GuessNumContext.Provider>
+    <GuessNumActionsContext.Provider value={actionsValue}>
+      <GuessNumTimerContext.Provider value={timerValue}>
+        <GuessNumStatusContext.Provider value={statusValue}>
+          <GuessNumProgressContext.Provider value={progressValue}>{children}</GuessNumProgressContext.Provider>
+        </GuessNumStatusContext.Provider>
+      </GuessNumTimerContext.Provider>
+    </GuessNumActionsContext.Provider>
   );
 };
 
-export function useGuessNum(): GuessNumContextType {
-  const ctx = useContext(GuessNumContext);
-  if (!ctx) throw new Error('useGuessNum must be used within GuessNumProvider');
+export function useGuessNumStatus(): GuessNumStatusContextType {
+  const ctx = useContext(GuessNumStatusContext);
+  if (!ctx) throw new Error('useGuessNumStatus must be used within GuessNumProvider');
   return ctx;
+}
+
+export function useGuessNumProgress(): GuessNumProgressContextType {
+  const ctx = useContext(GuessNumProgressContext);
+  if (!ctx) throw new Error('useGuessNumProgress must be used within GuessNumProvider');
+  return ctx;
+}
+
+export function useGuessNumTimer(): GuessNumTimerContextType {
+  const ctx = useContext(GuessNumTimerContext);
+  if (!ctx) throw new Error('useGuessNumTimer must be used within GuessNumProvider');
+  return ctx;
+}
+
+export function useGuessNumActions(): GuessNumActionsContextType {
+  const ctx = useContext(GuessNumActionsContext);
+  if (!ctx) throw new Error('useGuessNumActions must be used within GuessNumProvider');
+  return ctx;
+}
+
+export function useGuessNum() {
+  return {
+    ...useGuessNumStatus(),
+    ...useGuessNumProgress(),
+    ...useGuessNumTimer(),
+    ...useGuessNumActions(),
+  };
 }
