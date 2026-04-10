@@ -51,6 +51,8 @@ interface ApiTerminalSkill extends ApiSkillBase {
   commands: TerminalLine[];
 }
 
+export type ModeENUM = 'code' | 'terminal';
+
 export type ApiSkill = ApiCodeSkill | ApiTerminalSkill;
 
 export type Token = { text: string; color: string };
