@@ -2,7 +2,11 @@ import { TEXT } from '@/shared/constants/style.constants';
 import { Button, Text, TextField } from '@radix-ui/themes';
 import { Timer } from 'lucide-react';
 import { memo, useRef } from 'react';
-import { useGuessNumActions, useGuessNumStatus, useGuessNumTimer } from '../context/GuessNumContext';
+import {
+  useGuessNumActions,
+  useGuessNumStatus,
+  useGuessNumTimer,
+} from '../context/GuessNumContext';
 import LevelSelector from './LevelSelector';
 
 const timerTextClassName = 'flex items-center font-extrabold';
@@ -60,7 +64,7 @@ const StartControls = memo(function StartControls() {
         variant="solid"
         color="blue"
         onClick={handleStart}
-        disabled={!playerName.trim()}
+        // disabled={!playerName.trim()}
         ref={startButtonRef}
         style={{ minWidth: 120 }}
       >
