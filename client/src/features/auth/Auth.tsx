@@ -1,3 +1,4 @@
+import SEO from '@/shared/components/SEO';
 import { AppNavigation } from '@/shared/constants/navigation.constants';
 import { useCallback, useEffect, useState } from 'react';
 import { useNavigate } from 'react-router';
@@ -56,6 +57,7 @@ export default function Auth() {
 
   return (
     <>
+      <SEO title="Admin - Auth" description="This is only for admin Auth. " />
       {/* key prop forces a full remount between steps so form state is clean */}
       <LoginForm open={step === 'login'} onSuccess={handleLoginSuccess} />
       <OtpForm

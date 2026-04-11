@@ -1,3 +1,4 @@
+import SEO from '@/shared/components/SEO';
 import { cn } from '@/shared/utils/cn';
 import { Spinner } from '@radix-ui/themes';
 import { Suspense, useEffect, useRef, useState, type ReactNode } from 'react';
@@ -50,6 +51,11 @@ function DeferredSection({
 export default function Home() {
   return (
     <>
+      <SEO
+        title="Muhammad Zia khatri | Full Stack Developer"
+        description="Mohammad Zia Khatri - Full Stack Developer specializing in React, Node.js, TypeScript, and modern web technologies. Building scalable, performant applications with clean code. Hire me for your next project."
+        canonical="https://zia-khatri.vercel.app/home"
+      />
       <div className="absolute top-0 left-0 -z-100 h-full w-full bg-[url(@/assets/images/bg-noise.png)] opacity-2.5" />
       <div className="absolute top-0 left-0 -z-90 h-full w-full bg-(--blue-3)/15" />
 

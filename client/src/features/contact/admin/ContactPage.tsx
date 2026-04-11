@@ -1,4 +1,5 @@
 import { useDebouncedValue } from '@/shared/hooks/useDebouncedValue';
+import SEO from '@/shared/components/SEO';
 import { InfoCircledIcon } from '@radix-ui/react-icons';
 import { Box, Callout, Flex, Heading, Spinner } from '@radix-ui/themes';
 import { useCallback, useMemo, useState } from 'react';
@@ -63,8 +64,15 @@ export default function ContactPage() {
     );
 
   return (
-    <Box p="6">
-      <Heading mb="4">Contact Submissions</Heading>
+    <>
+      <SEO
+        title="Contact Submissions | Admin Dashboard"
+        description="View and manage contact form submissions from your portfolio visitors. Admin dashboard for reviewing messages and contacting leads."
+        canonical="https://zia-khatri.vercel.app/admin/contact"
+        robots="noindex, nofollow"
+      />
+      <Box p="6">
+        <Heading mb="4">Contact Submissions</Heading>
 
       <ContactFilters value={search} onChange={setSearch} resultsCount={filteredContacts.length} />
 
@@ -78,5 +86,6 @@ export default function ContactPage() {
         isDeleting={deleteMutation.isPending}
       />
     </Box>
+    </>
   );
 }
