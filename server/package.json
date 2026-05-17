@@ -4,7 +4,7 @@
   "description": "",
   "main": "dist/src/server.js",
   "scripts": {
-    "dev": "nodemon --exec 'tsx -r dotenv/config src/server.ts' -- --dotenv_config_path=.env.development",
+    "dev": "nodemon --exec tsx -r dotenv/config src/server.ts --dotenv_config_path=.env.development",
     "build": "tsc",
     "start": "node dist/src/server.js",
     "lint": "biome check src",
