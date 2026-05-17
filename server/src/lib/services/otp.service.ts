@@ -1,6 +1,6 @@
-import bcrypt from 'bcrypt';
-import crypto from 'crypto';
-import { prisma } from '../prisma.js';
+import crypto from "node:crypto";
+import bcrypt from "bcrypt";
+import { prisma } from "../prisma.js";
 
 const OTP_EXPIRY_MS = 5 * 60 * 1000; // 5 minutes
 const OTP_BCRYPT_SALT = 12;
@@ -24,7 +24,7 @@ export async function generateOtp(adminId: string): Promise<string> {
   const otpCode = crypto
     .randomInt(0, 10 ** OTP_LENGTH)
     .toString()
-    .padStart(OTP_LENGTH, '0');
+    .padStart(OTP_LENGTH, "0");
 
   const codeHash = await bcrypt.hash(otpCode, OTP_BCRYPT_SALT);
 
@@ -50,7 +50,7 @@ export async function verifyOtp(adminId: string, otpCode: string): Promise<boole
       usedAt: null,
       expiresAt: { gt: new Date() },
     },
-    orderBy: { createdAt: 'desc' },
+    orderBy: { createdAt: "desc" },
   });
 
   if (!record) return false;

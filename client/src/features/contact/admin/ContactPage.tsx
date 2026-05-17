@@ -1,19 +1,19 @@
-import { useDebouncedValue } from '@/shared/hooks/useDebouncedValue';
-import SEO from '@/shared/components/SEO';
-import { InfoCircledIcon } from '@radix-ui/react-icons';
-import { Box, Callout, Flex, Heading, Spinner } from '@radix-ui/themes';
-import { useCallback, useMemo, useState } from 'react';
-import { useContacts, useDeleteContact } from '../api';
-import type { Contact } from '../types';
-import { ContactDetails } from './component/ContactDetails';
-import { ContactFilters } from './component/ContactFilters';
-import { ContactTable } from './component/ContactTable';
+import { InfoCircledIcon } from "@radix-ui/react-icons";
+import { Box, Callout, Flex, Heading, Spinner } from "@radix-ui/themes";
+import { useCallback, useMemo, useState } from "react";
+import SEO from "@/shared/components/SEO";
+import { useDebouncedValue } from "@/shared/hooks/useDebouncedValue";
+import { useContacts, useDeleteContact } from "../api";
+import type { Contact } from "../types";
+import { ContactDetails } from "./component/ContactDetails";
+import { ContactFilters } from "./component/ContactFilters";
+import { ContactTable } from "./component/ContactTable";
 
 export default function ContactPage() {
   const { data: contacts, isLoading, isError, error } = useContacts();
   const deleteMutation = useDeleteContact();
 
-  const [search, setSearch] = useState('');
+  const [search, setSearch] = useState("");
   const [selectedContact, setSelectedContact] = useState<Contact | null>(null);
   const debouncedSearch = useDebouncedValue(search, 250);
 
@@ -24,9 +24,9 @@ export default function ContactPage() {
     if (!q) return contacts;
 
     return contacts.filter((c) => {
-      const name = c.full_name?.toLowerCase() || '';
-      const email = c.email?.toLowerCase() || '';
-      const message = c.message?.toLowerCase() || '';
+      const name = c.full_name?.toLowerCase() || "";
+      const email = c.email?.toLowerCase() || "";
+      const message = c.message?.toLowerCase() || "";
 
       return name.includes(q) || email.includes(q) || message.includes(q);
     });
@@ -34,7 +34,7 @@ export default function ContactPage() {
 
   const handleDelete = useCallback(
     async (id: string) => {
-      if (window.confirm('Are you sure?')) {
+      if (window.confirm("Are you sure?")) {
         await deleteMutation.mutateAsync(id);
         setSelectedContact(null);
       }
@@ -58,7 +58,7 @@ export default function ContactPage() {
           <Callout.Icon>
             <InfoCircledIcon />
           </Callout.Icon>
-          <Callout.Text>{error instanceof Error ? error.message : 'Failed to fetch'}</Callout.Text>
+          <Callout.Text>{error instanceof Error ? error.message : "Failed to fetch"}</Callout.Text>
         </Callout.Root>
       </Box>
     );
@@ -74,18 +74,22 @@ export default function ContactPage() {
       <Box p="6">
         <Heading mb="4">Contact Submissions</Heading>
 
-      <ContactFilters value={search} onChange={setSearch} resultsCount={filteredContacts.length} />
+        <ContactFilters
+          value={search}
+          onChange={setSearch}
+          resultsCount={filteredContacts.length}
+        />
 
-      <ContactTable contacts={filteredContacts} onSelect={handleSelect} />
+        <ContactTable contacts={filteredContacts} onSelect={handleSelect} />
 
-      <ContactDetails
-        contact={selectedContact}
-        isOpen={!!selectedContact}
-        onOpenChange={(open) => !open && setSelectedContact(null)}
-        onDelete={handleDelete}
-        isDeleting={deleteMutation.isPending}
-      />
-    </Box>
+        <ContactDetails
+          contact={selectedContact}
+          isOpen={!!selectedContact}
+          onOpenChange={(open) => !open && setSelectedContact(null)}
+          onDelete={handleDelete}
+          isDeleting={deleteMutation.isPending}
+        />
+      </Box>
     </>
   );
 }

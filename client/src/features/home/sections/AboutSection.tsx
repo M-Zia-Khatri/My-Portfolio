@@ -1,8 +1,8 @@
-import ziaImg from '@/assets/images/zia.png';
-import SecComponent from '@/shared/components/SecContainer';
-import { HEADING, TEXT } from '@/shared/constants/style.constants';
-import { AspectRatio, Box, Grid, Heading, Strong, Text } from '@radix-ui/themes';
-import { motion } from 'motion/react';
+import { AspectRatio, Box, Grid, Heading, Strong, Text } from "@radix-ui/themes";
+import { motion } from "motion/react";
+import ziaImg from "@/assets/images/zia.png";
+import SecComponent from "@/shared/components/SecContainer";
+import { HEADING, TEXT } from "@/shared/constants/style.constants";
 
 const MotionBox = motion(Box);
 const MotionHeading = motion(Heading);
@@ -12,10 +12,10 @@ export default function AboutSection() {
   return (
     <SecComponent>
       <Grid
-        columns={{ sm: '3' }}
-        rows={{ sm: '1' }}
+        columns={{ sm: "3" }}
+        rows={{ sm: "1" }}
         // flow={{ initial: "column", lg: "row" }}
-        gap={{ initial: '6', sm: '4', lg: '6' }}
+        gap={{ initial: "6", sm: "4", lg: "6" }}
       >
         {/* Image */}
         <MotionBox
@@ -32,8 +32,8 @@ export default function AboutSection() {
               transition={{ duration: 0.6 }}
               className="h-full  w-full drop-shadow-[0_0_15px_color-mix(in_srgb,var(--blue-3),transparent_10%)]"
               src={ziaImg}
-              title="My picture"
-              alt="my image"
+              title="Portrait"
+              alt="Portrait of Zia"
             />
           </AspectRatio>
         </MotionBox>
@@ -50,7 +50,7 @@ export default function AboutSection() {
             as="h2"
             size={HEADING.h2.size}
             className="font-bold"
-            mb={{ initial: '3', sm: '4' }}
+            mb={{ initial: "3", sm: "4" }}
             initial={{ opacity: 0, y: 10 }}
             whileInView={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.4 }}

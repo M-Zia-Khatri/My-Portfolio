@@ -1,6 +1,6 @@
-import { api } from '@/shared/api/axios';
-import { useMutation } from '@tanstack/react-query';
-import { useAuth } from '../context/AuthContext';
+import { useMutation } from "@tanstack/react-query";
+import { api } from "@/shared/api/axios";
+import { useAuth } from "../context/AuthContext";
 
 /**
  * Revokes every active session for the current admin on the server,
@@ -13,7 +13,7 @@ export const useLogoutAll = () => {
   const { logout } = useAuth();
 
   return useMutation({
-    mutationFn: () => api.post('/auth/logout-all'),
+    mutationFn: () => api.post("/auth/logout-all"),
 
     // FIX: removed the redundant logoutApi() call (POST /auth/logout) that was
     // being fired after logout-all already succeeded. The server revokes all

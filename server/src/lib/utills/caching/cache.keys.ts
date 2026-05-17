@@ -1,5 +1,5 @@
 // cache.keys.ts
-import { CACHE_PREFIX } from './cache.constants.js';
+import { CACHE_PREFIX } from "./cache.constants.js";
 
 export function buildKey(key: string): string {
   return `${CACHE_PREFIX}:${key}`;
@@ -14,6 +14,6 @@ export function buildTagKey(tag: string): string {
 }
 
 export function parseKey(redisKey: string): string | null {
-  if (!redisKey.startsWith(CACHE_PREFIX + ':')) return null;
+  if (!redisKey.startsWith(`${CACHE_PREFIX}:`)) return null;
   return redisKey.slice(CACHE_PREFIX.length + 1);
 }

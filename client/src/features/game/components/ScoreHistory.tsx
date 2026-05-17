@@ -1,7 +1,7 @@
-import * as Table from '@radix-ui/themes/components/table';
-import { Badge, Text } from '@radix-ui/themes';
-import { memo, useDeferredValue, useMemo } from 'react';
-import useGameSet, { type ScoreRecord } from '../store/GameSetStore';
+import { Badge, Text } from "@radix-ui/themes";
+import * as Table from "@radix-ui/themes/components/table";
+import { memo, useDeferredValue, useMemo } from "react";
+import useGameSet, { type ScoreRecord } from "../store/GameSetStore";
 
 const MAX_HEIGHT = 360;
 
@@ -10,10 +10,7 @@ type RowProps = {
   index: number;
 };
 
-const ScoreHistoryRow = memo(function ScoreHistoryRow({
-  record,
-  index,
-}: RowProps) {
+const ScoreHistoryRow = memo(function ScoreHistoryRow({ record, index }: RowProps) {
   return (
     <Table.Row>
       {/* Index */}
@@ -21,22 +18,18 @@ const ScoreHistoryRow = memo(function ScoreHistoryRow({
 
       {/* Name */}
       <Table.Cell>
-        <span className="block truncate">
-          {record.name?.trim() || '—'}
-        </span>
+        <span className="block truncate">{record.name?.trim() || "—"}</span>
       </Table.Cell>
 
       {/* Score */}
       <Table.Cell>
-        <span className="font-semibold">
-          {Math.round(record.score)}
-        </span>
+        <span className="font-semibold">{Math.round(record.score)}</span>
       </Table.Cell>
 
       {/* Result */}
       <Table.Cell>
         <Badge
-          color={record.result === 'win' ? 'green' : 'red'}
+          color={record.result === "win" ? "green" : "red"}
           variant="soft"
           radius="full"
           size="1"
@@ -54,11 +47,7 @@ export default function ScoreHistory() {
   const rows = useMemo(
     () =>
       deferredHistory.map((record, index) => (
-        <ScoreHistoryRow
-          key={record.id}
-          record={record}
-          index={index}
-        />
+        <ScoreHistoryRow key={record.id} record={record} index={index} />
       )),
     [deferredHistory],
   );
@@ -66,15 +55,8 @@ export default function ScoreHistory() {
   // Empty state
   if (!deferredHistory.length) {
     return (
-      <div
-        className="rounded-xl p-6 text-center"
-        style={{ background: 'var(--gray-3)' }}
-      >
-        <Text
-          size="2"
-          style={{ color: 'var(--gray-10)' }}
-          className="italic"
-        >
+      <div className="rounded-xl p-6 text-center" style={{ background: "var(--gray-3)" }}>
+        <Text size="2" style={{ color: "var(--gray-10)" }} className="italic">
           No games played yet.
         </Text>
       </div>
@@ -98,9 +80,7 @@ export default function ScoreHistory() {
         </Table.Header>
 
         {/* Body */}
-        <Table.Body>
-          {rows}
-        </Table.Body>
+        <Table.Body>{rows}</Table.Body>
       </Table.Root>
     </div>
   );

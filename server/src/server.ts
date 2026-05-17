@@ -1,5 +1,5 @@
-import app from './app.js';
-import { getConfig } from './config/env.js';
+import app from "./app.js";
+import { getConfig } from "./config/env.js";
 
 const config = getConfig();
 

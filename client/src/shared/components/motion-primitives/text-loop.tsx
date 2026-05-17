@@ -1,5 +1,5 @@
-import { cn } from '@/shared/utils/cn';
-import { Children, useEffect, useState } from 'react';
+import { Children, useEffect, useState } from "react";
+import { cn } from "@/shared/utils/cn";
 
 type Transition = {
   duration?: number;
@@ -25,7 +25,7 @@ export function TextLoop({
   variants: _variants,
   onIndexChange,
   trigger = true,
-  mode = 'popLayout',
+  mode = "popLayout",
 }: TextLoopProps) {
   const [currentIndex, setCurrentIndex] = useState(0);
   const items = Children.toArray(children);
@@ -47,7 +47,7 @@ export function TextLoop({
   const animationDuration = transition.duration ?? 0.3;
 
   return (
-    <div className={cn('relative inline-block whitespace-nowrap', className)}>
+    <div className={cn("relative inline-block whitespace-nowrap", className)}>
       <div
         key={`${mode}-${currentIndex}`}
         style={{ animationDuration: `${animationDuration}s` }}

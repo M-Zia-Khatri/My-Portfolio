@@ -1,6 +1,6 @@
-import { TrashIcon } from '@radix-ui/react-icons';
-import { Box, Button, DataList, Dialog, Flex } from '@radix-ui/themes';
-import type { Contact } from '../../types';
+import { TrashIcon } from "@radix-ui/react-icons";
+import { Box, Button, DataList, Dialog, Flex } from "@radix-ui/themes";
+import type { Contact } from "../../types";
 
 interface Props {
   contact: Contact | null;

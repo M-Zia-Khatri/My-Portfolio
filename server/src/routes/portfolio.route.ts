@@ -1,22 +1,22 @@
-import { rateLimit } from '../middlewares/rate-limit/rate-limit.middleware.js';
-import { Router } from 'express';
+import { Router } from "express";
 import {
   createPortfolioItem,
   deletePortfolioItem,
   getAllPortfolioItems,
   getPortfolioItemById,
   updatePortfolioItem,
-} from '../controllers/portfolio.controller.js';
-import { requireAdmin } from '../middlewares/auth.middleware.js';
+} from "../controllers/portfolio.controller.js";
+import { requireAdmin } from "../middlewares/auth.middleware.js";
+import { rateLimit } from "../middlewares/rate-limit/rate-limit.middleware.js";
 
 const portfolioRouter = Router();
 
 // Public
 portfolioRouter
   .get(
-    '/',
+    "/",
     rateLimit({
-      action: 'portfolio-get-all',
+      action: "portfolio-get-all",
       tiers: [
         { limit: 5, interval: 300 },
         {
@@ -24,14 +24,14 @@ portfolioRouter
           interval: 1800, // 1/2 hour
         },
       ],
-      message: 'Too many get attempts. Try again later.',
+      message: "Too many get attempts. Try again later.",
     }),
     getAllPortfolioItems,
   )
   .get(
-    '/:id',
+    "/:id",
     rateLimit({
-      action: 'portfolio-get-one',
+      action: "portfolio-get-one",
       tiers: [
         { limit: 5, interval: 300 },
         {
@@ -39,7 +39,7 @@ portfolioRouter
           interval: 1800, // 1/2 hour
         },
       ],
-      message: 'Too many get attempts. Try again later.',
+      message: "Too many get attempts. Try again later.",
     }),
     getPortfolioItemById,
   );
@@ -48,7 +48,7 @@ portfolioRouter
 portfolioRouter
   .use(
     rateLimit({
-      action: 'portfolio-admin',
+      action: "portfolio-admin",
       tiers: [
         { limit: 10, interval: 600 },
         {
@@ -56,12 +56,12 @@ portfolioRouter
           interval: 1800, // 1/2 hour
         },
       ],
-      message: 'Too many admin attempts. Try again later.',
+      message: "Too many admin attempts. Try again later.",
     }),
   )
   .use(requireAdmin)
-  .post('/', createPortfolioItem)
-  .patch('/:id', updatePortfolioItem)
-  .delete('/:id', deletePortfolioItem);
+  .post("/", createPortfolioItem)
+  .patch("/:id", updatePortfolioItem)
+  .delete("/:id", deletePortfolioItem);
 
 export default portfolioRouter;

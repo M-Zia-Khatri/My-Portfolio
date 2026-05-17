@@ -1,7 +1,4 @@
-import SkillChip from '@/features/skills/components/SkillChip';
-import type { ApiSkill, Skill } from '@/features/skills/types';
-import CodeCard from '@/shared/components/CodeCard';
-import { Pencil1Icon, PlusIcon, TrashIcon } from '@radix-ui/react-icons';
+import { Pencil1Icon, PlusIcon, TrashIcon } from "@radix-ui/react-icons";
 import {
   AlertDialog,
   Box,
@@ -14,12 +11,15 @@ import {
   IconButton,
   Spinner,
   Text,
-} from '@radix-ui/themes';
-import { useState } from 'react';
-import { ICON_MAP } from './iconMap';
-import SkillDialog from './SkillDialog';
-import type { SkillFormValues } from './skills.schema';
-import { useCreateSkill, useDeleteSkill, useSkillsData, useUpdateSkill } from './useSkillActions';
+} from "@radix-ui/themes";
+import { useState } from "react";
+import SkillChip from "@/features/skills/components/SkillChip";
+import type { ApiSkill, Skill } from "@/features/skills/types";
+import CodeCard from "@/shared/components/CodeCard";
+import { ICON_MAP } from "./iconMap";
+import SkillDialog from "./SkillDialog";
+import type { SkillFormValues } from "./skills.schema";
+import { useCreateSkill, useDeleteSkill, useSkillsData, useUpdateSkill } from "./useSkillActions";
 
 // B3 fixed: proper type for a skill that has been mapped (iconComponent resolved)
 type MappedSkill = Skill & { id: string };
@@ -40,8 +40,8 @@ export default function Skills() {
   // Replace `console.error` with your toast library (e.g. toast.error(message)).
   const onMutationError = (err: unknown) => {
     const message =
-      (err as any)?.response?.data?.message ?? 'Something went wrong. Please try again.';
-    console.error('[Skills mutation]', message);
+      (err as any)?.response?.data?.message ?? "Something went wrong. Please try again.";
+    console.error("[Skills mutation]", message);
     // toast.error(message);
   };
 
@@ -95,8 +95,8 @@ export default function Skills() {
     const { content, mode, commands, ...rest } = values;
 
     const payload =
-      mode === 'code'
-        ? { ...rest, mode, code: content?.split('\n') || [] }
+      mode === "code"
+        ? { ...rest, mode, code: content?.split("\n") || [] }
         : { ...rest, mode, commands: commands || [] };
 
     // B10 fixed: mutateAsync errors are caught here so the dialog stays open on failure.
@@ -125,7 +125,7 @@ export default function Skills() {
         </Button>
       </Flex>
 
-      <Grid columns={{ initial: '1', md: '12' }} gap="6">
+      <Grid columns={{ initial: "1", md: "12" }} gap="6">
         {/* Sidebar: List */}
         <Box className="md:col-span-4">
           <Card size="2">

@@ -1,6 +1,6 @@
-import type { ApiSkill, ModeENUM } from '@/features/skills/types';
-import { api } from '@/shared/api/axios';
-import { getETag } from '@/shared/api/etag-store';
+import type { ApiSkill, ModeENUM } from "@/features/skills/types";
+import { api } from "@/shared/api/axios";
+import { getETag } from "@/shared/api/etag-store";
 
 // ─── ETag helper ─────────────────────────────────────────────────────────────
 // Fetches a fresh ETag for the given skill.
@@ -13,8 +13,8 @@ async function fetchSkillETag(id: string): Promise<string | null> {
   try {
     await api.get(url, {
       headers: {
-        'Cache-Control': 'no-cache',
-        Pragma: 'no-cache',
+        "Cache-Control": "no-cache",
+        Pragma: "no-cache",
       },
     });
 
@@ -35,7 +35,7 @@ async function fetchSkillETag(id: string): Promise<string | null> {
 // ─── GET /api/skills ──────────────────────────────────────────────────────────
 
 export async function fetchSkills(mode?: ModeENUM): Promise<ApiSkill[]> {
-  const res = await api.get<{ data: ApiSkill[] }>(mode ? `/skills?mode=${mode}` : '/skills');
+  const res = await api.get<{ data: ApiSkill[] }>(mode ? `/skills?mode=${mode}` : "/skills");
   const data = res.data?.data ?? res.data;
   return Array.isArray(data) ? data : [];
 }
@@ -43,7 +43,7 @@ export async function fetchSkills(mode?: ModeENUM): Promise<ApiSkill[]> {
 // ─── POST /api/skills ─────────────────────────────────────────────────────────
 
 export async function createSkill(payload: unknown): Promise<ApiSkill> {
-  const res = await api.post<{ data: ApiSkill }>('/skills', payload);
+  const res = await api.post<{ data: ApiSkill }>("/skills", payload);
   return res.data.data;
 }
 
@@ -65,7 +65,7 @@ export async function updateSkill(id: string, payload: unknown): Promise<ApiSkil
   }
 
   const res = await api.patch<{ data: ApiSkill }>(url, payload, {
-    headers: { 'If-Match': etag },
+    headers: { "If-Match": etag },
   });
 
   return res.data.data;

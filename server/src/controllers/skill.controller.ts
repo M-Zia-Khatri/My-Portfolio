@@ -1,5 +1,10 @@
-import { SkillRow, toSkillResponse } from '../lib/types/skill.types.js';
-import { generateETag } from '../lib/utills/caching/cache.etag.js';
+import type { Request, Response } from "express";
+import { Prisma, type Skill } from "../../generated/prisma/client.js";
+import type { SkillMode } from "./../../generated/prisma/enums.js";
+import type { SkillModel } from "./../../generated/prisma/models/Skill.js";
+import { prisma } from "../lib/prisma.js";
+import { type SkillRow, toSkillResponse } from "../lib/types/skill.types.js";
+import { generateETag } from "../lib/utills/caching/cache.etag.js";
 import {
   cacheForget,
   cacheInvalidatePrefix,
@@ -7,15 +12,10 @@ import {
   cacheRemember,
   cacheRememberConditional,
   TTL,
-} from '../lib/utills/caching/cache.js';
-import { catchError } from '../lib/utills/catch-error.js';
-import { send } from '../lib/utills/send.js';
-import { createSkillSchema, updateSkillSchema } from '../lib/validators/skill.validation.js';
-import type { Request, Response } from 'express';
-import { Prisma, Skill } from '../../generated/prisma/client.js';
-import { prisma } from '../lib/prisma.js';
-import { SkillMode } from './../../generated/prisma/enums.js';
-import { SkillModel } from './../../generated/prisma/models/Skill.js';
+} from "../lib/utills/caching/cache.js";
+import { catchError } from "../lib/utills/catch-error.js";
+import { send } from "../lib/utills/send.js";
+import { createSkillSchema, updateSkillSchema } from "../lib/validators/skill.validation.js";
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 function toNullableJsonInput(
@@ -30,27 +30,25 @@ function toNullableJsonInput(
 function isLangTaken(err: unknown): boolean {
   if (err instanceof Prisma.PrismaClientKnownRequestError) {
     return (
-      err.code === 'P2002' &&
+      err.code === "P2002" &&
       Array.isArray((err.meta as { target?: string[] })?.target) &&
-      (err.meta as { target: string[] }).target.includes('lang')
+      (err.meta as { target: string[] }).target.includes("lang")
     );
   }
   return false;
 }
 
 type CustomSkillWhereInput = Prisma.SkillWhereInput & {
-  mode?: Prisma.EnumSkillModeFilter<'Skill'> | SkillModel | undefined;
+  mode?: Prisma.EnumSkillModeFilter<"Skill"> | SkillModel | undefined;
 };
 
 const CACHE_KEYS = {
-  all: (mode?: string) => `skills:list:${mode ?? 'all'}`,
+  all: (mode?: string) => `skills:list:${mode ?? "all"}`,
   one: (id: string) => `skills:${id}`,
-  prefix: 'skills',
+  prefix: "skills",
 };
 
-function toPrismaJson(
-  value: unknown,
-): Prisma.NullableJsonNullValueInput | Prisma.InputJsonValue {
+function toPrismaJson(value: unknown): Prisma.NullableJsonNullValueInput | Prisma.InputJsonValue {
   if (value === null || value === undefined) return Prisma.NullableJsonNullValueInput.JsonNull;
   return value as Prisma.InputJsonValue;
 }
@@ -59,8 +57,8 @@ function toPrismaJson(
 export async function getAll(req: Request, res: Response): Promise<void> {
   try {
     const { mode } = req.query;
-    const modeStr = typeof mode === 'string' ? mode : undefined;
-    const clientETag = req.headers['if-none-match'] as string | undefined;
+    const modeStr = typeof mode === "string" ? mode : undefined;
+    const clientETag = req.headers["if-none-match"] as string | undefined;
 
     const result = await cacheRememberConditional<Skill[]>(CACHE_KEYS.all(modeStr), {
       ttl: TTL.ONE_DAY,
@@ -69,15 +67,15 @@ export async function getAll(req: Request, res: Response): Promise<void> {
       callback: () =>
         prisma.skill.findMany({
           where:
-            modeStr === 'code' || modeStr === 'terminal'
+            modeStr === "code" || modeStr === "terminal"
               ? { mode: modeStr as SkillMode }
               : undefined,
-          orderBy: { created_at: 'asc' },
+          orderBy: { created_at: "asc" },
         }),
     });
 
-    res.setHeader('ETag', result.etag);
-    res.setHeader('Cache-Control', 'private, must-revalidate');
+    res.setHeader("ETag", result.etag);
+    res.setHeader("Cache-Control", "private, must-revalidate");
 
     if (result.status === 304) {
       res.status(304).end();
@@ -87,7 +85,7 @@ export async function getAll(req: Request, res: Response): Promise<void> {
     send(res, {
       success: true,
       status: 200,
-      message: 'Skills retrieved successfully',
+      message: "Skills retrieved successfully",
       data: (result.data as unknown as SkillRow[]).map(toSkillResponse),
       meta: { total: Array.isArray(result.data) ? result.data.length : 0 },
     });
@@ -100,7 +98,7 @@ export async function getAll(req: Request, res: Response): Promise<void> {
 export async function getOne(req: Request, res: Response): Promise<void> {
   try {
     const id = Array.isArray(req.params.id) ? req.params.id[0] : req.params.id;
-    const clientETag = req.headers['if-none-match'] as string | undefined;
+    const clientETag = req.headers["if-none-match"] as string | undefined;
 
     const result = await cacheRememberConditional(CACHE_KEYS.one(id), {
       ttl: TTL.ONE_DAY,
@@ -109,8 +107,8 @@ export async function getOne(req: Request, res: Response): Promise<void> {
       callback: () => prisma.skill.findUnique({ where: { id } }),
     });
 
-    res.setHeader('ETag', result.etag);
-    res.setHeader('Cache-Control', 'private, must-revalidate');
+    res.setHeader("ETag", result.etag);
+    res.setHeader("Cache-Control", "private, must-revalidate");
 
     if (result.status === 304) {
       res.status(304).end();
@@ -118,13 +116,13 @@ export async function getOne(req: Request, res: Response): Promise<void> {
     }
 
     if (!result.data) {
-      return send(res, { success: false, status: 404, message: 'Skill not found' });
+      return send(res, { success: false, status: 404, message: "Skill not found" });
     }
 
     send(res, {
       success: true,
       status: 200,
-      message: 'Skill retrieved successfully',
+      message: "Skill retrieved successfully",
       data: toSkillResponse(result.data as unknown as SkillRow),
     });
   } catch (err) {
@@ -142,9 +140,9 @@ export async function create(req: Request, res: Response): Promise<void> {
       send(res, {
         success: false,
         status: 400,
-        message: 'Validation error',
+        message: "Validation error",
         error: {
-          field: firstIssue.path.join('.') || 'body',
+          field: firstIssue.path.join(".") || "body",
           detail: firstIssue.message,
           issues: parsed.error.issues,
         },
@@ -162,8 +160,8 @@ export async function create(req: Request, res: Response): Promise<void> {
         lang: input.lang,
         color: input.color,
         mode: input.mode,
-        code: toNullableJsonInput(input.mode === 'code' ? input.code : null),
-        commands: toNullableJsonInput(input.mode === 'terminal' ? input.commands : null),
+        code: toNullableJsonInput(input.mode === "code" ? input.code : null),
+        commands: toNullableJsonInput(input.mode === "terminal" ? input.commands : null),
       },
     });
 
@@ -173,11 +171,11 @@ export async function create(req: Request, res: Response): Promise<void> {
     // Only invalidate list caches, not the item we just created
     await cacheInvalidatePrefix(CACHE_KEYS.prefix);
 
-    res.setHeader('ETag', generateETag(row));
+    res.setHeader("ETag", generateETag(row));
     send(res, {
       success: true,
       status: 201,
-      message: 'Skill created successfully',
+      message: "Skill created successfully",
       data: toSkillResponse(row as unknown as SkillRow),
     });
   } catch (err) {
@@ -185,8 +183,8 @@ export async function create(req: Request, res: Response): Promise<void> {
       send(res, {
         success: false,
         status: 409,
-        message: 'A skill with this language already exists',
-        error: { field: 'lang', detail: 'lang must be unique' },
+        message: "A skill with this language already exists",
+        error: { field: "lang", detail: "lang must be unique" },
       });
       return;
     }
@@ -197,13 +195,13 @@ export async function create(req: Request, res: Response): Promise<void> {
 export async function update(req: Request, res: Response): Promise<void> {
   try {
     const id = Array.isArray(req.params.id) ? req.params.id[0] : req.params.id;
-    const clientETag = req.headers['if-match'] as string | undefined;
+    const clientETag = req.headers["if-match"] as string | undefined;
 
     if (!clientETag) {
       return send(res, {
         success: false,
         status: 428,
-        message: 'If-Match header required for optimistic locking',
+        message: "If-Match header required for optimistic locking",
       });
     }
 
@@ -218,13 +216,13 @@ export async function update(req: Request, res: Response): Promise<void> {
       return send(res, {
         success: false,
         status: 412,
-        message: 'Resource modified by another request',
+        message: "Resource modified by another request",
         error: { currentETag: cached.etag },
       });
     }
 
     if (!cached.data) {
-      return send(res, { success: false, status: 404, message: 'Skill not found' });
+      return send(res, { success: false, status: 404, message: "Skill not found" });
     }
 
     const parsed = updateSkillSchema.safeParse(req.body);
@@ -233,17 +231,17 @@ export async function update(req: Request, res: Response): Promise<void> {
       return send(res, {
         success: false,
         status: 400,
-        message: 'Validation error',
-        error: { field: firstIssue.path.join('.') || 'body', detail: firstIssue.message },
+        message: "Validation error",
+        error: { field: firstIssue.path.join(".") || "body", detail: firstIssue.message },
       });
     }
 
     // ... rest of your update logic ...
     const input = parsed.data;
-    const resolvedMode = input.mode ?? (cached.data.mode as 'code' | 'terminal');
-    const resolvedCode = resolvedMode === 'code' ? (input.code ?? cached.data.code) : null;
-    const resolvedCommands =
-      resolvedMode === 'terminal' ? (input.commands ?? cached.data.commands) : null;
+    const resolvedMode = input.mode ?? (cached.data.mode as "code" | "terminal");
+    const _resolvedCode = resolvedMode === "code" ? (input.code ?? cached.data.code) : null;
+    const _resolvedCommands =
+      resolvedMode === "terminal" ? (input.commands ?? cached.data.commands) : null;
 
     const row = await prisma.skill.update({
       where: { id },
@@ -264,11 +262,11 @@ export async function update(req: Request, res: Response): Promise<void> {
     // Only invalidate the list, keep the single item warm
     await cacheInvalidatePrefix(CACHE_KEYS.prefix);
 
-    res.setHeader('ETag', generateETag(row)); // Send new ETag
+    res.setHeader("ETag", generateETag(row)); // Send new ETag
     send(res, {
       success: true,
       status: 200,
-      message: 'Skill updated successfully',
+      message: "Skill updated successfully",
       data: toSkillResponse(row as unknown as SkillRow),
     });
   } catch (err) {
@@ -276,7 +274,7 @@ export async function update(req: Request, res: Response): Promise<void> {
       return send(res, {
         success: false,
         status: 409,
-        message: 'A skill with this language already exists',
+        message: "A skill with this language already exists",
       });
     }
     catchError(res, err);
@@ -294,7 +292,7 @@ export async function remove(req: Request, res: Response): Promise<void> {
       callback: () => prisma.skill.findUnique({ where: { id }, select: { id: true } }),
     });
     if (!existing) {
-      return send(res, { success: false, status: 404, message: 'Skill not found' });
+      return send(res, { success: false, status: 404, message: "Skill not found" });
     }
 
     await prisma.skill.delete({ where: { id } });
@@ -304,7 +302,7 @@ export async function remove(req: Request, res: Response): Promise<void> {
     send(res, {
       success: true,
       status: 200,
-      message: 'Skill deleted successfully',
+      message: "Skill deleted successfully",
     });
   } catch (err) {
     catchError(res, err);

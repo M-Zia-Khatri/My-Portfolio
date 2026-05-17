@@ -1,11 +1,4 @@
-import CodeEmptyState from '@/features/skills/components/CodeEmptyState';
-import CodeLine from '@/features/skills/components/CodeLine';
-import CodeTabBar from '@/features/skills/components/CodeTabBar';
-import TerminalView from '@/features/skills/components/TerminalView';
-import type { Skill } from '@/features/skills/types';
-import TabScrollbarStyle from '@/shared/components/TabScrollbarStyle';
-import { useGsapTypingEffect as useGsapTimeline } from '@/shared/hooks/useGsapAnimations';
-import type { RefObject } from 'react';
+import type { RefObject } from "react";
 import {
   forwardRef,
   memo,
@@ -14,7 +7,14 @@ import {
   useImperativeHandle,
   useRef,
   useState,
-} from 'react';
+} from "react";
+import CodeEmptyState from "@/features/skills/components/CodeEmptyState";
+import CodeLine from "@/features/skills/components/CodeLine";
+import CodeTabBar from "@/features/skills/components/CodeTabBar";
+import TerminalView from "@/features/skills/components/TerminalView";
+import type { Skill } from "@/features/skills/types";
+import TabScrollbarStyle from "@/shared/components/TabScrollbarStyle";
+import { useGsapTypingEffect as useGsapTimeline } from "@/shared/hooks/useGsapAnimations";
 
 const ContentScrollbarStyle = memo(function ContentScrollbarStyle({ color }: { color: string }) {
   return (
@@ -22,7 +22,7 @@ const ContentScrollbarStyle = memo(function ContentScrollbarStyle({ color }: { c
   );
 });
 
-const CARD_STYLE = { transformStyle: 'preserve-3d' } as const;
+const CARD_STYLE = { transformStyle: "preserve-3d" } as const;
 
 export interface CodeCardHandle {
   pause: () => void;
@@ -54,7 +54,7 @@ const CodeCardBase = forwardRef<CodeCardHandle, CodeCardProps>(function CodeCard
   ref,
 ) {
   const [completedLines, setCompletedLines] = useState<string[]>([]);
-  const [currentLine, setCurrentLine] = useState('');
+  const [currentLine, setCurrentLine] = useState("");
   const [isTyping, setIsTyping] = useState(false);
 
   const contentRef = useRef<HTMLDivElement>(null);
@@ -68,15 +68,15 @@ const CodeCardBase = forwardRef<CodeCardHandle, CodeCardProps>(function CodeCard
   // 2. Strict Reset: Prevents the "writing multiple times" bug
   useEffect(() => {
     setCompletedLines([]);
-    setCurrentLine('');
-    setIsTyping(started && skill.mode === 'code');
-  }, [skill.name, skill.mode, started]);
+    setCurrentLine("");
+    setIsTyping(started && skill.mode === "code");
+  }, [skill.mode, started]);
 
   const tlRef = useGsapTimeline(
     cardRef,
     [skill.name, started],
     (timeline: any) => {
-      if (skill.mode !== 'code' || !started) return;
+      if (skill.mode !== "code" || !started) return;
 
       skill.code.forEach((line, lineIdx) => {
         // Typing Phase
@@ -84,7 +84,7 @@ const CodeCardBase = forwardRef<CodeCardHandle, CodeCardProps>(function CodeCard
           timeline.to(
             {},
             {
-              duration: line[ci - 1] === ' ' ? 0.01 : 0.02,
+              duration: line[ci - 1] === " " ? 0.01 : 0.02,
               onStart: () => {
                 if (ci === 1) setIsTyping(true);
               },
@@ -100,7 +100,7 @@ const CodeCardBase = forwardRef<CodeCardHandle, CodeCardProps>(function CodeCard
             if (prev.length > lineIdx) return prev;
             return [...prev, line];
           });
-          setCurrentLine('');
+          setCurrentLine("");
         });
 
         timeline.to({}, { duration: 0.05 });
@@ -127,11 +127,11 @@ const CodeCardBase = forwardRef<CodeCardHandle, CodeCardProps>(function CodeCard
   useEffect(() => {
     const el = contentRef.current;
     if (el) el.scrollTop = el.scrollHeight;
-  }, [deferredCompletedLines, currentLine]);
+  }, []);
 
   const activeLineIndex = completedLines.length;
 
-  const isTerminal = skill.mode === 'terminal';
+  const isTerminal = skill.mode === "terminal";
 
   return (
     <>
@@ -141,7 +141,7 @@ const CodeCardBase = forwardRef<CodeCardHandle, CodeCardProps>(function CodeCard
         <div
           className="relative z-10 flex w-full flex-col overflow-hidden rounded-xl"
           style={{
-            background: isTerminal ? 'rgba(5, 10, 5, 0.97)' : 'rgba(10, 14, 20, 0.95)',
+            background: isTerminal ? "rgba(5, 10, 5, 0.97)" : "rgba(10, 14, 20, 0.95)",
             border: `1px solid ${skill.color}30`,
             minHeight: 300,
           }}
@@ -156,7 +156,7 @@ const CodeCardBase = forwardRef<CodeCardHandle, CodeCardProps>(function CodeCard
           <div
             ref={contentRef}
             className="content-scrollbar flex-1 py-3"
-            style={{ height: 300, overflowY: 'auto', overflowX: 'hidden' }}
+            style={{ height: 300, overflowY: "auto", overflowX: "hidden" }}
           >
             {openTabs.length === 0 ? (
               <CodeEmptyState />
@@ -171,11 +171,11 @@ const CodeCardBase = forwardRef<CodeCardHandle, CodeCardProps>(function CodeCard
             ) : (
               <div ref={codeContainerRef}>
                 {/* Render the deferred "History" of lines */}
-                {deferredCompletedLines.map((line, i) => (
+                {deferredCompletedLines.map((line) => (
                   <CodeLine
-                    key={`${skill.name}-done-${i}`}
+                    key={`${skill.name}-done-${line.slice(0, 30)}`}
                     line={line}
-                    index={i}
+                    index={deferredCompletedLines.indexOf(line)}
                     isActiveLine={false}
                     color={skill.color}
                   />
@@ -196,11 +196,11 @@ const CodeCardBase = forwardRef<CodeCardHandle, CodeCardProps>(function CodeCard
                     ensure full code is shown if state hasn't caught up */}
                 {!isTyping &&
                   deferredCompletedLines.length === 0 &&
-                  skill.code.map((line, i) => (
+                  skill.code.map((line) => (
                     <CodeLine
-                      key={`${skill.name}-active-${activeLineIndex}`}
+                      key={`${skill.name}-code-${line.slice(0, 30)}-${line.length}`}
                       line={line}
-                      index={i}
+                      index={skill.code.indexOf(line)}
                       isActiveLine={false}
                       color={skill.color}
                     />
@@ -214,6 +214,6 @@ const CodeCardBase = forwardRef<CodeCardHandle, CodeCardProps>(function CodeCard
   );
 });
 
-CodeCardBase.displayName = 'CodeCard';
+CodeCardBase.displayName = "CodeCard";
 
 export default memo(CodeCardBase);

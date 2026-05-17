@@ -19,18 +19,18 @@ export interface RefreshBody {
 export interface AccessTokenPayload {
   sub: string; // adminId
   email: string;
-  type: 'access';
+  type: "access";
 }
 
 export interface RefreshTokenPayload {
   sub: string; // adminId
   jti: string; // RefreshToken.id (used for revocation lookppppppppppppppppppppppppppup)
-  type: 'refresh';
+  type: "refresh";
 }
 
 // ─── EXTENDED REQUEST ────────────────────────────────────────────────────────
 
-import type { Request } from 'express';
+import type { Request } from "express";
 
 export interface AuthRequest extends Request {
   admin?: {

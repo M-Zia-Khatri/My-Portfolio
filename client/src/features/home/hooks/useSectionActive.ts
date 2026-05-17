@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState } from "react";
 
 const VISIBILITY_THRESHOLD = 0.3;
 
@@ -13,7 +13,7 @@ let rafId: number | null = null;
 const pending = new Map<string, boolean>();
 
 function createObserver() {
-  if (observer || typeof window === 'undefined') return;
+  if (observer || typeof window === "undefined") return;
 
   observer = new IntersectionObserver(
     (entries) => {
@@ -27,7 +27,7 @@ function createObserver() {
 
         if (entry.isIntersecting) {
           // Force GSAP to recognize the newly mounted/visible section
-          import('gsap/ScrollTrigger').then((m) => m.ScrollTrigger.refresh());
+          import("gsap/ScrollTrigger").then((m) => m.ScrollTrigger.refresh());
         }
       });
 
@@ -38,7 +38,9 @@ function createObserver() {
           // ONLY update if state actually flipped
           if (prev !== isActive) {
             sectionState.set(sectionId, isActive);
-            subscriberMap.get(sectionId)?.forEach((notify) => notify(isActive));
+            subscriberMap.get(sectionId)?.forEach((notify) => {
+              notify(isActive);
+            });
           }
         });
 
@@ -75,7 +77,7 @@ function unobserveIfUnused(sectionId: string) {
 function cleanupObserverIfIdle() {
   if (Array.from(subscriberMap.values()).some((subs) => subs.size > 0)) return;
 
-  if (rafId !== null && typeof window !== 'undefined') {
+  if (rafId !== null && typeof window !== "undefined") {
     window.cancelAnimationFrame(rafId);
     rafId = null;
   }
@@ -90,7 +92,7 @@ export function useSectionActive(sectionId: string): boolean {
   const [isActive, setIsActive] = useState(false);
 
   useEffect(() => {
-    if (typeof window === 'undefined') return;
+    if (typeof window === "undefined") return;
 
     createObserver();
 

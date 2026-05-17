@@ -1,13 +1,13 @@
-import { fetchPublicPortfolio } from '@/features/portfolio/api';
-import { PortfolioItemCard } from '@/features/portfolio/components/PortfolioItemCard';
-import type { PortfolioItem } from '@/features/portfolio/types';
-import SecComponent from '@/shared/components/SecContainer';
-import { TEXT } from '@/shared/constants/style.constants';
-import { cn } from '@/shared/utils/cn';
-import { Box, Card, Flex, Heading, Skeleton, Text } from '@radix-ui/themes';
-import { useQuery } from '@tanstack/react-query';
-import { motion, type Variants } from 'motion/react';
-import React from 'react';
+import { Box, Card, Flex, Heading, Skeleton, Text } from "@radix-ui/themes";
+import { useQuery } from "@tanstack/react-query";
+import { motion, type Variants } from "motion/react";
+import React from "react";
+import { fetchPublicPortfolio } from "@/features/portfolio/api";
+import { PortfolioItemCard } from "@/features/portfolio/components/PortfolioItemCard";
+import type { PortfolioItem } from "@/features/portfolio/types";
+import SecComponent from "@/shared/components/SecContainer";
+import { TEXT } from "@/shared/constants/style.constants";
+import { cn } from "@/shared/utils/cn";
 
 // ✅ Explicit typing
 const containerVariants: Variants = {
@@ -23,7 +23,7 @@ const cardVariants: Variants = {
     opacity: 1,
     y: 0,
     scale: 1,
-    transition: { type: 'spring', stiffness: 80, damping: 18 },
+    transition: { type: "spring", stiffness: 80, damping: 18 },
   },
 };
 
@@ -37,10 +37,10 @@ const headingVariants: Variants = {
 };
 
 // ✅ These are already correct
-const VIEWPORT_ONCE = { once: true, margin: '-60px' } as const;
-const VIEWPORT_GRID = { once: true, margin: '-80px' } as const;
+const VIEWPORT_ONCE = { once: true, margin: "-60px" } as const;
+const VIEWPORT_GRID = { once: true, margin: "-80px" } as const;
 
-const PORTFOLIO_QUERY_KEY = ['portfolio'] as const;
+const PORTFOLIO_QUERY_KEY = ["portfolio"] as const;
 
 type PortfolioApiRow = Awaited<ReturnType<typeof fetchPublicPortfolio>>[number];
 
@@ -85,15 +85,15 @@ export default function PortfolioSection() {
         </motion.div>
 
         <motion.div
-          className={cn('grid w-full ', 'grid-cols-1 md:grid-cols-2', 'gap-5 md:gap-3 lg:gap-4')}
+          className={cn("grid w-full ", "grid-cols-1 md:grid-cols-2", "gap-5 md:gap-3 lg:gap-4")}
           variants={containerVariants}
           initial="hidden"
           whileInView="visible"
           viewport={VIEWPORT_GRID}
         >
           {isLoading ? (
-            Array.from({ length: 4 }).map((_, index) => (
-              <React.Fragment key={index}>
+            ["p1", "p2", "p3", "p4"].map((id) => (
+              <React.Fragment key={id}>
                 <Card size="2">
                   <Flex direction="column" gap="3">
                     <Skeleton className="h-48 w-full rounded-md" />

@@ -1,7 +1,7 @@
-import gsap from 'gsap';
-import { ScrollTrigger } from 'gsap/ScrollTrigger';
-import type { RefObject } from 'react';
-import { useLayoutEffect, useRef } from 'react';
+import gsap from "gsap";
+import { ScrollTrigger } from "gsap/ScrollTrigger";
+import type { RefObject } from "react";
+import { useLayoutEffect, useRef } from "react";
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -25,16 +25,16 @@ export function useGsapReveal(
     const ctx = gsap.context(() => {
       gsap.fromTo(
         target,
-        { autoAlpha: 0, y: options?.y ?? 20, willChange: 'transform,opacity' },
+        { autoAlpha: 0, y: options?.y ?? 20, willChange: "transform,opacity" },
         {
           autoAlpha: 1,
           y: 0,
           duration: options?.duration ?? 0.55,
-          ease: options?.ease ?? 'power2.out',
-          clearProps: 'willChange',
+          ease: options?.ease ?? "power2.out",
+          clearProps: "willChange",
           scrollTrigger: {
             trigger: scopeRef.current,
-            start: 'top 80%',
+            start: "top 80%",
             once: options?.once ?? true,
           },
         },
@@ -64,21 +64,21 @@ export function useGsapStagger(
 
       gsap.fromTo(
         target,
-        { autoAlpha: 0, y: options?.y ?? 16, willChange: 'transform,opacity' },
+        { autoAlpha: 0, y: options?.y ?? 16, willChange: "transform,opacity" },
         {
           autoAlpha: 1,
           y: 0,
           duration: options?.duration ?? 0.5,
           stagger: options?.stagger ?? 0.08,
-          ease: 'power2.out',
-          clearProps: 'willChange',
+          ease: "power2.out",
+          clearProps: "willChange",
           onComplete: () => {
             hasAnimatedRef.current = true;
             ScrollTrigger.refresh(); // Ensure markers are correct after height change
           },
           scrollTrigger: {
             trigger: parentRef.current,
-            start: 'top 78%',
+            start: "top 78%",
             once: true,
           },
         },
@@ -86,7 +86,7 @@ export function useGsapStagger(
     }, parentRef);
 
     return () => ctx.revert();
-  }, [parentRef, y, duration, stagger, once, parentRef.current?.children.length]);
+  }, [parentRef, once, options?.duration, options?.stagger, options?.y, target]);
 }
 
 export function useGsapTypingEffect(
@@ -113,7 +113,7 @@ export function useGsapTypingEffect(
       tlRef.current = null;
       ctx.revert();
     };
-  }, [scopeRef, paused, ...deps]);
+  }, [scopeRef, paused, ...deps, setup]);
 
   useLayoutEffect(() => {
     if (!tlRef.current) return;

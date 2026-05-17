@@ -1,18 +1,18 @@
-import { ICON_MAP } from '@/features/dashboard/pages/skills/iconMap';
-import { useSkillsData } from '@/features/dashboard/pages/skills/useSkillActions';
-import CodeEmptyState from '@/features/skills/components/CodeEmptyState';
-import SkillChip from '@/features/skills/components/SkillChip';
-import type { ApiSkill, Skill } from '@/features/skills/types';
-import CodeCard from '@/shared/components/CodeCard';
-import SecComponent from '@/shared/components/SecContainer';
-import { HEADING, TEXT } from '@/shared/constants/style.constants';
-import { useGsapReveal } from '@/shared/hooks/gsap/useGsapReveal';
-import { useGsapStagger } from '@/shared/hooks/gsap/useGsapStagger';
-import { cn } from '@/shared/utils/cn';
-import { Box, Flex, Heading, Spinner, Text } from '@radix-ui/themes';
-import type { RefObject } from 'react';
-import { memo, useCallback, useMemo, useRef, useState } from 'react';
-import { useSectionActive } from '../hooks/useSectionActive';
+import { Box, Flex, Heading, Spinner, Text } from "@radix-ui/themes";
+import type { RefObject } from "react";
+import { memo, useCallback, useMemo, useRef, useState } from "react";
+import { ICON_MAP } from "@/features/dashboard/pages/skills/iconMap";
+import { useSkillsData } from "@/features/dashboard/pages/skills/useSkillActions";
+import CodeEmptyState from "@/features/skills/components/CodeEmptyState";
+import SkillChip from "@/features/skills/components/SkillChip";
+import type { ApiSkill, Skill } from "@/features/skills/types";
+import CodeCard from "@/shared/components/CodeCard";
+import SecComponent from "@/shared/components/SecContainer";
+import { HEADING, TEXT } from "@/shared/constants/style.constants";
+import { useGsapReveal } from "@/shared/hooks/gsap/useGsapReveal";
+import { useGsapStagger } from "@/shared/hooks/gsap/useGsapStagger";
+import { cn } from "@/shared/utils/cn";
+import { useSectionActive } from "../hooks/useSectionActive";
 
 const PERSPECTIVE_STYLE = { perspective: 800 } as const;
 
@@ -43,7 +43,7 @@ const SkillChips = memo(function SkillChips({
   return (
     <div
       ref={cardsRef}
-      className={cn('flex flex-wrap justify-center', 'gap-2 md:gap-2.5 lg:gap-3 2xl:gap-4')}
+      className={cn("flex flex-wrap justify-center", "gap-2 md:gap-2.5 lg:gap-3 2xl:gap-4")}
     >
       {skills.map((skill) => (
         <div key={skill.name}>
@@ -59,7 +59,7 @@ const SkillChips = memo(function SkillChips({
 });
 
 function SkillsSection() {
-  const isSectionActive = useSectionActive('skills');
+  const isSectionActive = useSectionActive("skills");
   const { data, isLoading, isError } = useSkillsData();
 
   const sectionRef = useRef<HTMLDivElement>(null);
@@ -110,7 +110,7 @@ function SkillsSection() {
       else {
         setActiveName((currentName) => {
           if (currentName !== skill.name) return currentName;
-          const idx = prev.findIndex((name) => name === skill.name);
+          const idx = prev.indexOf(skill.name);
           return next[Math.min(idx, next.length - 1)];
         });
       }

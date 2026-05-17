@@ -1,16 +1,17 @@
-import { getConfig } from '../../config/env.js';
-import { redis } from '../../lib/utills/redis.js';
-import { NextFunction, Request, Response } from 'express';
-import { fallbackCheck } from './rate-limit.fallback.js';
+import type { NextFunction, Request, Response } from "express";
+import { getConfig } from "../../config/env.js";
+import { redis } from "../../lib/utills/redis.js";
+import { fallbackCheck } from "./rate-limit.fallback.js";
 import {
   buildRedisKey,
   getIp,
   setRateLimitHeaders,
   uniqueRequestId,
-} from './rate-limit.helpers.js';
-import { SLIDING_WINDOW_SCRIPT } from './rate-limit.script.js';
-import { RateLimitConfig } from './rate-limit.types.js';
-export type { RateLimitConfig, Tier } from './rate-limit.types.js';
+} from "./rate-limit.helpers.js";
+import { SLIDING_WINDOW_SCRIPT } from "./rate-limit.script.js";
+import type { RateLimitConfig } from "./rate-limit.types.js";
+
+export type { RateLimitConfig, Tier } from "./rate-limit.types.js";
 
 // ─── Middleware Factory ────────────────────────────────────────────────────
 
@@ -19,8 +20,8 @@ export function rateLimit(config: RateLimitConfig) {
     action,
     tiers,
     keyResolver,
-    message = 'Too many requests. Try again later.',
-    failBehavior = 'open',
+    message = "Too many requests. Try again later.",
+    failBehavior = "open",
     skip,
   } = config;
 
@@ -94,13 +95,13 @@ export function rateLimit(config: RateLimitConfig) {
       setRateLimitHeaders(res, worstLimit, worstRemaining, worstResetAt, worstInterval);
       next();
     } catch (err) {
-      console.error('[rateLimit] Redis error:', err);
+      console.error("[rateLimit] Redis error:", err);
 
-      if (failBehavior === 'closed') {
+      if (failBehavior === "closed") {
         res.status(503).json({
           success: false,
           status: 503,
-          message: 'Service temporarily unavailable.',
+          message: "Service temporarily unavailable.",
         });
         return;
       }

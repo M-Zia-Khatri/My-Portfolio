@@ -1,6 +1,6 @@
-import { cn } from '@/shared/utils/cn';
-import { memo, useMemo } from 'react';
-import { tokenise } from './tokeniser';
+import { memo, useMemo } from "react";
+import { cn } from "@/shared/utils/cn";
+import { tokenise } from "./tokeniser";
 
 interface CodeLineProps {
   line: string;
@@ -15,8 +15,8 @@ const CodeLine = memo(function CodeLine({ line, index, isActiveLine, color }: Co
 
   return (
     <div
-      className={cn('code-line flex items-center group', isActiveLine && 'is-active')}
-      style={{ '--line-color': color } as React.CSSProperties}
+      className={cn("code-line flex items-center group", isActiveLine && "is-active")}
+      style={{ "--line-color": color } as React.CSSProperties}
     >
       {/* Line Number */}
       <span className="line-num relative w-10 shrink-0 pr-4 text-right text-[11px] select-none">
@@ -25,8 +25,8 @@ const CodeLine = memo(function CodeLine({ line, index, isActiveLine, color }: Co
 
       {/* Code Content */}
       <span className="relative text-[12.5px] leading-[1.6rem] tracking-tight whitespace-pre">
-        {tokens.map((tok, j) => (
-          <span key={j} style={{ color: tok.color }}>
+        {tokens.map((tok) => (
+          <span key={tok.id} style={{ color: tok.color }}>
             {tok.text}
           </span>
         ))}

@@ -1,4 +1,4 @@
-import { Request, Response } from 'express';
+import type { Request, Response } from "express";
 
 /**
  * Build a Redis key with a cluster hash tag.
@@ -17,8 +17,8 @@ export function buildRedisKey(action: string, identity: string, interval: number
  * Extract the client IP, respecting X-Forwarded-For from a trusted proxy.
  */
 export function getIp(req: Request): string {
-  const forwarded = req.headers['x-forwarded-for'] as string | undefined;
-  return forwarded?.split(',')[0]?.trim() ?? req.socket?.remoteAddress ?? 'unknown';
+  const forwarded = req.headers["x-forwarded-for"] as string | undefined;
+  return forwarded?.split(",")[0]?.trim() ?? req.socket?.remoteAddress ?? "unknown";
 }
 
 /**
@@ -49,10 +49,10 @@ export function setRateLimitHeaders(
   const resetIn = Math.max(0, Math.ceil(resetAt - Date.now() / 1000));
 
   res.set({
-    'RateLimit-Policy': `${limit};w=${interval}`,
-    'RateLimit-Limit': String(limit),
-    'RateLimit-Remaining': String(remaining),
-    'RateLimit-Reset': String(resetIn),
-    'Retry-After': String(resetIn),
+    "RateLimit-Policy": `${limit};w=${interval}`,
+    "RateLimit-Limit": String(limit),
+    "RateLimit-Remaining": String(remaining),
+    "RateLimit-Reset": String(resetIn),
+    "Retry-After": String(resetIn),
   });
 }

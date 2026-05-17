@@ -1,5 +1,5 @@
-import { MagnifyingGlassIcon } from '@radix-ui/react-icons';
-import { Flex, Text, TextField } from '@radix-ui/themes';
+import { MagnifyingGlassIcon } from "@radix-ui/react-icons";
+import { Flex, Text, TextField } from "@radix-ui/themes";
 
 interface Props {
   value: string;
@@ -13,7 +13,7 @@ export const ContactFilters = ({ value, onChange, resultsCount }: Props) => (
       placeholder="Search name, email, or message..."
       value={value}
       onChange={(e) => onChange(e.target.value)}
-      style={{ width: '350px' }}
+      style={{ width: "350px" }}
     >
       <TextField.Slot>
         <MagnifyingGlassIcon height="16" width="16" />

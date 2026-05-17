@@ -1,7 +1,7 @@
-import { useEffect, useRef } from 'react';
-import { useAuth } from '../context/AuthContext';
-import { refreshTokenApi } from '../services/auth.api';
-import { setAccessToken } from './tokenManager';
+import { useEffect, useRef } from "react";
+import { useAuth } from "../context/AuthContext";
+import { refreshTokenApi } from "../services/auth.api";
+import { setAccessToken } from "./tokenManager";
 
 const REFRESH_INTERVAL_MS = 14 * 60 * 1000; // Refresh 1 min before 15m expiry
 
@@ -22,7 +22,7 @@ export function useAutoRefresh() {
         // The Refresh Token is an HttpOnly cookie updated by the server in the Set-Cookie header.
         setAccessToken(data.accessToken);
       } catch (err) {
-        console.error('Auto-refresh failed, logging out...', err);
+        console.error("Auto-refresh failed, logging out...", err);
         logout();
       }
     };

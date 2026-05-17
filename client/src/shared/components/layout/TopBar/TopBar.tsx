@@ -1,18 +1,18 @@
-import { AppNavigation } from '@/shared/constants/navigation.constants';
-import { TEXT } from '@/shared/constants/style.constants';
-import { cn } from '@/shared/utils/cn';
-import { Box, Card, Container, Link, Text } from '@radix-ui/themes';
-import { useEffect, useRef, useState } from 'react';
-import { NavLink } from 'react-router';
-import { MagneticShinyButton } from './MagneticShinyButton';
-import { HIDE_DELAY_MS } from './TopBar.constants';
-import { TopBarMobile } from './TopBarMobile';
-import { TopBarNav } from './TopBarNav';
+import { Box, Card, Container, Link, Text } from "@radix-ui/themes";
+import { useEffect, useRef, useState } from "react";
+import { NavLink } from "react-router";
+import { AppNavigation } from "@/shared/constants/navigation.constants";
+import { TEXT } from "@/shared/constants/style.constants";
+import { cn } from "@/shared/utils/cn";
+import { MagneticShinyButton } from "./MagneticShinyButton";
+import { HIDE_DELAY_MS } from "./TopBar.constants";
+import { TopBarMobile } from "./TopBarMobile";
+import { TopBarNav } from "./TopBarNav";
 
 /** How long (ms) the user must keep scrolling DOWN before the bar hides */
 
 function scrollToSection(sectionId: string) {
-  document.getElementById(sectionId)?.scrollIntoView({ behavior: 'smooth' });
+  document.getElementById(sectionId)?.scrollIntoView({ behavior: "smooth" });
 }
 
 export default function TopBar() {
@@ -50,9 +50,9 @@ export default function TopBar() {
       });
     };
 
-    window.addEventListener('scroll', onScroll, { passive: true });
+    window.addEventListener("scroll", onScroll, { passive: true });
     return () => {
-      window.removeEventListener('scroll', onScroll);
+      window.removeEventListener("scroll", onScroll);
       if (hideTimer.current) clearTimeout(hideTimer.current);
       if (rafId.current !== null) window.cancelAnimationFrame(rafId.current);
     };
@@ -62,23 +62,23 @@ export default function TopBar() {
     <Box asChild className="fixed top-4 z-50 w-full px-4">
       <header
         className={cn(
-          'transition-transform duration-300 ease-out',
-          hidden ? '-translate-y-[120%] opacity-0' : 'translate-y-0 opacity-100',
+          "transition-transform duration-300 ease-out",
+          hidden ? "-translate-y-[120%] opacity-0" : "translate-y-0 opacity-100",
         )}
-        style={{ willChange: 'transform, opacity' }}
+        style={{ willChange: "transform, opacity" }}
       >
-        <Container size={{ initial: '3' }}>
+        <Container size={{ initial: "3" }}>
           <Card
             asChild
             size="2"
             variant="surface"
             className={cn(
-              'mx-auto flex w-full items-center rounded-full outline-2 -outline-offset-2 backdrop-blur-lg',
-              'h-15 gap-4 px-8',
-              'shadow-[0_2px_15px_color-mix(in_srgb,var(--blue-3),transparent_10%)]',
-              'bg-(--blue-4)/20',
+              "mx-auto flex w-full items-center rounded-full outline-2 -outline-offset-2 backdrop-blur-lg",
+              "h-15 gap-4 px-8",
+              "shadow-[0_2px_15px_color-mix(in_srgb,var(--blue-3),transparent_10%)]",
+              "bg-(--blue-4)/20",
             )}
-            style={{ outlineColor: 'var(--gray-6)' }}
+            style={{ outlineColor: "var(--gray-6)" }}
           >
             <div className="flex w-full items-center justify-between gap-4">
               {/* Brand logo */}
@@ -87,7 +87,7 @@ export default function TopBar() {
                   to={AppNavigation.HOME}
                   onClick={(e) => {
                     e.preventDefault();
-                    scrollToSection('home');
+                    scrollToSection("home");
                   }}
                   className="flex items-center gap-2"
                 >

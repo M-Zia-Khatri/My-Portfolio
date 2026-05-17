@@ -1,12 +1,12 @@
-import { ICON_MAP } from '@/features/dashboard/pages/skills/iconMap';
-import { useSkillsCodeData } from '@/features/dashboard/pages/skills/useSkillActions';
-import type { ApiSkill, Skill } from '@/features/skills/types';
-import type { CodeCardHandle } from '@/shared/components/CodeCard';
-import CodeCard from '@/shared/components/CodeCard';
-import { useGsapReveal } from '@/shared/hooks/useGsapAnimations';
-import { memo, startTransition, useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { memo, startTransition, useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { ICON_MAP } from "@/features/dashboard/pages/skills/iconMap";
+import { useSkillsCodeData } from "@/features/dashboard/pages/skills/useSkillActions";
+import type { ApiSkill, Skill } from "@/features/skills/types";
+import type { CodeCardHandle } from "@/shared/components/CodeCard";
+import CodeCard from "@/shared/components/CodeCard";
+import { useGsapReveal } from "@/shared/hooks/useGsapAnimations";
 
-type CardStatus = 'idle' | 'typing' | 'paused' | 'advancing' | 'done';
+type CardStatus = "idle" | "typing" | "paused" | "advancing" | "done";
 
 // Helper to convert API skill to runtime Skill with iconComponent resolved
 function toRuntimeSkill(apiSkill: ApiSkill): Skill {
@@ -25,23 +25,23 @@ function StatusBadge({
   secondsLeft: number;
   nextName: string;
 }) {
-  if (status === 'typing')
+  if (status === "typing")
     return (
       <span className="text-[10px] tracking-widest" style={{ color: `${color}bb` }}>
         typing…
       </span>
     );
-  if (status === 'paused')
+  if (status === "paused")
     return (
       <span className="text-[10px] tracking-widest text-amber-300">resuming in {secondsLeft}s</span>
     );
-  if (status === 'advancing')
+  if (status === "advancing")
     return (
       <span className="text-[10px] tracking-widest" style={{ color: `${color}bb` }}>
         next → {nextName}
       </span>
     );
-  if (status === 'done')
+  if (status === "done")
     return (
       <span className="text-[10px] tracking-widest" style={{ color: `${color}99` }}>
         ✓ all done
@@ -75,7 +75,7 @@ function ProgressRail({
                 ? s.color
                 : i < autoIndex
                   ? `${s.color}60`
-                  : 'rgba(255,255,255,0.18)',
+                  : "rgba(255,255,255,0.18)",
           }}
         />
       ))}
@@ -99,12 +99,12 @@ export default function ContactCodeCard({ isActive }: { isActive: boolean }) {
   const autoIndexRef = useRef(0);
   const [activeSkill, setActiveSkill] = useState<Skill | null>(null);
   const [openTabs, setOpenTabs] = useState<Skill[]>([]);
-  const [cardStatus, setCardStatus] = useState<CardStatus>('idle');
+  const [cardStatus, setCardStatus] = useState<CardStatus>("idle");
   const [secondsLeft, setSecondsLeft] = useState(0);
   const codeCardRef = useRef<CodeCardHandle>(null);
   const wrapRef = useRef<HTMLDivElement>(null);
 
-  useGsapReveal(wrapRef, '[data-contact-card]', { y: 16, duration: 0.45 });
+  useGsapReveal(wrapRef, "[data-contact-card]", { y: 16, duration: 0.45 });
 
   // Initialize activeSkill when contactSkills are available
   useEffect(() => {
@@ -114,16 +114,15 @@ export default function ContactCodeCard({ isActive }: { isActive: boolean }) {
     }
   }, [contactSkills, activeSkill]);
 
-  const nextName = contactSkills.length > 0
-    ? contactSkills[(autoIndex + 1) % contactSkills.length].name
-    : '';
+  const nextName =
+    contactSkills.length > 0 ? contactSkills[(autoIndex + 1) % contactSkills.length].name : "";
 
   const advanceToNext = useCallback(() => {
     if (contactSkills.length === 0) return;
     const currentIndex = autoIndexRef.current;
-    if (currentIndex === contactSkills.length - 1) return setCardStatus('done');
+    if (currentIndex === contactSkills.length - 1) return setCardStatus("done");
 
-    setCardStatus('advancing');
+    setCardStatus("advancing");
 
     setTimeout(() => {
       const nextIdx = currentIndex + 1;
@@ -138,23 +137,23 @@ export default function ContactCodeCard({ isActive }: { isActive: boolean }) {
       });
 
       setActiveSkill(nextSkill);
-      setCardStatus('typing');
+      setCardStatus("typing");
     }, 700);
   }, [contactSkills]);
 
   useEffect(() => {
-    if (isActive && cardStatus === 'idle') setCardStatus('typing');
+    if (isActive && cardStatus === "idle") setCardStatus("typing");
     if (!isActive) codeCardRef.current?.pause();
-    if (isActive && cardStatus !== 'paused') codeCardRef.current?.resume();
+    if (isActive && cardStatus !== "paused") codeCardRef.current?.resume();
   }, [isActive, cardStatus]);
 
   const handleTabClick = useCallback(
     (skill: Skill) => {
-      if (cardStatus === 'done' || cardStatus === 'idle') return;
+      if (cardStatus === "done" || cardStatus === "idle") return;
       const liveSkill = contactSkills[autoIndexRef.current];
       if (skill.name === liveSkill.name) {
         codeCardRef.current?.resume();
-        setCardStatus('typing');
+        setCardStatus("typing");
 
         startTransition(() => {
           setActiveSkill(skill);
@@ -165,7 +164,7 @@ export default function ContactCodeCard({ isActive }: { isActive: boolean }) {
       setActiveSkill(skill);
       codeCardRef.current?.pause();
       const delaySecs = Math.ceil((10_000 + Math.random() * 10_000) / 1000);
-      setCardStatus('paused');
+      setCardStatus("paused");
       setSecondsLeft(delaySecs);
       const interval = setInterval(() => setSecondsLeft((v) => Math.max(0, v - 1)), 1000);
       setTimeout(() => {
@@ -173,7 +172,7 @@ export default function ContactCodeCard({ isActive }: { isActive: boolean }) {
         const live = contactSkills[autoIndexRef.current];
         setActiveSkill(live);
         codeCardRef.current?.resume();
-        setCardStatus('typing');
+        setCardStatus("typing");
       }, delaySecs * 1000);
     },
     [cardStatus, contactSkills],
@@ -184,7 +183,7 @@ export default function ContactCodeCard({ isActive }: { isActive: boolean }) {
     return null;
   }
 
-  const currentColor = contactSkills[autoIndex]?.color ?? '#ffffff';
+  const currentColor = contactSkills[autoIndex]?.color ?? "#ffffff";
 
   return (
     <div ref={wrapRef} className="flex flex-col gap-2">
@@ -201,19 +200,19 @@ export default function ContactCodeCard({ isActive }: { isActive: boolean }) {
           <CodeCard
             ref={codeCardRef}
             skill={activeSkill}
-            openTabs={cardStatus !== 'idle' ? openTabs : []}
-            started={cardStatus !== 'idle'}
-            isActive={isActive && cardStatus !== 'advancing'}
+            openTabs={cardStatus !== "idle" ? openTabs : []}
+            started={cardStatus !== "idle"}
+            isActive={isActive && cardStatus !== "advancing"}
             onTabClick={handleTabClick}
             onTabClose={() => undefined}
-            onTypingComplete={cardStatus !== 'done' ? advanceToNext : undefined}
+            onTypingComplete={cardStatus !== "done" ? advanceToNext : undefined}
           />
         )}
       </div>
       <MemoizedProgressRail
         contactSkills={contactSkills}
         autoIndex={autoIndex}
-        isDone={cardStatus === 'done'}
+        isDone={cardStatus === "done"}
       />
     </div>
   );

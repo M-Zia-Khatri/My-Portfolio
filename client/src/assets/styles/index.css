@@ -1,19 +1,19 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900');
+/* 1. All imports first */
+@import "tailwindcss/theme";
+@import "@radix-ui/themes/styles.css" layer(radix-themes);
+@import "tailwindcss/utilities";
+
+/* 2. Then external font imports */
+@import url("https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900");
+
+/* 3. Font faces */
 @font-face {
-  font-family: 'Special Gothic Expanded One';
-  src: url('../fonts/SpecialGothicExpandedOne-Regular.ttf') format('truetype');
+  font-family: "Special Gothic Expanded One";
+  src: url("../fonts/SpecialGothicExpandedOne-Regular.ttf") format("truetype");
   font-weight: normal;
   font-style: normal;
   font-display: swap; /* Recommended for better performance */
 }
-
-/* 1. Tailwind BASE pehle */
-@import 'tailwindcss/theme';
-/* 2. Phir Radix Themes */
-@import '@radix-ui/themes/styles.css' layer(radix-themes);
-
-/* 3. Phir baaki Tailwind (utilities) */
-@import 'tailwindcss/utilities';
 
 /* -------------------------------------------------------
    CUSTOM THEME VARIABLES
@@ -94,12 +94,12 @@
 }
 
 @theme {
-  --font-inter: 'Inter', sans-serif;
-  --font-gothic-expanded: 'Special Gothic Expanded One', sans-serif;
+  --font-inter: "Inter", sans-serif;
+  --font-gothic-expanded: "Special Gothic Expanded One", sans-serif;
 }
 
 .radix-themes :is(h1, h2, h3, h4, .rt-Heading) {
-  font-family: var(--font-gothic-expanded) !important;
+  font-family: var(--font-gothic-expanded);
 }
 
 .radix-themes {
@@ -233,7 +233,7 @@ html.lenis {
 
 /* Background highlights handled by CSS */
 .code-line:hover::before {
-  content: '';
+  content: "";
   position: absolute;
   inset: 0;
   background: var(--line-hl);
@@ -242,7 +242,7 @@ html.lenis {
 }
 
 .code-line.is-active::after {
-  content: '';
+  content: "";
   position: absolute;
   inset: 0;
   background: var(--line-active);
@@ -256,8 +256,13 @@ html.lenis {
   transition: color 0.15s;
 }
 
-.code-line:hover .line-num { color: color-mix(in srgb, var(--line-color), white 20%); }
-.code-line.is-active .line-num { color: var(--line-color); opacity: 1; }
+.code-line:hover .line-num {
+  color: color-mix(in srgb, var(--line-color), white 20%);
+}
+.code-line.is-active .line-num {
+  color: var(--line-color);
+  opacity: 1;
+}
 
 /* The Cursor */
 .code-cursor {
@@ -271,6 +276,11 @@ html.lenis {
 }
 
 @keyframes code-blink {
-  0%, 100% { opacity: 1; }
-  50% { opacity: 0; }
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0;
+  }
 }

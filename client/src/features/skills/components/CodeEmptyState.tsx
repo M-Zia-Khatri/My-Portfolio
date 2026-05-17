@@ -1,5 +1,5 @@
-import gsap from 'gsap';
-import { useLayoutEffect, useRef } from 'react';
+import gsap from "gsap";
+import { useLayoutEffect, useRef } from "react";
 
 export default function CodeEmptyState() {
   const rootRef = useRef<HTMLDivElement>(null);
@@ -12,12 +12,12 @@ export default function CodeEmptyState() {
         { autoAlpha: 0, scale: 0.94 },
         { autoAlpha: 1, scale: 1, duration: 0.25 },
       );
-      gsap.to('[data-empty-icon]', {
+      gsap.to("[data-empty-icon]", {
         y: -4,
         duration: 1.4,
         yoyo: true,
         repeat: -1,
-        ease: 'sine.inOut',
+        ease: "sine.inOut",
       });
     }, rootRef);
     return () => ctx.revert();

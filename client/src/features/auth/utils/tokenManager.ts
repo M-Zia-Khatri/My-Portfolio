@@ -1,7 +1,7 @@
-import { clearCookie, getCookie, setCookie } from './cookieManager';
+import { clearCookie, getCookie, setCookie } from "./cookieManager";
 
-const ACCESS_TOKEN_KEY = 'access_token';
-const REFRESH_TOKEN_KEY = 'refresh_token';
+const ACCESS_TOKEN_KEY = "access_token";
+const REFRESH_TOKEN_KEY = "refresh_token";
 
 // Durations (matching backend JWT expiries)
 const ACCESS_MAX_AGE = 15 * 60; // 15 Minutes

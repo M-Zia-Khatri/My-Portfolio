@@ -1,6 +1,6 @@
-import { AlertDialog, Button, Flex } from '@radix-ui/themes';
-import { useGuessNumActions } from '../context/GuessNumContext';
-import useGameSet from '../store/GameSetStore';
+import { AlertDialog, Button, Flex } from "@radix-ui/themes";
+import { useGuessNumActions } from "../context/GuessNumContext";
+import useGameSet from "../store/GameSetStore";
 
 export default function ViewDelHistory() {
   const scoreHistoryLength = useGameSet((state) => state.scoreHistory.length);
@@ -8,7 +8,7 @@ export default function ViewDelHistory() {
 
   if (scoreHistoryLength === 0) {
     return (
-      <p className="text-center text-sm italic" style={{ color: 'var(--gray-10)' }}>
+      <p className="text-center text-sm italic" style={{ color: "var(--gray-10)" }}>
         No history available.
       </p>
     );
@@ -27,14 +27,14 @@ export default function ViewDelHistory() {
         <AlertDialog.Content
           maxWidth="420px"
           style={{
-            background: 'var(--gray-2)',
-            border: '1px solid var(--gray-5)',
+            background: "var(--gray-2)",
+            border: "1px solid var(--gray-5)",
           }}
         >
-          <AlertDialog.Title style={{ color: 'var(--gray-12)' }}>
+          <AlertDialog.Title style={{ color: "var(--gray-12)" }}>
             Delete all history?
           </AlertDialog.Title>
-          <AlertDialog.Description style={{ color: 'var(--gray-11)' }}>
+          <AlertDialog.Description style={{ color: "var(--gray-11)" }}>
             This will permanently delete all game history. This action cannot be undone.
           </AlertDialog.Description>
 

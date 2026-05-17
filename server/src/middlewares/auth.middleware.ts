@@ -1,8 +1,9 @@
 // src/middlewares/auth.middleware.ts
-import { verifyAccessToken } from '../lib/services/jwt.service.js';
-import { AuthRequest } from '../lib/types/auth.types.js';
-import { ApiResponse } from '../lib/types/globle.types.js';
-import type { NextFunction, Response } from 'express';
+
+import type { NextFunction, Response } from "express";
+import { verifyAccessToken } from "../lib/services/jwt.service.js";
+import type { AuthRequest } from "../lib/types/auth.types.js";
+import type { ApiResponse } from "../lib/types/globle.types.js";
 
 // ─── HELPER ───────────────────────────────────────────────────────────────────
 
@@ -16,8 +17,8 @@ function unauthorized(res: Response, message: string): void {
 export function requireAdmin(req: AuthRequest, res: Response, next: NextFunction): void {
   const authHeader = req.headers.authorization;
 
-  if (!authHeader?.startsWith('Bearer ')) {
-    unauthorized(res, 'Missing or malformed Authorization header');
+  if (!authHeader?.startsWith("Bearer ")) {
+    unauthorized(res, "Missing or malformed Authorization header");
     return;
   }
 
@@ -26,16 +27,17 @@ export function requireAdmin(req: AuthRequest, res: Response, next: NextFunction
   try {
     const payload = verifyAccessToken(token);
 
-    if (payload.type !== 'access') {
-      unauthorized(res, 'Invalid token type');
+    if (payload.type !== "access") {
+      unauthorized(res, "Invalid token type");
       return;
     }
 
     req.admin = { id: payload.sub, email: payload.email };
     next();
-  } catch (err: any) {
+  } catch (err) {
+    const error = err instanceof Error ? err : new Error(String(err));
     const message =
-      err?.name === 'TokenExpiredError' ? 'Access token expired' : 'Invalid access token';
+      error.name === "TokenExpiredError" ? "Access token expired" : "Invalid access token";
 
     unauthorized(res, message);
   }

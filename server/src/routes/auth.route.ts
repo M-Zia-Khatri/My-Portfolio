@@ -1,3 +1,4 @@
+import { Router } from "express";
 import {
   login,
   logout,
@@ -5,18 +6,17 @@ import {
   me,
   refresh,
   verifyOtpHandler,
-} from '../controllers/auth.controller.js';
-import { requireAdmin } from '../middlewares/auth.middleware.js';
-import { rateLimit } from '../middlewares/rate-limit/rate-limit.middleware.js';
-import { Router } from 'express';
+} from "../controllers/auth.controller.js";
+import { requireAdmin } from "../middlewares/auth.middleware.js";
+import { rateLimit } from "../middlewares/rate-limit/rate-limit.middleware.js";
 
 const authRouter = Router();
 
 // ─── PUBLIC ───────────────────────────────────────────────────────────────────
 authRouter.post(
-  '/login',
+  "/login",
   rateLimit({
-    action: 'login',
+    action: "login",
     tiers: [
       { limit: 5, interval: 600, weight: 2 },
       {
@@ -24,16 +24,16 @@ authRouter.post(
         interval: 3600, // 1 hour
       },
     ],
-    message: 'Too many login attempts. Try again later.',
-    failBehavior: 'closed',
+    message: "Too many login attempts. Try again later.",
+    failBehavior: "closed",
   }),
   login,
 ); // Step 1: email + password
 
 authRouter.post(
-  '/verify-otp',
+  "/verify-otp",
   rateLimit({
-    action: 'verify-otp',
+    action: "verify-otp",
     tiers: [
       { limit: 5, interval: 300 },
       {
@@ -41,16 +41,16 @@ authRouter.post(
         interval: 1800,
       },
     ],
-    message: 'Too many verification attempts. Try again later.',
-    failBehavior: 'closed',
+    message: "Too many verification attempts. Try again later.",
+    failBehavior: "closed",
   }),
   verifyOtpHandler,
 ); // Step 2: OTP → JWT pair
 
 authRouter.post(
-  '/refresh',
+  "/refresh",
   rateLimit({
-    action: 'refresh',
+    action: "refresh",
     tiers: [
       { limit: 10, interval: 300 },
       {
@@ -58,16 +58,16 @@ authRouter.post(
         interval: 1800, // 1/2 hour
       },
     ],
-    message: 'Too many refresh attempts. Try again later.',
-    failBehavior: 'closed',
+    message: "Too many refresh attempts. Try again later.",
+    failBehavior: "closed",
   }),
   refresh,
 ); // Rotate refresh token
 
-authRouter.post('/logout', logout); // Revoke current session
+authRouter.post("/logout", logout); // Revoke current session
 
 // ─── PROTECTED (requires valid access token) ──────────────────────────────────
-authRouter.post('/logout-all', requireAdmin, logoutAll); // Revoke all sessions
-authRouter.get('/me', requireAdmin, me); // Current admin profile
+authRouter.post("/logout-all", requireAdmin, logoutAll); // Revoke all sessions
+authRouter.get("/me", requireAdmin, me); // Current admin profile
 
 export default authRouter;

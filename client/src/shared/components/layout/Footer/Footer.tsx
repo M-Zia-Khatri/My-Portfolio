@@ -1,10 +1,10 @@
-import { AppNavigation } from '@/shared/constants/navigation.constants';
-import { TEXT } from '@/shared/constants/style.constants';
-import { Link, Strong, Text } from '@radix-ui/themes'; // ✅ Text from here, not callout
-import type { ComponentType } from 'react';
-import { FaInstagram } from 'react-icons/fa';
-import { FaFacebook, FaGithub, FaLinkedin, FaWhatsapp } from 'react-icons/fa6';
-import { NavLink } from 'react-router';
+import { Link, Strong, Text } from "@radix-ui/themes"; // ✅ Text from here, not callout
+import type { ComponentType } from "react";
+import { FaInstagram } from "react-icons/fa";
+import { FaFacebook, FaGithub, FaLinkedin, FaWhatsapp } from "react-icons/fa6";
+import { NavLink } from "react-router";
+import { AppNavigation } from "@/shared/constants/navigation.constants";
+import { TEXT } from "@/shared/constants/style.constants";
 
 const socialMedia: {
   icon: ComponentType<{ className?: string }>;
@@ -13,21 +13,21 @@ const socialMedia: {
 }[] = [
   {
     icon: FaInstagram,
-    href: 'https://instagram.com/m_zia_khatri',
-    label: 'Instagram',
+    href: "https://instagram.com/m_zia_khatri",
+    label: "Instagram",
   },
   {
     icon: FaFacebook,
-    href: 'https://www.facebook.com/profile.php?id=61579565593155',
-    label: 'Facebook',
+    href: "https://www.facebook.com/profile.php?id=61579565593155",
+    label: "Facebook",
   },
   {
     icon: FaLinkedin,
-    href: 'https://www.linkedin.com/in/muhammad-zia-khatri-1891ab390/',
-    label: 'LinkedIn',
+    href: "https://www.linkedin.com/in/muhammad-zia-khatri-1891ab390/",
+    label: "LinkedIn",
   },
-  { icon: FaGithub, href: 'https://github.com/M-Zia-Khatri', label: 'GitHub' },
-  { icon: FaWhatsapp, href: 'https://wa.me/923121070936', label: 'WhatsApp' },
+  { icon: FaGithub, href: "https://github.com/M-Zia-Khatri", label: "GitHub" },
+  { icon: FaWhatsapp, href: "https://wa.me/923121070936", label: "WhatsApp" },
 ];
 
 export default function Footer() {

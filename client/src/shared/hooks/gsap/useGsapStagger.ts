@@ -1,7 +1,7 @@
-import gsap from 'gsap';
-import { ScrollTrigger } from 'gsap/ScrollTrigger';
-import type { RefObject } from 'react';
-import { useLayoutEffect, useRef } from 'react';
+import gsap from "gsap";
+import { ScrollTrigger } from "gsap/ScrollTrigger";
+import type { RefObject } from "react";
+import { useLayoutEffect, useRef } from "react";
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -32,15 +32,15 @@ export function useGsapStagger(
         y,
         duration,
         stagger,
-        ease: 'power2.out',
-        willChange: 'transform,opacity',
-        clearProps: 'willChange',
+        ease: "power2.out",
+        willChange: "transform,opacity",
+        clearProps: "willChange",
         onComplete: () => {
           hasAnimatedRef.current = true;
         },
         scrollTrigger: {
           trigger: parentRef.current,
-          start: 'top 82%',
+          start: "top 82%",
           once,
         },
       });

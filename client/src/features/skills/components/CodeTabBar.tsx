@@ -1,6 +1,6 @@
-import gsap from 'gsap';
-import { memo, useLayoutEffect, useRef } from 'react';
-import type { Skill } from '../types';
+import gsap from "gsap";
+import { memo, useLayoutEffect, useRef } from "react";
+import type { Skill } from "../types";
 
 interface CodeTabBarProps {
   skill: Skill;
@@ -19,13 +19,13 @@ const CodeTabBar = memo(({ skill, openTabs, onTabClick, onTabClose }: CodeTabBar
     if (!bar) return;
     const ctx = gsap.context(() => {
       gsap.fromTo(
-        '[data-tab-item]',
+        "[data-tab-item]",
         { autoAlpha: 0, x: -8 },
-        { autoAlpha: 1, x: 0, duration: 0.25, stagger: 0.04, ease: 'power2.out' },
+        { autoAlpha: 1, x: 0, duration: 0.25, stagger: 0.04, ease: "power2.out" },
       );
     }, bar);
     return () => ctx.revert();
-  }, [openTabs.map((t) => t.name).join('|')]);
+  }, []);
 
   useLayoutEffect(() => {
     const bar = tabBarRef.current;
@@ -39,20 +39,20 @@ const CodeTabBar = memo(({ skill, openTabs, onTabClick, onTabClose }: CodeTabBar
     const overflowRight = tabRect.right - barRect.right;
 
     if (overflowLeft < 0)
-      bar.scrollTo({ left: bar.scrollLeft + overflowLeft - TAB_PADDING_PX, behavior: 'smooth' });
+      bar.scrollTo({ left: bar.scrollLeft + overflowLeft - TAB_PADDING_PX, behavior: "smooth" });
     if (overflowRight > 0)
-      bar.scrollTo({ left: bar.scrollLeft + overflowRight + TAB_PADDING_PX, behavior: 'smooth' });
-  }, [skill.name, openTabs.length]);
+      bar.scrollTo({ left: bar.scrollLeft + overflowRight + TAB_PADDING_PX, behavior: "smooth" });
+  }, []);
 
   return (
     <div
       className="flex shrink-0 items-stretch min-h-8.5"
-      style={{ background: 'rgba(0,0,0,0.5)', borderBottom: '1px solid rgba(255,255,255,0.08)' }}
+      style={{ background: "rgba(0,0,0,0.5)", borderBottom: "1px solid rgba(255,255,255,0.08)" }}
     >
       <div className="flex shrink-0 items-center gap-[6px] px-3">
-        {(['#ff5f57', '#febc2e', '#28c840'] as const).map((c, i) => (
+        {(["#ff5f57", "#febc2e", "#28c840"] as const).map((c) => (
           <span
-            key={i}
+            key={c}
             className="inline-block h-[11px] w-[11px] rounded-full"
             style={{ background: c }}
           />
@@ -64,16 +64,18 @@ const CodeTabBar = memo(({ skill, openTabs, onTabClick, onTabClose }: CodeTabBar
           const isActive = tab.name === skill.name;
           const TabIcon = tab.iconComponent;
           return (
-            <div
+            <button
               key={tab.name}
+              type="button"
               data-tab-item
               data-active={isActive}
               onClick={() => onTabClick(tab)}
-              className="group/tab relative flex shrink-0 cursor-pointer items-center gap-[7px] overflow-hidden px-3 py-[9px] text-[11px] leading-none select-none"
+              className="group/tab relative flex shrink-0 items-center gap-[7px] overflow-hidden px-3 py-[9px] text-[11px] leading-none select-none"
               style={{
-                background: isActive ? `${tab.color}16` : 'transparent',
-                borderRight: '1px solid rgba(255,255,255,0.06)',
-                color: isActive ? tab.color : 'rgba(255,255,255,0.38)',
+                background: isActive ? `${tab.color}16` : "transparent",
+                borderRight: "1px solid rgba(255,255,255,0.06)",
+                color: isActive ? tab.color : "rgba(255,255,255,0.38)",
+                cursor: "pointer",
               }}
             >
               {isActive && (
@@ -87,17 +89,18 @@ const CodeTabBar = memo(({ skill, openTabs, onTabClick, onTabClose }: CodeTabBar
               </span>
               <span className="font-medium tracking-tight whitespace-nowrap">{tab.fileName}</span>
               <button
+                type="button"
                 onClick={(e) => {
                   e.stopPropagation();
                   onTabClose(tab);
                 }}
-                className="ml-0.5 h-[14px] w-[14px] shrink-0 cursor-pointer text-[10px]"
+                className="ml-0.5 h-[14px] w-[14px] shrink-0 text-[10px]"
                 style={{ color: tab.color }}
                 aria-label={`Close ${tab.fileName}`}
               >
                 ✕
               </button>
-            </div>
+            </button>
           );
         })}
       </div>

@@ -1,5 +1,5 @@
-import SEO from '@/shared/components/SEO';
-import { Card, Container, Heading, Section, Text } from '@radix-ui/themes';
+import { Card, Container, Heading, Section, Text } from "@radix-ui/themes";
+import SEO from "@/shared/components/SEO";
 
 export default function Dashboard() {
   return (

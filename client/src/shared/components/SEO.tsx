@@ -1,17 +1,17 @@
-import { memo } from 'react';
-import { Helmet } from 'react-helmet-async';
+import { memo } from "react";
+import { Helmet } from "react-helmet-async";
 
 /**
  * Default values for SEO meta tags
  * These are used as fallbacks when props are not provided
  */
 const DEFAULT_VALUES = {
-  siteName: 'Mohammad Zia Khatri',
+  siteName: "Mohammad Zia Khatri",
   siteDescription:
-    'Full Stack Developer specializing in React, Node.js, and modern web technologies. Building scalable applications with clean code.',
-  siteUrl: 'https://zia-khatri.vercel.app',
-  twitterHandle: '@ZiaKhatri',
-  defaultImage: 'https://zia-khatri.vercel.app/og-image.png',
+    "Full Stack Developer specializing in React, Node.js, and modern web technologies. Building scalable applications with clean code.",
+  siteUrl: "https://zia-khatri.vercel.app",
+  twitterHandle: "@ZiaKhatri",
+  defaultImage: "https://zia-khatri.vercel.app/og-image.png",
 };
 
 /**
@@ -61,11 +61,11 @@ const SEO = memo(function SEO({
   title,
   description,
   canonical = DEFAULT_VALUES.siteUrl,
-  robots = 'index, follow',
+  robots = "index, follow",
   ogImage = DEFAULT_VALUES.defaultImage,
   ogUrl = DEFAULT_VALUES.siteUrl,
-  ogType = 'website',
-  twitterCard = 'summary_large_image',
+  ogType = "website",
+  twitterCard = "summary_large_image",
   twitterCreator = DEFAULT_VALUES.twitterHandle,
   customMeta = [],
 }: SEOProps) {
@@ -111,19 +111,24 @@ const SEO = memo(function SEO({
       {/* Note: keywords meta tag is deprecated and not recommended for SEO */}
 
       {/* Custom Meta Tags */}
-      {customMeta.map((meta, index) => (
-        <meta key={index} name={meta.name} property={meta.property} content={meta.content} />
+      {customMeta.map((meta) => (
+        <meta
+          key={meta.name ?? meta.property ?? meta.content}
+          name={meta.name}
+          property={meta.property}
+          content={meta.content}
+        />
       ))}
 
       {/* Schema.org JSON-LD for Organization */}
       <script type="application/ld+json">
         {JSON.stringify({
-          '@context': 'https://schema.org',
-          '@type': 'Person',
+          "@context": "https://schema.org",
+          "@type": "Person",
           name: DEFAULT_VALUES.siteName,
           url: DEFAULT_VALUES.siteUrl,
-          jobTitle: 'Full Stack Developer',
-          sameAs: ['https://github.com/M-Zia-Khatri', 'https://linkedin.com/in/m-zia-khatri'],
+          jobTitle: "Full Stack Developer",
+          sameAs: ["https://github.com/M-Zia-Khatri", "https://linkedin.com/in/m-zia-khatri"],
         })}
       </script>
     </Helmet>

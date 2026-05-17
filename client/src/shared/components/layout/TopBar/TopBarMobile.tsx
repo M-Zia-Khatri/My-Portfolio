@@ -1,8 +1,8 @@
-import { Button, Dialog, Flex } from '@radix-ui/themes';
-import { Menu } from 'lucide-react';
-import { MagneticShinyButton } from './MagneticShinyButton';
-import { navItems } from './TopBar.constants';
-import { TopBarItem } from './TopBarItem';
+import { Button, Dialog, Flex } from "@radix-ui/themes";
+import { Menu } from "lucide-react";
+import { MagneticShinyButton } from "./MagneticShinyButton";
+import { navItems } from "./TopBar.constants";
+import { TopBarItem } from "./TopBarItem";
 
 export function TopBarMobile() {
   return (
@@ -19,7 +19,7 @@ export function TopBarMobile() {
             <Flex asChild align="center" justify="center" direction="column" gap="5">
               <ul className="min-w-max">
                 {navItems.map((item) => (
-                  <TopBarItem item={item} />
+                  <TopBarItem key={item.label} item={item} />
                 ))}
               </ul>
             </Flex>

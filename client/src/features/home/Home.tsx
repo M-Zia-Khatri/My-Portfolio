@@ -1,8 +1,8 @@
-import SEO from '@/shared/components/SEO';
-import { cn } from '@/shared/utils/cn';
-import { Spinner } from '@radix-ui/themes';
-import { Suspense, useEffect, useRef, useState, type ReactNode } from 'react';
-import { sectionClassName, sections } from './Home.config';
+import { Spinner } from "@radix-ui/themes";
+import { type ReactNode, Suspense, useEffect, useRef, useState } from "react";
+import SEO from "@/shared/components/SEO";
+import { cn } from "@/shared/utils/cn";
+import { sectionClassName, sections } from "./Home.config";
 
 function DeferredSection({
   id,
@@ -30,7 +30,7 @@ function DeferredSection({
         setShouldRender(true);
         observer.disconnect();
       },
-      { rootMargin: '350px 0px', threshold: 0.01 },
+      { rootMargin: "350px 0px", threshold: 0.01 },
     );
 
     observer.observe(node);
@@ -63,8 +63,8 @@ export default function Home() {
         {sections.map((section) => {
           const SectionComponent = section.Component;
           const className = cn(
-            section.id === 'home'
-              ? 'mb-5 flex h-[calc(100dvh)] scroll-mt-24 flex-col justify-center'
+            section.id === "home"
+              ? "mb-5 flex h-[calc(100dvh)] scroll-mt-24 flex-col justify-center"
               : sectionClassName,
           );
 
@@ -73,7 +73,7 @@ export default function Home() {
               key={section.id}
               id={section.id}
               className={className}
-              eager={section.id === 'home'}
+              eager={section.id === "home"}
             >
               <Suspense fallback={<Spinner />}>
                 <SectionComponent />

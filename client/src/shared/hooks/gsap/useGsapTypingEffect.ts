@@ -1,6 +1,6 @@
-import gsap from 'gsap';
-import type { RefObject } from 'react';
-import { useLayoutEffect, useRef } from 'react';
+import gsap from "gsap";
+import type { RefObject } from "react";
+import { useLayoutEffect, useRef } from "react";
 
 interface GsapTypingOptions {
   speed?: number;
@@ -14,7 +14,7 @@ export function useGsapTypingEffect(
   options: GsapTypingOptions = {},
 ) {
   const timelineRef = useRef<gsap.core.Timeline | null>(null);
-  const { speed = 0.05, cursorSelector, lineSelector = '.code-line', replayKey } = options;
+  const { speed = 0.05, cursorSelector, lineSelector = ".code-line", replayKey } = options;
 
   useLayoutEffect(() => {
     if (!containerRef.current) return;
@@ -28,7 +28,7 @@ export function useGsapTypingEffect(
       const lines = gsap.utils.toArray<HTMLElement>(lineSelector, container);
       if (lines.length === 0) return;
 
-      gsap.set(lines, { autoAlpha: 0, y: 8, willChange: 'transform,opacity' });
+      gsap.set(lines, { autoAlpha: 0, y: 8, willChange: "transform,opacity" });
 
       const tl = gsap.timeline();
       timelineRef.current = tl;
@@ -37,14 +37,14 @@ export function useGsapTypingEffect(
         y: 0,
         stagger: speed,
         duration: 0.22,
-        ease: 'power1.out',
-        clearProps: 'willChange',
+        ease: "power1.out",
+        clearProps: "willChange",
       });
 
       if (cursorSelector) {
         const cursor = container.querySelector(cursorSelector);
         if (cursor) {
-          tl.to(cursor, { opacity: 0, repeat: -1, yoyo: true, duration: 0.48, ease: 'none' }, 0);
+          tl.to(cursor, { opacity: 0, repeat: -1, yoyo: true, duration: 0.48, ease: "none" }, 0);
         }
       }
     }, containerRef);
@@ -53,7 +53,7 @@ export function useGsapTypingEffect(
       timelineRef.current?.kill();
       ctx.revert();
     };
-  }, [containerRef, speed, lineSelector, cursorSelector, replayKey]);
+  }, [containerRef, speed, lineSelector, cursorSelector]);
 
   return timelineRef;
 }

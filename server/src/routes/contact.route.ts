@@ -1,15 +1,15 @@
-import { requireAdmin } from '../middlewares/auth.middleware.js';
-import { rateLimit } from '../middlewares/rate-limit/rate-limit.middleware.js';
-import { Router } from 'express';
-import { deleteContact, getContacts, submitContact } from '../controllers/contact.controller.js';
-import { validateContact } from '../middlewares/contact.middleware.js';
+import { Router } from "express";
+import { deleteContact, getContacts, submitContact } from "../controllers/contact.controller.js";
+import { requireAdmin } from "../middlewares/auth.middleware.js";
+import { validateContact } from "../middlewares/contact.middleware.js";
+import { rateLimit } from "../middlewares/rate-limit/rate-limit.middleware.js";
 
 const contactRouter = Router();
 
 contactRouter.post(
-  '/',
+  "/",
   rateLimit({
-    action: 'contact',
+    action: "contact",
     tiers: [
       { limit: 2, interval: 300 },
       {
@@ -17,7 +17,7 @@ contactRouter.post(
         interval: 1800, // 1/2 hour
       },
     ],
-    message: 'Too many get attempts. Try again later.',
+    message: "Too many get attempts. Try again later.",
   }),
   validateContact,
   submitContact,
@@ -26,7 +26,7 @@ contactRouter.post(
 contactRouter
   .use(
     rateLimit({
-      action: 'contact-admin',
+      action: "contact-admin",
       tiers: [
         { limit: 10, interval: 600 },
         {
@@ -34,11 +34,11 @@ contactRouter
           interval: 1800, // 1/2 hour
         },
       ],
-      message: 'Too many get attempts. Try again later.',
+      message: "Too many get attempts. Try again later.",
     }),
   )
   .use(requireAdmin)
-  .get('/', getContacts)
-  .delete('/:id', deleteContact);
+  .get("/", getContacts)
+  .delete("/:id", deleteContact);
 
 export default contactRouter;

@@ -1,5 +1,5 @@
 // cache.constants.ts
-import { CacheConfig } from './cache.types.js';
+import type { CacheConfig } from "./cache.types.js";
 
 export const TTL = {
   ONE_MINUTE: 60,
@@ -12,7 +12,7 @@ export const TTL = {
   ONE_WEEK: 60 * 60 * 24 * 7,
 } as const;
 
-export const CACHE_PREFIX = 'app:cache';
+export const CACHE_PREFIX = "app:cache";
 export const LOCK_TTL_SECONDS = 5;
 export const LOCK_RETRY_DELAY = 100;
 export const MAX_LOCK_RETRIES = 3;

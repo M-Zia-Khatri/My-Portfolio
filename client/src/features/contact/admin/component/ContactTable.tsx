@@ -1,7 +1,7 @@
-import { VirtualList } from '@/shared/components/VirtualList';
-import { Table, Text } from '@radix-ui/themes';
-import { memo } from 'react';
-import type { Contact } from '../../types';
+import { Table, Text } from "@radix-ui/themes";
+import { memo } from "react";
+import { VirtualList } from "@/shared/components/VirtualList";
+import type { Contact } from "../../types";
 
 interface Props {
   contacts: Contact[];

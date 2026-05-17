@@ -1,12 +1,12 @@
-import { CheckCircledIcon, Cross2Icon, InfoCircledIcon } from '@radix-ui/react-icons';
-import { Callout } from '@radix-ui/themes';
-import { useEffect, useState } from 'react';
-import { useGuessNumProgress } from '../context/GuessNumContext';
+import { CheckCircledIcon, Cross2Icon, InfoCircledIcon } from "@radix-ui/react-icons";
+import { Callout } from "@radix-ui/themes";
+import { useEffect, useState } from "react";
+import { useGuessNumProgress } from "../context/GuessNumContext";
 
 export default function Feedback() {
   const { guessResults } = useGuessNumProgress();
   const [visible, setVisible] = useState(false);
-  const [message, setMessage] = useState<string>('');
+  const [message, setMessage] = useState<string>("");
 
   useEffect(() => {
     if (guessResults.length === 0) return;
@@ -24,17 +24,17 @@ export default function Feedback() {
 
   if (!visible) return null;
 
-  const isWin = message === 'you win';
-  const isClose = message === 'very close';
+  const isWin = message === "you win";
+  const isClose = message === "very close";
 
-  const color = isWin ? 'green' : isClose ? 'amber' : 'blue';
+  const color = isWin ? "green" : isClose ? "amber" : "blue";
   const Icon = isWin ? CheckCircledIcon : isClose ? InfoCircledIcon : Cross2Icon;
   const displayMessage =
     {
-      'you win': 'You win',
-      'very close': 'Very close',
-      'too low': 'Too low',
-      'too high': 'Too high',
+      "you win": "You win",
+      "very close": "Very close",
+      "too low": "Too low",
+      "too high": "Too high",
     }[message] ?? message;
 
   return (

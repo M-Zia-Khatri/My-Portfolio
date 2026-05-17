@@ -1,14 +1,14 @@
-import cookieParser from 'cookie-parser';
-import cors from 'cors';
-import express from 'express';
-import { getConfig } from './config/env.js';
-import './lib/utills/redis.js';
-import router from './routes/index.js';
+import cookieParser from "cookie-parser";
+import cors from "cors";
+import express from "express";
+import { getConfig } from "./config/env.js";
+import "./lib/utills/redis.js";
+import router from "./routes/index.js";
 
 const app = express();
 const config = getConfig();
 
-const DEV_DEFAULT_ORIGINS = ['http://localhost:3000', 'http://localhost:5173'];
+const DEV_DEFAULT_ORIGINS = ["http://localhost:3000", "http://localhost:5173"];
 const allowedOrigins = new Set(
   config.cors.originList.length > 0
     ? config.cors.originList
@@ -28,7 +28,7 @@ app.use(
       return callback(null, false);
     },
     credentials: true,
-    exposedHeaders: ['ETag'],
+    exposedHeaders: ["ETag"],
   }),
 );
 
@@ -36,10 +36,10 @@ app.use(express.json());
 app.use(cookieParser());
 app.use(express.urlencoded({ extended: true }));
 
-app.use('/api', router);
+app.use("/api", router);
 
-app.get('/', (req, res) => {
-  res.json({ status: 'OK', message: 'Server running' });
+app.get("/", (_req, res) => {
+  res.json({ status: "OK", message: "Server running" });
 });
 
 export default app;

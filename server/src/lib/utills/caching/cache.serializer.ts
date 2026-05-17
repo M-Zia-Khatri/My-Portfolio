@@ -1,8 +1,8 @@
 // cache.serializer.ts
-import { promisify } from 'util';
-import { gunzip, gzip } from 'zlib';
-import { COMPRESSION_THRESHOLD_BYTES, MAX_PAYLOAD_BYTES } from './cache.constants.js';
-import type { CachePayload } from './cache.types.js';
+import { promisify } from "node:util";
+import { gunzip, gzip } from "node:zlib";
+import { COMPRESSION_THRESHOLD_BYTES, MAX_PAYLOAD_BYTES } from "./cache.constants.js";
+import type { CachePayload } from "./cache.types.js";
 
 const gzipAsync = promisify(gzip);
 const gunzipAsync = promisify(gunzip);
@@ -28,7 +28,7 @@ export async function serialize<T>(
   if (enableCompression && originalSize > COMPRESSION_THRESHOLD_BYTES) {
     const compressed = await gzipAsync(Buffer.from(json));
     return {
-      data: compressed.toString('base64'),
+      data: compressed.toString("base64"),
       compressed: true,
       originalSize,
     };
@@ -42,22 +42,22 @@ export async function deserialize<T>(raw: string, compressed = false): Promise<C
     let json: string;
 
     if (compressed) {
-      const buffer = Buffer.from(raw, 'base64');
+      const buffer = Buffer.from(raw, "base64");
       const decompressed = await gunzipAsync(buffer);
-      json = decompressed.toString('utf-8');
+      json = decompressed.toString("utf-8");
     } else {
       json = raw;
     }
 
     return JSON.parse(json, (_key, value) => {
-      if (typeof value === 'string' && ISO_DATE_RE.test(value)) {
+      if (typeof value === "string" && ISO_DATE_RE.test(value)) {
         return new Date(value);
       }
       return value;
     }) as CachePayload<T>;
   } catch (err) {
     throw new Error(
-      `Failed to deserialize cache payload: ${err instanceof Error ? err.message : 'Unknown error'}`,
+      `Failed to deserialize cache payload: ${err instanceof Error ? err.message : "Unknown error"}`,
     );
   }
 }

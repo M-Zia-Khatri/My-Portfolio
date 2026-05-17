@@ -1,11 +1,11 @@
-import type { ComponentType } from 'react';
+import type { ComponentType } from "react";
 
 // ─── Terminal ────────────────────────────────────────────────────────────────
 export type TerminalLine =
-  | { kind: 'command'; text: string }
-  | { kind: 'output'; text: string }
-  | { kind: 'comment'; text: string }
-  | { kind: 'blank' };
+  | { kind: "command"; text: string }
+  | { kind: "output"; text: string }
+  | { kind: "comment"; text: string }
+  | { kind: "blank" };
 
 // ─── Runtime Skill (used by all UI components) ────────────────────────────────
 // `iconComponent` is the resolved React component — always set before passing to any component.
@@ -18,12 +18,12 @@ interface SkillBase {
 }
 
 interface CodeSkill extends SkillBase {
-  mode: 'code';
+  mode: "code";
   code: string[];
 }
 
 interface TerminalSkill extends SkillBase {
-  mode: 'terminal';
+  mode: "terminal";
   commands: TerminalLine[];
 }
 
@@ -42,17 +42,17 @@ interface ApiSkillBase {
 }
 
 interface ApiCodeSkill extends ApiSkillBase {
-  mode: 'code';
+  mode: "code";
   code: string[];
 }
 
 interface ApiTerminalSkill extends ApiSkillBase {
-  mode: 'terminal';
+  mode: "terminal";
   commands: TerminalLine[];
 }
 
-export type ModeENUM = 'code' | 'terminal';
+export type ModeENUM = "code" | "terminal";
 
 export type ApiSkill = ApiCodeSkill | ApiTerminalSkill;
 
-export type Token = { text: string; color: string };
+export type Token = { text: string; color: string; id: number };

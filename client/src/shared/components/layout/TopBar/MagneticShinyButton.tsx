@@ -1,7 +1,7 @@
-import { TEXT } from '@/shared/constants/style.constants';
-import { Button, Text } from '@radix-ui/themes';
-import { motion, useMotionValue, useSpring, useTransform } from 'framer-motion';
-import { useRef } from 'react';
+import { Button, Text } from "@radix-ui/themes";
+import { motion, useMotionValue, useSpring, useTransform } from "framer-motion";
+import { useRef } from "react";
+import { TEXT } from "@/shared/constants/style.constants";
 
 export const MagneticShinyButton = () => {
   const ref = useRef<HTMLAnchorElement | null>(null);
@@ -61,11 +61,11 @@ export const MagneticShinyButton = () => {
 
         {/* Shine */}
         <motion.span
-          initial={{ x: '-120%', skewX: '-18deg' }}
-          animate={{ x: '500%' }}
+          initial={{ x: "-120%", skewX: "-18deg" }}
+          animate={{ x: "500%" }}
           transition={{
             duration: 1.4,
-            ease: 'easeInOut',
+            ease: "easeInOut",
             repeat: Infinity,
             repeatDelay: 2,
           }}

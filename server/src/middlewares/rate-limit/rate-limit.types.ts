@@ -1,7 +1,7 @@
-import { Request } from 'express';
+import type { Request } from "express";
 
 export type KeyResolver = (req: Request) => string | null;
-export type FailBehavior = 'open' | 'closed';
+export type FailBehavior = "open" | "closed";
 
 export interface Tier {
   limit: number;

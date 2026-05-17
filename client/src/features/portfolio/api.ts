@@ -1,4 +1,4 @@
-import { api } from '@/shared/api/axios';
+import { api } from "@/shared/api/axios";
 
 type PortfolioApiRow = {
   site_name: string;
@@ -17,6 +17,6 @@ type ApiResponse<T> = {
 };
 
 export async function fetchPublicPortfolio(): Promise<PortfolioApiRow[]> {
-  const { data } = await api.get<ApiResponse<PortfolioApiRow[]>>('/portfolio');
+  const { data } = await api.get<ApiResponse<PortfolioApiRow[]>>("/portfolio");
   return data.data ?? [];
 }

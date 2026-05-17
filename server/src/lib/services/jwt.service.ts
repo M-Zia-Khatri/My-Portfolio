@@ -1,21 +1,21 @@
-import { getConfig } from '../../config/env.js';
-import crypto from 'crypto';
-import jwt from 'jsonwebtoken';
-import { prisma } from '../prisma.js';
-import type { AccessTokenPayload, RefreshTokenPayload } from '../types/auth.types.js';
+import crypto from "node:crypto";
+import jwt from "jsonwebtoken";
+import { getConfig } from "../../config/env.js";
+import { prisma } from "../prisma.js";
+import type { AccessTokenPayload, RefreshTokenPayload } from "../types/auth.types.js";
 
 const { jwt: jwtConfig } = getConfig();
 
 const ACCESS_SECRET = jwtConfig.accessSecret!;
 const REFRESH_SECRET = jwtConfig.refreshSecret!;
-const ACCESS_EXPIRY = '15m';
+const ACCESS_EXPIRY = "15m";
 const REFRESH_EXPIRY_SEC = 7 * 24 * 60 * 60; // 7 days in seconds
 const REFRESH_EXPIRY_MS = REFRESH_EXPIRY_SEC * 1000;
 
 // ─── SIGN ACCESS TOKEN ───────────────────────────────────────────────────────
 
 export function signAccessToken(adminId: string, email: string): string {
-  const payload: AccessTokenPayload = { sub: adminId, email, type: 'access' };
+  const payload: AccessTokenPayload = { sub: adminId, email, type: "access" };
   return jwt.sign(payload, ACCESS_SECRET, { expiresIn: ACCESS_EXPIRY });
 }
 
@@ -28,7 +28,7 @@ export async function signRefreshToken(adminId: string): Promise<string> {
   const record = await prisma.refreshToken.create({
     data: {
       adminId,
-      tokenHash: 'pending', // placeholder before we know the token
+      tokenHash: "pending", // placeholder before we know the token
       expiresAt,
     },
   });
@@ -36,7 +36,7 @@ export async function signRefreshToken(adminId: string): Promise<string> {
   const payload: RefreshTokenPayload = {
     sub: adminId,
     jti: record.id,
-    type: 'refresh',
+    type: "refresh",
   };
 
   const token = jwt.sign(payload, REFRESH_SECRET, {
@@ -44,7 +44,7 @@ export async function signRefreshToken(adminId: string): Promise<string> {
   });
 
   // Store sha256 hash of the token (never store raw tokens)
-  const tokenHash = crypto.createHash('sha256').update(token).digest('hex');
+  const tokenHash = crypto.createHash("sha256").update(token).digest("hex");
 
   await prisma.refreshToken.update({
     where: { id: record.id },
@@ -73,7 +73,7 @@ export async function rotateRefreshToken(
     return null;
   }
 
-  const tokenHash = crypto.createHash('sha256').update(oldToken).digest('hex');
+  const tokenHash = crypto.createHash("sha256").update(oldToken).digest("hex");
 
   const record = await prisma.refreshToken.findFirst({
     where: {
@@ -86,7 +86,7 @@ export async function rotateRefreshToken(
     include: { admin: { select: { email: true, isActive: true } } },
   });
 
-  if (!record || !record.admin.isActive) return null;
+  if (!record?.admin.isActive) return null;
 
   // Revoke the old token (rotation)
   await prisma.refreshToken.update({
@@ -111,7 +111,7 @@ export async function revokeRefreshToken(token: string): Promise<void> {
     return; // already invalid, nothing to do
   }
 
-  const tokenHash = crypto.createHash('sha256').update(token).digest('hex');
+  const tokenHash = crypto.createHash("sha256").update(token).digest("hex");
 
   await prisma.refreshToken.updateMany({
     where: { id: payload.jti, tokenHash, revokedAt: null },

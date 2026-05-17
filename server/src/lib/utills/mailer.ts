@@ -1,8 +1,7 @@
-import { getConfig } from '../../config/env.js';
-import nodemailer from 'nodemailer';
+import nodemailer from "nodemailer";
+import { getConfig } from "../../config/env.js";
 
-const {mailer} = getConfig();
-
+const { mailer } = getConfig();
 
 const transporter = nodemailer.createTransport({
   host: mailer.host,
@@ -18,7 +17,7 @@ const transporter = nodemailer.createTransport({
 
 export async function verifyMailer(): Promise<void> {
   await transporter.verify();
-  console.log('✓ Mailer connected');
+  console.log("✓ Mailer connected");
 }
 
 // ─── SEND OTP EMAIL ──────────────────────────────────────────────────────────
@@ -31,7 +30,7 @@ export async function sendOtpEmail(
   await transporter.sendMail({
     from: `"Admin Portal" <${mailer.from}>`,
     to: toEmail,
-    subject: 'Your Admin Login OTP',
+    subject: "Your Admin Login OTP",
     text: `Hi ${fullName},\n\nYour one-time password is: ${otpCode}\n\nIt expires in 5 minutes. Do not share it with anyone.`,
     html: `
       <div style="font-family:sans-serif;max-width:480px;margin:auto">

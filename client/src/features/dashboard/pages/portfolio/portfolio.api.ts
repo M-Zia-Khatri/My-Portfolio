@@ -21,23 +21,23 @@
 // We read from the store — not response.headers.etag — because the store
 // is the canonical source once the interceptor has run.
 
-import { api } from '@/shared/api/axios';
-import { clearETag, getETag, setETag } from '@/shared/api/etag-store';
-import type { ApiResponse, PortfolioItem } from './portfolio.types';
+import { api } from "@/shared/api/axios";
+import { clearETag, getETag, setETag } from "@/shared/api/etag-store";
+import type { ApiResponse, PortfolioItem } from "./portfolio.types";
 
 // ─── Cloudinary ──────────────────────────────────────────────────────────────
 
 export async function uploadToCloudinary(file: File): Promise<string> {
   const formData = new FormData();
-  formData.append('file', file);
-  formData.append('upload_preset', import.meta.env.VITE_CLOUDINARY_UPLOAD_PRESET);
+  formData.append("file", file);
+  formData.append("upload_preset", import.meta.env.VITE_CLOUDINARY_UPLOAD_PRESET);
 
   const response = await fetch(
     `https://api.cloudinary.com/v1_1/${import.meta.env.VITE_CLOUDINARY_CLOUD_NAME}/image/upload`,
-    { method: 'POST', body: formData },
+    { method: "POST", body: formData },
   );
 
-  if (!response.ok) throw new Error('Cloudinary upload failed');
+  if (!response.ok) throw new Error("Cloudinary upload failed");
   const data = await response.json();
   return data.secure_url as string;
 }
@@ -50,8 +50,8 @@ async function fetchFreshETag(url: string): Promise<string | null> {
     // always get a 200 with the ETag header in the response.
     await api.get(url, {
       headers: {
-        'Cache-Control': 'no-cache',
-        Pragma: 'no-cache',
+        "Cache-Control": "no-cache",
+        Pragma: "no-cache",
       },
     });
 
@@ -83,11 +83,11 @@ async function fetchFreshETag(url: string): Promise<string | null> {
 // ─── GET /portfolio ───────────────────────────────────────────────────────────
 
 export async function fetchPortfolio(): Promise<PortfolioItem[]> {
-  const { data, headers } = await api.get<ApiResponse<PortfolioItem[]>>('/portfolio');
+  const { data, headers } = await api.get<ApiResponse<PortfolioItem[]>>("/portfolio");
 
   const etag = headers.etag as string | undefined;
   if (etag) {
-    setETag('/portfolio', etag);
+    setETag("/portfolio", etag);
   }
 
   return data.data ?? [];
@@ -95,18 +95,18 @@ export async function fetchPortfolio(): Promise<PortfolioItem[]> {
 
 // ─── POST /portfolio ──────────────────────────────────────────────────────────
 
-export async function createPortfolio(payload: Omit<PortfolioItem, 'id'>): Promise<PortfolioItem> {
-  const { data, headers } = await api.post<ApiResponse<PortfolioItem>>('/portfolio', payload);
+export async function createPortfolio(payload: Omit<PortfolioItem, "id">): Promise<PortfolioItem> {
+  const { data, headers } = await api.post<ApiResponse<PortfolioItem>>("/portfolio", payload);
 
   if (!data.success || !data.data) {
-    throw new Error(data.message || 'Create failed');
+    throw new Error(data.message || "Create failed");
   }
 
   const etag = headers?.etag as string | undefined;
   if (etag) {
     setETag(`/portfolio/${data.data.id}`, etag);
   }
-  clearETag('/portfolio');
+  clearETag("/portfolio");
 
   return data.data;
 }
@@ -115,7 +115,7 @@ export async function createPortfolio(payload: Omit<PortfolioItem, 'id'>): Promi
 
 export async function updatePortfolio(
   id: string,
-  payload: Partial<Omit<PortfolioItem, 'id'>>,
+  payload: Partial<Omit<PortfolioItem, "id">>,
 ): Promise<PortfolioItem> {
   const url = `/portfolio/${id}`;
 
@@ -132,18 +132,18 @@ export async function updatePortfolio(
   // req.headers['if-match'] is what the server controller reads — use the
   // standard If-Match header, NOT a custom X-* header.
   const { data, headers } = await api.patch<ApiResponse<PortfolioItem>>(url, payload, {
-    headers: { 'If-Match': etag },
+    headers: { "If-Match": etag },
   });
 
   if (!data.success || !data.data) {
-    throw new Error(data.message || 'Update failed');
+    throw new Error(data.message || "Update failed");
   }
 
   const newEtag = headers?.etag as string | undefined;
   if (newEtag) {
     setETag(url, newEtag);
   }
-  clearETag('/portfolio');
+  clearETag("/portfolio");
 
   return data.data;
 }
@@ -156,10 +156,10 @@ export async function deletePortfolio(id: string): Promise<void> {
   const etag = await fetchFreshETag(url);
 
   // Use the standard If-Match header
-  const config = etag ? { headers: { 'If-Match': etag } } : undefined;
+  const config = etag ? { headers: { "If-Match": etag } } : undefined;
 
   await api.delete(url, config);
 
   clearETag(url);
-  clearETag('/portfolio');
+  clearETag("/portfolio");
 }

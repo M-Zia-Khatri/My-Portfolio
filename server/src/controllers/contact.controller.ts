@@ -1,19 +1,19 @@
-import { prisma } from '../lib/prisma.js';
+import type { Request, Response } from "express";
+import { prisma } from "../lib/prisma.js";
 import {
   cacheForget,
   cacheInvalidatePrefix,
   cacheRemember,
   cacheRememberConditional,
   TTL,
-} from '../lib/utills/caching/cache.js';
-import type { Request, Response } from 'express';
-import { catchError } from '../lib/utills/catch-error.js';
-import { sendContactEmail } from '../lib/utills/mailer.js';
-import { send } from '../lib/utills/send.js';
+} from "../lib/utills/caching/cache.js";
+import { catchError } from "../lib/utills/catch-error.js";
+import { sendContactEmail } from "../lib/utills/mailer.js";
+import { send } from "../lib/utills/send.js";
 
 const CACHE_KEYS = {
   list: (page: number, pageSize: number) => `contacts:list:${page}:${pageSize}`,
-  prefix: 'contacts',
+  prefix: "contacts",
 };
 
 // ─── SUBMIT CONTACT FORM (Public) ─────────────────────────────────────────────
@@ -33,13 +33,13 @@ export async function submitContact(req: Request, res: Response): Promise<void> 
 
     // Fire-and-forget — don't block the response on email delivery
     sendContactEmail(fullName, email, message, entry.created_at).catch((err) =>
-      console.error('[Mailer] Failed to send contact email:', err),
+      console.error("[Mailer] Failed to send contact email:", err),
     );
 
     send(res, {
       success: true,
       status: 201,
-      message: 'Message sent successfully',
+      message: "Message sent successfully",
       data: { id: entry.id },
     });
   } catch (err) {
@@ -53,7 +53,7 @@ export async function getContacts(req: Request, res: Response): Promise<void> {
     const page = Math.max(1, Number(req.query.page) || 1);
     const pageSize = Math.min(50, Number(req.query.pageSize) || 20);
     const skip = (page - 1) * pageSize;
-    const clientETag = req.headers['if-none-match'] as string | undefined;
+    const clientETag = req.headers["if-none-match"] as string | undefined;
 
     const result = await cacheRememberConditional(CACHE_KEYS.list(page, pageSize), {
       ttl: TTL.ONE_DAY,
@@ -62,7 +62,7 @@ export async function getContacts(req: Request, res: Response): Promise<void> {
       callback: async () => {
         const [items, total] = await Promise.all([
           prisma.contactMessage.findMany({
-            orderBy: { created_at: 'desc' },
+            orderBy: { created_at: "desc" },
             skip,
             take: pageSize,
           }),
@@ -72,8 +72,8 @@ export async function getContacts(req: Request, res: Response): Promise<void> {
       },
     });
 
-    res.setHeader('ETag', result.etag);
-    res.setHeader('Cache-Control', 'private, must-revalidate');
+    res.setHeader("ETag", result.etag);
+    res.setHeader("Cache-Control", "private, must-revalidate");
 
     if (result.status === 304) {
       res.status(304).end();
@@ -85,7 +85,7 @@ export async function getContacts(req: Request, res: Response): Promise<void> {
     send(res, {
       success: true,
       status: 200,
-      message: 'Data retrieved successfully',
+      message: "Data retrieved successfully",
       data: result.data?.items,
       meta: {
         total,
@@ -118,7 +118,7 @@ export async function deleteContact(req: Request, res: Response): Promise<void> 
       return send(res, {
         success: false,
         status: 404,
-        message: 'Message not found',
+        message: "Message not found",
       });
     }
 
@@ -129,7 +129,7 @@ export async function deleteContact(req: Request, res: Response): Promise<void> 
     send(res, {
       success: true,
       status: 200,
-      message: 'Deleted successfully',
+      message: "Deleted successfully",
     });
   } catch (err) {
     catchError(res, err);

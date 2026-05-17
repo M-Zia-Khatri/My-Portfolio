@@ -1,5 +1,5 @@
-import { zodResolver } from '@hookform/resolvers/zod';
-import { PlusIcon, TrashIcon } from '@radix-ui/react-icons';
+import { zodResolver } from "@hookform/resolvers/zod";
+import { PlusIcon, TrashIcon } from "@radix-ui/react-icons";
 import {
   Box,
   Button,
@@ -11,11 +11,11 @@ import {
   Text,
   TextArea,
   TextField,
-} from '@radix-ui/themes';
-import { useEffect } from 'react';
-import { useFieldArray, useForm } from 'react-hook-form';
-import { ICON_OPTIONS } from './iconMap';
-import { skillSchema, type SkillFormValues } from './skills.schema';
+} from "@radix-ui/themes";
+import { useEffect } from "react";
+import { useFieldArray, useForm } from "react-hook-form";
+import { ICON_OPTIONS } from "./iconMap";
+import { type SkillFormValues, skillSchema } from "./skills.schema";
 
 interface Props {
   open: boolean;
@@ -43,22 +43,22 @@ export default function SkillDialog({
   } = useForm<SkillFormValues>({
     resolver: zodResolver(skillSchema),
     defaultValues: {
-      mode: 'code',
+      mode: "code",
       commands: [],
     },
   });
 
   const { fields, append, remove } = useFieldArray({
     control,
-    name: 'commands',
+    name: "commands",
   });
 
-  const mode = watch('mode');
+  const mode = watch("mode");
 
   useEffect(() => {
     if (initialData) {
-      const content = initialData.mode === 'code' ? initialData.code.join('\n') : '';
-      const commands = initialData.mode === 'terminal' ? initialData.commands : [];
+      const content = initialData.mode === "code" ? initialData.code.join("\n") : "";
+      const commands = initialData.mode === "terminal" ? initialData.commands : [];
 
       reset({
         ...initialData,
@@ -68,19 +68,19 @@ export default function SkillDialog({
       });
     } else {
       reset({
-        mode: 'code',
-        color: '#61dafb',
+        mode: "code",
+        color: "#61dafb",
         icon: ICON_OPTIONS[0],
         commands: [],
-        content: '',
+        content: "",
       });
     }
-  }, [initialData, reset, open]);
+  }, [initialData, reset]);
 
   return (
     <Dialog.Root open={open} onOpenChange={onOpenChange}>
       <Dialog.Content maxWidth="600px">
-        <Dialog.Title>{initialData ? 'Edit Skill' : 'Add New Skill'}</Dialog.Title>
+        <Dialog.Title>{initialData ? "Edit Skill" : "Add New Skill"}</Dialog.Title>
         <form onSubmit={handleSubmit(onSubmit)}>
           <Flex direction="column" gap="3">
             <Flex gap="3">
@@ -88,13 +88,13 @@ export default function SkillDialog({
                 <Text as="label" size="2" weight="bold">
                   Skill Name
                 </Text>
-                <TextField.Root placeholder="e.g. React" {...register('name')} />
+                <TextField.Root placeholder="e.g. React" {...register("name")} />
               </Box>
               <Box className="flex-1">
                 <Text as="label" size="2" weight="bold">
                   Icon
                 </Text>
-                <Select.Root value={watch('icon')} onValueChange={(v) => setValue('icon', v)}>
+                <Select.Root value={watch("icon")} onValueChange={(v) => setValue("icon", v)}>
                   <Select.Trigger className="w-full" />
                   <Select.Content>
                     {ICON_OPTIONS.map((opt) => (
@@ -112,19 +112,19 @@ export default function SkillDialog({
                 <Text as="label" size="2" weight="bold">
                   Language
                 </Text>
-                <TextField.Root placeholder="tsx" {...register('lang')} />
+                <TextField.Root placeholder="tsx" {...register("lang")} />
               </Box>
               <Box className="flex-1">
                 <Text as="label" size="2" weight="bold">
                   Color (Hex)
                 </Text>
-                <TextField.Root {...register('color')} />
+                <TextField.Root {...register("color")} />
               </Box>
               <Box className="flex-1">
                 <Text as="label" size="2" weight="bold">
                   Mode
                 </Text>
-                <Select.Root value={mode} onValueChange={(v: any) => setValue('mode', v)}>
+                <Select.Root value={mode} onValueChange={(v: any) => setValue("mode", v)}>
                   <Select.Trigger className="w-full" />
                   <Select.Content>
                     <Select.Item value="code">Code Editor</Select.Item>
@@ -138,20 +138,20 @@ export default function SkillDialog({
               <Text as="label" size="2" weight="bold">
                 File Name / Tab Name
               </Text>
-              <TextField.Root placeholder="App.tsx" {...register('fileName')} />
+              <TextField.Root placeholder="App.tsx" {...register("fileName")} />
             </Box>
 
             {/* --- CONTENT AREA --- */}
             <Box>
               <Text as="label" size="2" weight="bold" mb="2">
-                {mode === 'code' ? 'Code Content' : 'Terminal Sequence'}
+                {mode === "code" ? "Code Content" : "Terminal Sequence"}
               </Text>
 
-              {mode === 'code' ? (
+              {mode === "code" ? (
                 <TextArea
                   placeholder="Enter code lines (one per line)..."
                   rows={8}
-                  {...register('content')}
+                  {...register("content")}
                 />
               ) : (
                 <Flex direction="column" gap="2">
@@ -163,7 +163,7 @@ export default function SkillDialog({
                             value={watch(`commands.${index}.kind`)}
                             onValueChange={(v: any) => {
                               setValue(`commands.${index}.kind`, v);
-                              if (v === 'blank')
+                              if (v === "blank")
                                 setValue(`commands.${index}.text`, undefined as any);
                             }}
                           >
@@ -176,7 +176,7 @@ export default function SkillDialog({
                             </Select.Content>
                           </Select.Root>
 
-                          {watch(`commands.${index}.kind`) !== 'blank' && (
+                          {watch(`commands.${index}.kind`) !== "blank" && (
                             <TextField.Root
                               className="flex-1"
                               placeholder="Text content..."
@@ -184,7 +184,7 @@ export default function SkillDialog({
                             />
                           )}
 
-                          {watch(`commands.${index}.kind`) === 'blank' && (
+                          {watch(`commands.${index}.kind`) === "blank" && (
                             <Text size="1" color="gray" className="flex-1 italic">
                               Spacing line
                             </Text>
@@ -199,9 +199,9 @@ export default function SkillDialog({
                             <TrashIcon />
                           </IconButton>
                         </Flex>
-                        {watch(`commands.${index}.kind`) !== 'blank' &&
+                        {watch(`commands.${index}.kind`) !== "blank" &&
                           errors.commands?.[index] &&
-                          'text' in errors.commands[index] && (
+                          "text" in errors.commands[index] && (
                             <Text color="red" size="1" mt="1">
                               {(errors.commands[index] as any)?.text?.message}
                             </Text>
@@ -213,7 +213,7 @@ export default function SkillDialog({
                   <Button
                     type="button"
                     variant="outline"
-                    onClick={() => append({ kind: 'command', text: '' })}
+                    onClick={() => append({ kind: "command", text: "" })}
                   >
                     <PlusIcon /> Add Command
                   </Button>
@@ -235,7 +235,7 @@ export default function SkillDialog({
               </Button>
             </Dialog.Close>
             <Button type="submit" disabled={isPending}>
-              {isPending ? 'Saving...' : 'Save Skill'}
+              {isPending ? "Saving..." : "Save Skill"}
             </Button>
           </Flex>
         </form>

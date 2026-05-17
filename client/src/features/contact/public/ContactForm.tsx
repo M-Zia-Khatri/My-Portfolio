@@ -1,5 +1,5 @@
-import { zodResolver } from '@hookform/resolvers/zod';
-import { CheckCircledIcon, EnvelopeClosedIcon, PaperPlaneIcon } from '@radix-ui/react-icons';
+import { zodResolver } from "@hookform/resolvers/zod";
+import { CheckCircledIcon, EnvelopeClosedIcon, PaperPlaneIcon } from "@radix-ui/react-icons";
 import {
   Button,
   Callout,
@@ -11,15 +11,17 @@ import {
   Text,
   TextArea,
   TextField,
-} from '@radix-ui/themes';
-import { useMutation, type UseMutationResult } from '@tanstack/react-query';
-import type { AxiosError } from 'axios';
-import React, { memo, useOptimistic, useTransition } from 'react';
-import { useForm, type UseFormRegisterReturn } from 'react-hook-form';
+} from "@radix-ui/themes";
+import { type UseMutationResult, useMutation } from "@tanstack/react-query";
+import type { AxiosError } from "axios";
+import type React from "react";
+import { memo, useOptimistic, useTransition } from "react";
+import { type UseFormRegisterReturn, useForm } from "react-hook-form";
 
-import { submitContactForm } from '@/features/contact/api';
-import { HEADING, TEXT } from '@/shared/constants/style.constants';
-import { contactSchema, type ContactFormData } from '../schema/contact.schema';
+import { submitContactForm } from "@/features/contact/api";
+import { HEADING, TEXT } from "@/shared/constants/style.constants";
+import { type ContactFormData, contactSchema } from "../schema/contact.schema";
+import type { Contact } from "../types";
 
 // --- 1. Atomic Memoized Components ---
 
@@ -38,8 +40,8 @@ const FormErrorMessage = memo(({ message }: { message?: string }) => {
   );
 });
 
-const ignoreRegisterRefChange = (prev: any, next: any) => {
-  return prev.error === next.error && prev.disabled === next.disabled && prev.label === next.label;
+const ignoreRegisterRefChange = (prev: UseFormRegisterReturn, next: UseFormRegisterReturn) => {
+  return prev.name === next.name && prev.disabled === next.disabled;
 };
 
 const FormInput = memo(
@@ -60,7 +62,7 @@ const FormInput = memo(
       <TextField.Root
         {...props}
         {...registration}
-        color={error ? 'red' : props.color}
+        color={error ? "red" : props.color}
         aria-invalid={!!error}
       >
         {Icon && (
@@ -91,7 +93,7 @@ const FormTextAreaField = memo(
       <TextArea
         {...props}
         {...registration}
-        color={error ? 'red' : props.color}
+        color={error ? "red" : props.color}
         aria-invalid={!!error}
       />
       <FormErrorMessage message={error} />
@@ -106,10 +108,10 @@ const FormCardHeader = memo(() => (
       Contact Form
     </Heading>
     <Text size={TEXT.sm.size} weight="medium">
-      Please contact me directly at{' '}
+      Please contact me directly at{" "}
       <Text size={TEXT.sm.size} className="font-extrabold text-(--blue-a11)" as="span">
         muhammadziakhatri@gmail.com
-      </Text>{' '}
+      </Text>{" "}
       or drop your info here.
     </Text>
   </div>
@@ -146,7 +148,7 @@ const FormCardButton = memo(({ isLoading }: { isLoading: boolean }) => (
 interface InnerFormProps {
   onSubmit: (data: ContactFormData) => void;
   isLoading: boolean;
-  mutation: UseMutationResult<any, any, ContactFormData, any>;
+  mutation: UseMutationResult<Contact, AxiosError, ContactFormData, unknown>;
 }
 
 const ContactFormInner = memo(({ onSubmit, isLoading, mutation }: InnerFormProps) => {
@@ -156,21 +158,21 @@ const ContactFormInner = memo(({ onSubmit, isLoading, mutation }: InnerFormProps
     formState: { errors },
   } = useForm<ContactFormData>({
     resolver: zodResolver(contactSchema),
-    defaultValues: { fullName: '', email: '', message: '' },
+    defaultValues: { fullName: "", email: "", message: "" },
   });
 
   const submitError = mutation.error as AxiosError<{ message?: string }> | null;
   const errorMessage =
-    submitError?.response?.data?.message ?? 'Something went wrong. Please try again.';
+    submitError?.response?.data?.message ?? "Something went wrong. Please try again.";
 
   return (
     <form className="animate-in fade-in duration-200" onSubmit={handleSubmit(onSubmit)} noValidate>
       <Flex direction="column" gap="4">
-        <Flex direction={{ initial: 'column', sm: 'row' }} gap="4">
+        <Flex direction={{ initial: "column", sm: "row" }} gap="4">
           <FormInput
             label="Full name"
             placeholder="Your Name"
-            registration={register('fullName')}
+            registration={register("fullName")}
             error={errors.fullName?.message}
             disabled={isLoading}
           />
@@ -178,7 +180,7 @@ const ContactFormInner = memo(({ onSubmit, isLoading, mutation }: InnerFormProps
             label="Email Address"
             type="email"
             placeholder="you@example.com"
-            registration={register('email')}
+            registration={register("email")}
             error={errors.email?.message}
             disabled={isLoading}
             icon={EnvelopeClosedIcon}
@@ -189,7 +191,7 @@ const ContactFormInner = memo(({ onSubmit, isLoading, mutation }: InnerFormProps
           label="Your Message"
           rows={5}
           placeholder="Tell me about your project,"
-          registration={register('message')}
+          registration={register("message")}
           error={errors.message?.message}
           disabled={isLoading}
         />

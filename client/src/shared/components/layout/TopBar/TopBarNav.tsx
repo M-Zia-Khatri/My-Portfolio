@@ -1,6 +1,6 @@
-import { Box, Flex } from '@radix-ui/themes';
-import { navItems } from './TopBar.constants';
-import { TopBarItem } from './TopBarItem';
+import { Box, Flex } from "@radix-ui/themes";
+import { navItems } from "./TopBar.constants";
+import { TopBarItem } from "./TopBarItem";
 
 export function TopBarNav() {
   return (
@@ -9,7 +9,7 @@ export function TopBarNav() {
         <Flex asChild align="center" justify="center" gap="5">
           <ul className="min-w-max">
             {navItems.map((item) => (
-              <TopBarItem item={item} />
+              <TopBarItem key={item.label} item={item} />
             ))}
           </ul>
         </Flex>

@@ -7,7 +7,9 @@
     "dev": "nodemon --exec 'tsx -r dotenv/config src/server.ts' -- --dotenv_config_path=.env.development",
     "build": "tsc",
     "start": "node dist/src/server.js",
-    "lint": "eslint src --ext .ts",
+    "lint": "biome check src",
+    "format": "biome format src --write",
+    "db:studio": "prisma studio > nul 2>&1",
     "db:migrate": "prisma migrate deploy",
     "db:seed": "prisma db seed"
   },
@@ -35,6 +37,7 @@
     "zod": "^4.3.6"
   },
   "devDependencies": {
+    "@biomejs/biome": "^2.4.15",
     "@types/bcrypt": "^6.0.0",
     "@types/cookie-parser": "^1.4.10",
     "@types/cors": "^2.8.17",

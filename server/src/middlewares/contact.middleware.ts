@@ -1,27 +1,27 @@
-import type { NextFunction, Request, Response } from 'express';
-import { send } from '../lib/utills/send.js';
+import type { NextFunction, Request, Response } from "express";
+import { send } from "../lib/utills/send.js";
 
 export function validateContact(req: Request, res: Response, next: NextFunction): void {
   const { fullName, email, message } = req.body;
   const errors: Record<string, string> = {};
 
-  if (!fullName || typeof fullName !== 'string' || fullName.trim().length < 2) {
-    errors.fullName = 'Full name must be at least 2 characters';
+  if (!fullName || typeof fullName !== "string" || fullName.trim().length < 2) {
+    errors.fullName = "Full name must be at least 2 characters";
   }
 
-  if (!email || typeof email !== 'string' || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-    errors.email = 'A valid email is required';
+  if (!email || typeof email !== "string" || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+    errors.email = "A valid email is required";
   }
 
-  if (!message || typeof message !== 'string' || message.trim().length < 10) {
-    errors.message = 'Message must be at least 10 characters';
+  if (!message || typeof message !== "string" || message.trim().length < 10) {
+    errors.message = "Message must be at least 10 characters";
   }
 
   if (Object.keys(errors).length > 0) {
     send(res, {
       success: false,
       status: 400,
-      message: 'Validation error',
+      message: "Validation error",
       error: errors,
     });
     return;

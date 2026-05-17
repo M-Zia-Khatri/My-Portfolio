@@ -1,34 +1,35 @@
 // src/controllers/auth.controller.ts
-import { getConfig } from '../config/env.js';
-import { prisma } from '../lib/prisma.js';
+
+import bcrypt from "bcrypt";
+import type { Request, Response } from "express";
+import { getConfig } from "../config/env.js";
+import { prisma } from "../lib/prisma.js";
 import {
   revokeAllRefreshTokens,
   revokeRefreshToken,
   rotateRefreshToken,
   signAccessToken,
   signRefreshToken,
-} from '../lib/services/jwt.service.js';
-import { generateOtp, verifyOtp } from '../lib/services/otp.service.js';
-import type { AuthRequest, LoginBody, VerifyOtpBody } from '../lib/types/auth.types.js';
-import { catchError } from '../lib/utills/catch-error.js';
-import { send } from '../lib/utills/send.js';
-import bcrypt from 'bcrypt';
-import type { Request, Response } from 'express';
-import { sendOtpEmail } from '../lib/utills/mailer.js';
+} from "../lib/services/jwt.service.js";
+import { generateOtp, verifyOtp } from "../lib/services/otp.service.js";
+import type { AuthRequest, LoginBody, VerifyOtpBody } from "../lib/types/auth.types.js";
+import { catchError } from "../lib/utills/catch-error.js";
+import { sendOtpEmail } from "../lib/utills/mailer.js";
+import { send } from "../lib/utills/send.js";
 
 const config = getConfig();
 
 // ─── Constants ────────────────────────────────────────────────────────────────
-const REFRESH_TOKEN_COOKIE = 'refreshToken';
+const REFRESH_TOKEN_COOKIE = "refreshToken";
 const REFRESH_TOKEN_MAX_AGE = 7 * 24 * 60 * 60 * 1_000; // 7 days in ms
 const ACCESS_TOKEN_EXPIRES_IN = 15 * 60; // 15 min in seconds
 
 const COOKIE_OPTIONS = {
   httpOnly: true,
   secure: config.isDev === false,
-  sameSite: 'strict' as const,
+  sameSite: "strict" as const,
   maxAge: REFRESH_TOKEN_MAX_AGE,
-  path: '/',
+  path: "/",
 };
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
@@ -38,7 +39,7 @@ function setRefreshCookie(res: Response, token: string): void {
 }
 
 function clearRefreshCookie(res: Response): void {
-  res.clearCookie(REFRESH_TOKEN_COOKIE, { path: '/' });
+  res.clearCookie(REFRESH_TOKEN_COOKIE, { path: "/" });
 }
 
 // ─── POST /auth/login ─────────────────────────────────────────────────────────
@@ -52,7 +53,7 @@ export async function login(req: Request, res: Response): Promise<void> {
       send(res, {
         success: false,
         status: 400,
-        message: 'Validation error',
+        message: "Validation error",
         error: { fields: { email: !email, password: !password } },
       });
       return;
@@ -70,7 +71,7 @@ export async function login(req: Request, res: Response): Promise<void> {
     });
 
     // Constant-time response — prevents user enumeration via timing attack
-    const dummyHash = '$2b$10$invalidhashfortimingprotection0zia00khatri000000000';
+    const dummyHash = "$2b$10$invalidhashfortimingprotection0zia00khatri000000000";
     const hashToCompare = admin?.passwordHash ?? dummyHash;
     const passwordMatch = await bcrypt.compare(password, hashToCompare);
 
@@ -78,7 +79,7 @@ export async function login(req: Request, res: Response): Promise<void> {
       send(res, {
         success: false,
         status: 401,
-        message: 'Invalid credentials',
+        message: "Invalid credentials",
       });
       return;
     }
@@ -89,7 +90,7 @@ export async function login(req: Request, res: Response): Promise<void> {
     send(res, {
       success: true,
       status: 200,
-      message: 'OTP sent to your registered email',
+      message: "OTP sent to your registered email",
       data: { email: admin.email },
     });
   } catch (err) {
@@ -110,7 +111,7 @@ export async function verifyOtpHandler(req: Request, res: Response): Promise<voi
       send(res, {
         success: false,
         status: 400,
-        message: 'Validation error',
+        message: "Validation error",
         error: { fields: { email: !email, otp: !otp } },
       });
       return;
@@ -121,8 +122,8 @@ export async function verifyOtpHandler(req: Request, res: Response): Promise<voi
       select: { id: true, email: true, isActive: true },
     });
 
-    if (!admin || !admin.isActive) {
-      send(res, { success: false, status: 401, message: 'Invalid request' });
+    if (!admin?.isActive) {
+      send(res, { success: false, status: 401, message: "Invalid request" });
       return;
     }
 
@@ -132,7 +133,7 @@ export async function verifyOtpHandler(req: Request, res: Response): Promise<voi
       send(res, {
         success: false,
         status: 401,
-        message: 'Invalid or expired OTP',
+        message: "Invalid or expired OTP",
       });
       return;
     }
@@ -146,10 +147,10 @@ export async function verifyOtpHandler(req: Request, res: Response): Promise<voi
     send(res, {
       success: true,
       status: 200,
-      message: 'Login successful',
+      message: "Login successful",
       data: {
         accessToken,
-        tokenType: 'Bearer',
+        tokenType: "Bearer",
         expiresIn: ACCESS_TOKEN_EXPIRES_IN,
       },
     });
@@ -166,7 +167,7 @@ export async function refresh(req: Request, res: Response): Promise<void> {
     const refreshToken = req.cookies?.[REFRESH_TOKEN_COOKIE];
 
     if (!refreshToken) {
-      send(res, { success: false, status: 401, message: 'No refresh token' });
+      send(res, { success: false, status: 401, message: "No refresh token" });
       return;
     }
 
@@ -177,7 +178,7 @@ export async function refresh(req: Request, res: Response): Promise<void> {
       send(res, {
         success: false,
         status: 401,
-        message: 'Invalid or expired refresh token',
+        message: "Invalid or expired refresh token",
       });
       return;
     }
@@ -188,10 +189,10 @@ export async function refresh(req: Request, res: Response): Promise<void> {
     send(res, {
       success: true,
       status: 200,
-      message: 'Token refreshed',
+      message: "Token refreshed",
       data: {
         accessToken: tokens.accessToken,
-        tokenType: 'Bearer',
+        tokenType: "Bearer",
         expiresIn: ACCESS_TOKEN_EXPIRES_IN,
       },
     });
@@ -215,7 +216,7 @@ export async function logout(req: Request, res: Response): Promise<void> {
     send(res, {
       success: true,
       status: 200,
-      message: 'Logged out successfully',
+      message: "Logged out successfully",
     });
   } catch (err) {
     catchError(res, err);
@@ -227,10 +228,10 @@ export async function logout(req: Request, res: Response): Promise<void> {
 
 export async function logoutAll(req: AuthRequest, res: Response): Promise<void> {
   try {
-    await revokeAllRefreshTokens(req.admin!.id);
+    await revokeAllRefreshTokens(req.admin?.id);
     clearRefreshCookie(res);
 
-    send(res, { success: true, status: 200, message: 'All sessions revoked' });
+    send(res, { success: true, status: 200, message: "All sessions revoked" });
   } catch (err) {
     catchError(res, err);
   }
@@ -242,7 +243,7 @@ export async function logoutAll(req: AuthRequest, res: Response): Promise<void> 
 export async function me(req: AuthRequest, res: Response): Promise<void> {
   try {
     const admin = await prisma.admin.findUnique({
-      where: { id: req.admin!.id },
+      where: { id: req.admin?.id },
       select: {
         id: true,
         email: true,
@@ -255,16 +256,16 @@ export async function me(req: AuthRequest, res: Response): Promise<void> {
     });
 
     if (!admin) {
-      send(res, { success: false, status: 404, message: 'Admin not found' });
+      send(res, { success: false, status: 404, message: "Admin not found" });
       return;
     }
 
     send(res, {
       success: true,
       status: 200,
-      message: 'Data retrieved successfully',
+      message: "Data retrieved successfully",
       // Hardcode role until a role column is added to the Admin model
-      data: { ...admin, role: 'admin' as const },
+      data: { ...admin, role: "admin" as const },
     });
   } catch (err) {
     catchError(res, err);

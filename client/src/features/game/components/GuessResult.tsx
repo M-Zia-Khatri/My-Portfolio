@@ -1,15 +1,14 @@
-import { TEXT } from '@/shared/constants/style.constants';
-import { CheckCircledIcon, CrossCircledIcon } from '@radix-ui/react-icons';
-import { Badge, Callout, Card, Separator, Strong, Text } from '@radix-ui/themes';
-import { memo } from 'react';
-import { useGuessNumStatus, useGuessNumProgress } from '../context/GuessNumContext';
-import type { GuessResultType } from '../types/guessNumContextTypes';
+import { CheckCircledIcon, CrossCircledIcon } from "@radix-ui/react-icons";
+import { Badge, Callout, Card, Separator, Strong, Text } from "@radix-ui/themes";
+import { memo } from "react";
+import { TEXT } from "@/shared/constants/style.constants";
+import { useGuessNumProgress, useGuessNumStatus } from "../context/GuessNumContext";
 
 const feedbackColor = (message: string) => {
-  if (message === 'you win') return 'green';
-  if (message === 'very close') return 'amber';
-  if (message === 'too low') return 'blue';
-  return 'red';
+  if (message === "you win") return "green";
+  if (message === "very close") return "amber";
+  if (message === "too low") return "blue";
+  return "red";
 };
 
 // ─────────────────────────────────────────────────────────
@@ -18,8 +17,8 @@ const feedbackColor = (message: string) => {
 
 const GuessesLeftLabel = memo(function GuessesLeftLabel() {
   return (
-    <Text size={TEXT.lg.size} style={{ color: 'var(--gray-11)' }}>
-      Guesses left:{' '}
+    <Text size={TEXT.lg.size} style={{ color: "var(--gray-11)" }}>
+      Guesses left:{" "}
     </Text>
   );
 });
@@ -31,7 +30,7 @@ const GuessesLeftValue = memo(function GuessesLeftValue() {
       size={TEXT.lg.size}
       className="font-black"
       style={{
-        color: guessTurn <= 2 ? 'var(--red-11)' : 'var(--blue-11)',
+        color: guessTurn <= 2 ? "var(--red-11)" : "var(--blue-11)",
       }}
     >
       {guessTurn}
@@ -70,7 +69,7 @@ const GuessHistoryItem = memo(function GuessHistoryItem({
   const color = feedbackColor(message) as any;
   return (
     <Card
-      size={'1'}
+      size={"1"}
       className="flex items-center justify-between"
       // style={{ background: "var(--gray-3)", border: "1px solid var(--gray-5)" }}
     >
@@ -99,7 +98,7 @@ function GuessHistoryList() {
     <>
       {guessResults.map((result, i) => (
         <GuessHistoryItem
-          key={`${result.guess}-${i}`}
+          key={`${result.guess}-${result.ts ?? i}`}
           index={i}
           guess={result.guess}
           message={result.message}
@@ -129,10 +128,10 @@ export default function GuessResult() {
 
       {/* Final outcome */}
       {showNumber && randomNumber != null && (
-        <Callout.Root color={didWin ? 'green' : 'red'} variant="surface">
+        <Callout.Root color={didWin ? "green" : "red"} variant="surface">
           <Callout.Icon>{didWin ? <CheckCircledIcon /> : <CrossCircledIcon />}</Callout.Icon>
           <Callout.Text>
-            {didWin ? '🎉 You Win!' : '😢 You Lose!'} The number was <strong>{randomNumber}</strong>
+            {didWin ? "🎉 You Win!" : "😢 You Lose!"} The number was <strong>{randomNumber}</strong>
           </Callout.Text>
         </Callout.Root>
       )}

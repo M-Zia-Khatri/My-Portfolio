@@ -1,11 +1,11 @@
-import { useAuth } from '@/features/auth/hooks/useAuth';
-import { AppNavigation } from '@/shared/constants/navigation.constants';
-import { cn } from '@/shared/utils/cn';
-import { ExitIcon, HamburgerMenuIcon } from '@radix-ui/react-icons';
-import { Box, Button, DropdownMenu, Flex, Link, Separator, Text } from '@radix-ui/themes';
-import { ArrowLeftIcon, Clock, Monitor } from 'lucide-react';
-import { useEffect, useState } from 'react';
-import { NavLink, useNavigate } from 'react-router';
+import { ExitIcon, HamburgerMenuIcon } from "@radix-ui/react-icons";
+import { Box, Button, DropdownMenu, Flex, Link, Separator, Text } from "@radix-ui/themes";
+import { ArrowLeftIcon, Clock, Monitor } from "lucide-react";
+import { useEffect, useState } from "react";
+import { NavLink, useNavigate } from "react-router";
+import { useAuth } from "@/features/auth/hooks/useAuth";
+import { AppNavigation } from "@/shared/constants/navigation.constants";
+import { cn } from "@/shared/utils/cn";
 
 export type NavItem = {
   label: string;
@@ -13,10 +13,10 @@ export type NavItem = {
 };
 
 const DEFAULT_NAV: NavItem[] = [
-  { label: 'Dashboard', link: AppNavigation.DASHBOARD },
-  { label: 'Skills', link: '/dashboard/skills' },
-  { label: 'Portfolio', link: '/dashboard/portfolio' },
-  { label: 'Contact', link: '/dashboard/contact' },
+  { label: "Dashboard", link: AppNavigation.DASHBOARD },
+  { label: "Skills", link: "/dashboard/skills" },
+  { label: "Portfolio", link: "/dashboard/portfolio" },
+  { label: "Contact", link: "/dashboard/contact" },
 ];
 
 export default function Topbar() {
@@ -31,7 +31,7 @@ export default function Topbar() {
 
   const handleLogout = async () => {
     await logout();
-    navigate('/');
+    navigate("/");
   };
 
   return (
@@ -76,8 +76,8 @@ export default function Topbar() {
                   end
                   className={({ isActive }) =>
                     cn(
-                      'text-sm font-medium transition-colors hover:text-(--blue-11)',
-                      isActive ? 'text-(--blue-11)' : 'text-(--gray-10)',
+                      "text-sm font-medium transition-colors hover:text-(--blue-11)",
+                      isActive ? "text-(--blue-11)" : "text-(--gray-10)",
                     )
                   }
                 >
@@ -99,7 +99,7 @@ export default function Topbar() {
             >
               <Clock size={14} className="opacity-70" />
               <span className="tabular-nums">
-                {time.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: false })}
+                {time.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit", hour12: false })}
               </span>
             </Flex>
 

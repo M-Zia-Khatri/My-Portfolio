@@ -1,23 +1,23 @@
-import { BorderTrail } from '@/shared/components/motion-primitives/border-trail';
-import { HEADING, TEXT } from '@/shared/constants/style.constants';
-import { cn } from '@/shared/utils/cn';
-import { AspectRatio, Badge, Flex, Heading, Text } from '@radix-ui/themes';
-import gsap from 'gsap';
-import { ArrowUpRight } from 'lucide-react';
-import { animate, motion, useMotionValue, useTransform, type Variants } from 'motion/react';
-import { useCallback, useEffect, useRef, useState } from 'react';
-import type { PortfolioItem } from '../types';
+import { AspectRatio, Badge, Flex, Heading, Text } from "@radix-ui/themes";
+import gsap from "gsap";
+import { ArrowUpRight } from "lucide-react";
+import { animate, motion, useMotionValue, useTransform, type Variants } from "motion/react";
+import { useCallback, useEffect, useRef, useState } from "react";
+import { BorderTrail } from "@/shared/components/motion-primitives/border-trail";
+import { HEADING, TEXT } from "@/shared/constants/style.constants";
+import { cn } from "@/shared/utils/cn";
+import type { PortfolioItem } from "../types";
 
 interface PortfolioItemCardProps {
   item: PortfolioItem;
 }
 
 const backItemVariants: Variants = {
-  hidden: { opacity: 0, y: 10, filter: 'blur(4px)' },
+  hidden: { opacity: 0, y: 10, filter: "blur(4px)" },
   visible: (i: number) => ({
     opacity: 1,
     y: 0,
-    filter: 'blur(0px)',
+    filter: "blur(0px)",
     transition: {
       delay: 0.18 + i * 0.08,
       duration: 0.45,
@@ -51,7 +51,7 @@ export function PortfolioItemCard({ item }: PortfolioItemCardProps) {
     baseTweenRef.current = gsap.to(base, {
       opacity: 0.18,
       duration: 2.5,
-      ease: 'sine.inOut',
+      ease: "sine.inOut",
       yoyo: true,
       repeat: -1,
     });
@@ -61,27 +61,27 @@ export function PortfolioItemCard({ item }: PortfolioItemCardProps) {
       .timeline({ repeat: -1, repeatDelay: 3, paused: true })
       .fromTo(
         trail,
-        { backgroundPosition: '-180% -180%', opacity: 0 },
+        { backgroundPosition: "-180% -180%", opacity: 0 },
         {
-          backgroundPosition: '280% 280%',
+          backgroundPosition: "280% 280%",
           opacity: 1,
           duration: 3.6,
-          ease: 'none',
+          ease: "none",
         },
         0,
       )
       .fromTo(
         lead,
-        { backgroundPosition: '-150% -150%', opacity: 0 },
+        { backgroundPosition: "-150% -150%", opacity: 0 },
         {
-          backgroundPosition: '250% 250%',
+          backgroundPosition: "250% 250%",
           opacity: 1,
           duration: 3,
-          ease: 'none',
+          ease: "none",
         },
         0.25,
       )
-      .to([lead, trail], { opacity: 0, duration: 0.4, ease: 'power2.in' }, '-=0.5');
+      .to([lead, trail], { opacity: 0, duration: 0.4, ease: "power2.in" }, "-=0.5");
 
     return () => {
       shineTlRef.current?.kill();
@@ -122,8 +122,8 @@ export function PortfolioItemCard({ item }: PortfolioItemCardProps) {
   );
 
   const handleMouseLeave = useCallback(() => {
-    animate(mouseX, 0, { type: 'spring', stiffness: 180, damping: 22 });
-    animate(mouseY, 0, { type: 'spring', stiffness: 180, damping: 22 });
+    animate(mouseX, 0, { type: "spring", stiffness: 180, damping: 22 });
+    animate(mouseY, 0, { type: "spring", stiffness: 180, damping: 22 });
   }, [mouseX, mouseY]);
 
   const flip = useCallback(() => {
@@ -131,14 +131,14 @@ export function PortfolioItemCard({ item }: PortfolioItemCardProps) {
     isFlipped.current = next;
     setFlipped(next);
     animate(rotateY, next ? 180 : 0, {
-      type: 'spring',
+      type: "spring",
       stiffness: 70,
       damping: 15,
     });
   }, [rotateY]);
 
   const faceBase =
-    'absolute inset-0 flex flex-col [backface-visibility:hidden] overflow-hidden rounded-xl';
+    "absolute inset-0 flex flex-col [backface-visibility:hidden] overflow-hidden rounded-xl";
 
   return (
     <motion.div
@@ -150,19 +150,19 @@ export function PortfolioItemCard({ item }: PortfolioItemCardProps) {
       whileHover="hovered"
       whileTap={{
         scale: 0.975,
-        transition: { type: 'spring', stiffness: 400, damping: 20 },
+        transition: { type: "spring", stiffness: 400, damping: 20 },
       }}
       style={{
         rotateX: tiltX,
         rotateY: tiltY,
-        transformStyle: 'preserve-3d',
-        willChange: 'transform',
+        transformStyle: "preserve-3d",
+        willChange: "transform",
       }}
       variants={{
         idle: { y: 0 },
         hovered: {
           y: -7,
-          transition: { type: 'spring', stiffness: 280, damping: 22 },
+          transition: { type: "spring", stiffness: 280, damping: 22 },
         },
       }}
     >
@@ -174,28 +174,28 @@ export function PortfolioItemCard({ item }: PortfolioItemCardProps) {
             style={{
               transform: frontTransform,
               opacity: frontOpacity,
-              willChange: 'transform, opacity',
+              willChange: "transform, opacity",
             }}
           >
             <motion.img
               className="absolute -top-[5%] left-[0%] h-[110%] w-[110%] object-cover"
               src={item.siteImageUrl}
               alt={item.siteName}
-              style={{ x: imgX, y: imgY, willChange: 'transform' }}
+              style={{ x: imgX, y: imgY, willChange: "transform" }}
             />
 
             <motion.div
               className="pointer-events-none absolute inset-0 z-10"
               style={{
                 background:
-                  'linear-gradient(108deg, transparent 30%, rgba(255,255,255,0.08) 50%, transparent 70%)',
+                  "linear-gradient(108deg, transparent 30%, rgba(255,255,255,0.08) 50%, transparent 70%)",
               }}
               variants={{
-                idle: { x: '-110%', opacity: 0 },
+                idle: { x: "-110%", opacity: 0 },
                 hovered: {
-                  x: '110%',
+                  x: "110%",
                   opacity: 1,
-                  transition: { duration: 0.7, ease: 'easeInOut' },
+                  transition: { duration: 0.7, ease: "easeInOut" },
                 },
               }}
             />
@@ -219,13 +219,13 @@ export function PortfolioItemCard({ item }: PortfolioItemCardProps) {
               }}
               whileHover={{
                 scale: 1.18,
-                backgroundColor: 'rgba(255,255,255,0.14)',
-                transition: { type: 'spring', stiffness: 350, damping: 20 },
+                backgroundColor: "rgba(255,255,255,0.14)",
+                transition: { type: "spring", stiffness: 350, damping: 20 },
               }}
             >
               <motion.div
                 whileHover={{ rotate: 45 }}
-                transition={{ type: 'spring', stiffness: 300, damping: 18 }}
+                transition={{ type: "spring", stiffness: 300, damping: 18 }}
               >
                 <ArrowUpRight size={14} className="text-(--blue-12)/70" />
               </motion.div>
@@ -263,11 +263,11 @@ export function PortfolioItemCard({ item }: PortfolioItemCardProps) {
 
           {/* ── BACK ── */}
           <motion.div
-            className={cn(faceBase, 'bg-(--gray-2)')}
+            className={cn(faceBase, "bg-(--gray-2)")}
             style={{
               transform: backTransform,
               opacity: backOpacity,
-              willChange: 'transform, opacity',
+              willChange: "transform, opacity",
             }}
           >
             {/* Base grid — breathes */}
@@ -277,8 +277,8 @@ export function PortfolioItemCard({ item }: PortfolioItemCardProps) {
               style={{
                 opacity: 0.08,
                 backgroundImage:
-                  'linear-gradient(rgba(99,179,237,1) 1px, transparent 1px), linear-gradient(90deg, rgba(99,179,237,1) 1px, transparent 1px)',
-                backgroundSize: '24px 24px',
+                  "linear-gradient(rgba(99,179,237,1) 1px, transparent 1px), linear-gradient(90deg, rgba(99,179,237,1) 1px, transparent 1px)",
+                backgroundSize: "24px 24px",
               }}
             />
 
@@ -288,16 +288,16 @@ export function PortfolioItemCard({ item }: PortfolioItemCardProps) {
               className="pointer-events-none absolute inset-0"
               style={{
                 backgroundImage:
-                  'linear-gradient(135deg, transparent 44%, rgba(96,165,250,0.25) 50%, transparent 56%)',
-                backgroundSize: '350% 350%',
-                backgroundPosition: '-180% -180%',
+                  "linear-gradient(135deg, transparent 44%, rgba(96,165,250,0.25) 50%, transparent 56%)",
+                backgroundSize: "350% 350%",
+                backgroundPosition: "-180% -180%",
                 maskImage:
-                  'linear-gradient(black 1px, transparent 1px), linear-gradient(90deg, black 1px, transparent 1px)',
+                  "linear-gradient(black 1px, transparent 1px), linear-gradient(90deg, black 1px, transparent 1px)",
                 WebkitMaskImage:
-                  'linear-gradient(black 1px, transparent 1px), linear-gradient(90deg, black 1px, transparent 1px)',
-                maskSize: '24px 24px',
-                WebkitMaskSize: '24px 24px',
-                willChange: 'background-position, opacity',
+                  "linear-gradient(black 1px, transparent 1px), linear-gradient(90deg, black 1px, transparent 1px)",
+                maskSize: "24px 24px",
+                WebkitMaskSize: "24px 24px",
+                willChange: "background-position, opacity",
               }}
             />
 
@@ -307,16 +307,16 @@ export function PortfolioItemCard({ item }: PortfolioItemCardProps) {
               className="pointer-events-none absolute inset-0"
               style={{
                 backgroundImage:
-                  'linear-gradient(135deg, transparent 48%, rgba(186,230,255,0.95) 50%, transparent 52%)',
-                backgroundSize: '300% 300%',
-                backgroundPosition: '-150% -150%',
+                  "linear-gradient(135deg, transparent 48%, rgba(186,230,255,0.95) 50%, transparent 52%)",
+                backgroundSize: "300% 300%",
+                backgroundPosition: "-150% -150%",
                 maskImage:
-                  'linear-gradient(black 1px, transparent 1px), linear-gradient(90deg, black 1px, transparent 1px)',
+                  "linear-gradient(black 1px, transparent 1px), linear-gradient(90deg, black 1px, transparent 1px)",
                 WebkitMaskImage:
-                  'linear-gradient(black 1px, transparent 1px), linear-gradient(90deg, black 1px, transparent 1px)',
-                maskSize: '24px 24px',
-                WebkitMaskSize: '24px 24px',
-                willChange: 'background-position, opacity',
+                  "linear-gradient(black 1px, transparent 1px), linear-gradient(90deg, black 1px, transparent 1px)",
+                maskSize: "24px 24px",
+                WebkitMaskSize: "24px 24px",
+                willChange: "background-position, opacity",
               }}
             />
 
@@ -326,7 +326,7 @@ export function PortfolioItemCard({ item }: PortfolioItemCardProps) {
               <motion.div
                 custom={0}
                 variants={backItemVariants}
-                animate={flipped ? 'visible' : 'hidden'}
+                animate={flipped ? "visible" : "hidden"}
                 className="flex justify-between"
               >
                 <div className="flex flex-col">
@@ -351,7 +351,7 @@ export function PortfolioItemCard({ item }: PortfolioItemCardProps) {
                   <motion.div
                     whileHover={{ rotate: 45 }}
                     whileTap={{ rotate: 45 }}
-                    transition={{ type: 'spring', stiffness: 300, damping: 18 }}
+                    transition={{ type: "spring", stiffness: 300, damping: 18 }}
                   >
                     <ArrowUpRight size={14} className="text-(--blue-12)/70" />
                   </motion.div>
@@ -361,7 +361,7 @@ export function PortfolioItemCard({ item }: PortfolioItemCardProps) {
               <motion.div
                 custom={1}
                 variants={backItemVariants}
-                animate={flipped ? 'visible' : 'hidden'}
+                animate={flipped ? "visible" : "hidden"}
                 className="flex-1"
               >
                 <Text size={TEXT.sm.size} className="leading-relaxed text-white/60" as="p">
@@ -372,7 +372,7 @@ export function PortfolioItemCard({ item }: PortfolioItemCardProps) {
               <motion.div
                 custom={2}
                 variants={backItemVariants}
-                animate={flipped ? 'visible' : 'hidden'}
+                animate={flipped ? "visible" : "hidden"}
               >
                 <Flex wrap="wrap" gap="2">
                   {item.useTech.map((tech, i) => (
@@ -382,7 +382,7 @@ export function PortfolioItemCard({ item }: PortfolioItemCardProps) {
                       animate={flipped ? { opacity: 1, scale: 1 } : { opacity: 0, scale: 0.7 }}
                       transition={{
                         delay: flipped ? 0.32 + i * 0.055 : 0,
-                        type: 'spring',
+                        type: "spring",
                         stiffness: 260,
                         damping: 18,
                       }}
@@ -390,7 +390,7 @@ export function PortfolioItemCard({ item }: PortfolioItemCardProps) {
                         scale: 1.12,
                         y: -2,
                         transition: {
-                          type: 'spring',
+                          type: "spring",
                           stiffness: 400,
                           damping: 16,
                         },

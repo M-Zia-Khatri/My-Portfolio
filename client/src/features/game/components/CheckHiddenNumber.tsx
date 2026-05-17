@@ -1,8 +1,12 @@
-import { Button } from '@radix-ui/themes';
-import { memo, useMemo } from 'react';
-import { useGuessNumActions, useGuessNumStatus, useGuessNumProgress } from '../context/GuessNumContext';
-import useGameSet from '../store/GameSetStore';
-import type { GuessResultType } from '../types/guessNumContextTypes';
+import { Button } from "@radix-ui/themes";
+import { memo, useMemo } from "react";
+import {
+  useGuessNumActions,
+  useGuessNumProgress,
+  useGuessNumStatus,
+} from "../context/GuessNumContext";
+import useGameSet from "../store/GameSetStore";
+import type { GuessResultType } from "../types/guessNumContextTypes";
 
 type SpreadButtonProps = {
   number: number;
@@ -11,12 +15,18 @@ type SpreadButtonProps = {
   onGuess: (guess: number) => void;
 };
 
-const SpreadButton = memo(function SpreadButton({ number, disabled, result, onGuess }: SpreadButtonProps) {
+const SpreadButton = memo(function SpreadButton({
+  number,
+  disabled,
+  result,
+  onGuess,
+}: SpreadButtonProps) {
   const variant = (() => {
-    if (!result) return { color: 'gray' as const, variant: 'soft' as const };
-    if (result.message === 'you win') return { color: 'green' as const, variant: 'solid' as const };
-    if (result.message === 'very close') return { color: 'amber' as const, variant: 'solid' as const };
-    return { color: 'blue' as const, variant: 'soft' as const };
+    if (!result) return { color: "gray" as const, variant: "soft" as const };
+    if (result.message === "you win") return { color: "green" as const, variant: "solid" as const };
+    if (result.message === "very close")
+      return { color: "amber" as const, variant: "solid" as const };
+    return { color: "blue" as const, variant: "soft" as const };
   })();
 
   return (
@@ -29,7 +39,7 @@ const SpreadButton = memo(function SpreadButton({ number, disabled, result, onGu
       style={{
         width: 40,
         height: 40,
-        cursor: disabled ? 'not-allowed' : 'pointer',
+        cursor: disabled ? "not-allowed" : "pointer",
       }}
     >
       {number}

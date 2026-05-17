@@ -1,5 +1,5 @@
-import gsap from 'gsap';
-import { useEffect, useRef } from 'react';
+import gsap from "gsap";
+import { useEffect, useRef } from "react";
 
 type SVGWithCleanup = SVGSVGElement & {
   _cleanup?: () => void;
@@ -35,7 +35,7 @@ export default function BgScene() {
       while (svg.firstChild) svg.removeChild(svg.firstChild);
       linesRef.current = [];
 
-      svg.setAttribute('viewBox', `0 0 ${w} ${h}`);
+      svg.setAttribute("viewBox", `0 0 ${w} ${h}`);
 
       const count = Math.ceil(w / 10);
       const SEGMENTS = 160;
@@ -49,14 +49,14 @@ export default function BgScene() {
 
       for (let i = 0; i < count; i++) {
         const path = document.createElementNS(
-          'http://www.w3.org/2000/svg',
-          'path',
+          "http://www.w3.org/2000/svg",
+          "path",
         ) as SVGPathElement;
 
-        path.setAttribute('stroke', '#76c7eb');
-        path.setAttribute('stroke-width', '1');
-        path.setAttribute('opacity', '0.5');
-        path.setAttribute('fill', 'none');
+        path.setAttribute("stroke", "#76c7eb");
+        path.setAttribute("stroke-width", "1");
+        path.setAttribute("opacity", "0.5");
+        path.setAttribute("fill", "none");
 
         svg.appendChild(path);
         linesRef.current[i] = path;
@@ -79,7 +79,7 @@ export default function BgScene() {
         t: Math.PI * 2,
         duration: 6,
         repeat: -1,
-        ease: 'none',
+        ease: "none",
         onUpdate: () => {
           const lines = linesRef.current;
           const height = sizeRef.current.h;
@@ -102,7 +102,7 @@ export default function BgScene() {
             if (!lineNearMouse) {
               parts[0] = `M${~~baseX} 0`;
               parts[1] = `L${~~baseX} ${~~height}`;
-              lines[i].setAttribute('d', parts[0] + ' ' + parts[1]);
+              lines[i].setAttribute("d", `${parts[0]} ${parts[1]}`);
               continue;
             }
 
@@ -126,7 +126,7 @@ export default function BgScene() {
               parts[s] = s === 0 ? `M${~~x} ${~~y}` : `L${~~x} ${~~y}`;
             }
 
-            lines[i].setAttribute('d', parts.join(' '));
+            lines[i].setAttribute("d", parts.join(" "));
           }
         },
       });
@@ -155,14 +155,14 @@ export default function BgScene() {
         }, 200);
       };
 
-      window.addEventListener('mousemove', handleMouseMove);
-      window.addEventListener('mouseleave', handleMouseLeave);
-      window.addEventListener('resize', handleResize);
+      window.addEventListener("mousemove", handleMouseMove);
+      window.addEventListener("mouseleave", handleMouseLeave);
+      window.addEventListener("resize", handleResize);
 
       svg._cleanup = () => {
-        window.removeEventListener('mousemove', handleMouseMove);
-        window.removeEventListener('mouseleave', handleMouseLeave);
-        window.removeEventListener('resize', handleResize);
+        window.removeEventListener("mousemove", handleMouseMove);
+        window.removeEventListener("mouseleave", handleMouseLeave);
+        window.removeEventListener("resize", handleResize);
         animation?.kill();
       };
     };

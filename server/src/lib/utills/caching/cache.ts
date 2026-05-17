@@ -1,18 +1,18 @@
 // cache.ts
-import { EventEmitter } from 'events';
-import { redis } from '../redis.js';
-import { isCircuitOpen, recordFailure, recordSuccess } from './cache.circuit.js';
+import { EventEmitter } from "node:events";
+import { redis } from "../redis.js";
+import { isCircuitOpen, recordFailure, recordSuccess } from "./cache.circuit.js";
 import {
   CACHE_PREFIX,
   DEFAULT_CONFIG,
   LOCK_RETRY_DELAY,
   MAX_CALLBACK_DURATION_MS,
   SCAN_BATCH_SIZE,
-} from './cache.constants.js';
-import { generateETag, matchETag } from './cache.etag.js';
-import { buildKey, buildLockKey } from './cache.keys.js';
-import { acquireLock, acquireLockWithBackoff, releaseLock, sleep } from './cache.lock.js';
-import { deserialize, serialize } from './cache.serializer.js';
+} from "./cache.constants.js";
+import { generateETag, matchETag } from "./cache.etag.js";
+import { buildKey, buildLockKey } from "./cache.keys.js";
+import { acquireLock, acquireLockWithBackoff, releaseLock, sleep } from "./cache.lock.js";
+import { deserialize, serialize } from "./cache.serializer.js";
 import type {
   CacheConditionalOptions,
   CacheConfig,
@@ -20,10 +20,10 @@ import type {
   CacheOptions,
   CachePayload,
   CacheResult,
-} from './cache.types.js';
+} from "./cache.types.js";
 
-export { TTL } from './cache.constants.js';
-export type { CacheConfig, CacheMetrics, CacheOptions, CacheResult } from './cache.types.js';
+export { TTL } from "./cache.constants.js";
+export type { CacheConfig, CacheMetrics, CacheOptions, CacheResult } from "./cache.types.js";
 
 let config: CacheConfig = DEFAULT_CONFIG;
 let metrics: CacheMetrics | null = null;
@@ -67,12 +67,12 @@ async function writeToCache<T>(
     originalSize,
   } = await serialize(payload, config.enableCompression);
 
-  await redis.set(redisKey, serialized, 'EX', ttl + staleTtl);
+  await redis.set(redisKey, serialized, "EX", ttl + staleTtl);
 
   recordSuccess();
 
   if (metrics) {
-    metrics.recordLatency('write', Date.now() - startTime);
+    metrics.recordLatency("write", Date.now() - startTime);
     if (compressed) {
       metrics.recordBytesSaved(originalSize - Buffer.byteLength(serialized));
     }
@@ -84,7 +84,7 @@ async function readFromCache<T>(redisKey: string): Promise<CachePayload<T> | nul
   if (!raw) return null;
 
   // Detect compression by checking if it's valid JSON (compressed is base64)
-  const isCompressed = raw[0] !== '{';
+  const isCompressed = raw[0] !== "{";
   return deserialize<T>(raw, isCompressed);
 }
 
@@ -105,7 +105,7 @@ function revalidateInBackground<T>(
         const fresh = await withTimeout(
           callback(),
           config.maxCallbackDurationMs,
-          'background-revalidation',
+          "background-revalidation",
         );
 
         const newEtag = generateETag(fresh);
@@ -113,12 +113,12 @@ function revalidateInBackground<T>(
         // Skip write if content unchanged (ETag optimization)
         if (currentEtag && currentEtag === newEtag) {
           await redis.expire(redisKey, ttl + staleTtl);
-          events.emit('revalidate:unchanged', redisKey);
+          events.emit("revalidate:unchanged", redisKey);
           return;
         }
 
         await writeToCache(redisKey, fresh, ttl, staleTtl, newEtag);
-        events.emit('revalidate:updated', redisKey);
+        events.emit("revalidate:updated", redisKey);
       } catch (err) {
         recordFailure(err, `background revalidation "${redisKey}"`);
       } finally {
@@ -135,7 +135,7 @@ export async function cacheRemember<T>(key: string, options: CacheOptions<T>): P
 
   if (isCircuitOpen()) {
     console.warn(`[cache] BYPASS (circuit open): ${redisKey}`);
-    return withTimeout(callback(), options.timeoutMs || MAX_CALLBACK_DURATION_MS, 'callback');
+    return withTimeout(callback(), options.timeoutMs || MAX_CALLBACK_DURATION_MS, "callback");
   }
 
   const startTime = Date.now();
@@ -143,7 +143,7 @@ export async function cacheRemember<T>(key: string, options: CacheOptions<T>): P
   try {
     const payload = await readFromCache<T>(redisKey);
 
-    if (metrics) metrics.recordLatency('read', Date.now() - startTime);
+    if (metrics) metrics.recordLatency("read", Date.now() - startTime);
 
     if (payload) {
       if (payload.expiry > Date.now()) {
@@ -163,7 +163,7 @@ export async function cacheRemember<T>(key: string, options: CacheOptions<T>): P
     console.debug(`[cache] MISS: ${redisKey}`);
     if (metrics) metrics.recordMiss(redisKey);
   } catch (err) {
-    if (err instanceof Error && err.message.includes('deserialize')) {
+    if (err instanceof Error && err.message.includes("deserialize")) {
       // Corruption recovery
       console.error(`[cache] Corruption detected in ${redisKey}, purging`);
       if (metrics) metrics.recordCorruption(redisKey);
@@ -188,7 +188,7 @@ export async function cacheRemember<T>(key: string, options: CacheOptions<T>): P
       const data = await withTimeout(
         callback(),
         options.timeoutMs || MAX_CALLBACK_DURATION_MS,
-        'callback',
+        "callback",
       );
 
       writeToCache(redisKey, data, ttl, staleTtl).catch((err) =>
@@ -215,7 +215,7 @@ export async function cacheRemember<T>(key: string, options: CacheOptions<T>): P
   }
 
   // Final fallback
-  return withTimeout(callback(), options.timeoutMs || MAX_CALLBACK_DURATION_MS, 'callback');
+  return withTimeout(callback(), options.timeoutMs || MAX_CALLBACK_DURATION_MS, "callback");
 }
 
 export async function cacheRememberConditional<T>(
@@ -230,7 +230,7 @@ export async function cacheRememberConditional<T>(
     const data = await withTimeout(
       callback(),
       options.timeoutMs || MAX_CALLBACK_DURATION_MS,
-      'callback',
+      "callback",
     );
     return {
       data,
@@ -282,7 +282,7 @@ export async function cacheRememberConditional<T>(
       }
     }
   } catch (err) {
-    if (err instanceof Error && err.message.includes('deserialize')) {
+    if (err instanceof Error && err.message.includes("deserialize")) {
       await redis.del(redisKey).catch(() => undefined);
     } else {
       recordFailure(err, `GET conditional "${redisKey}"`);
@@ -293,7 +293,7 @@ export async function cacheRememberConditional<T>(
   const data = await withTimeout(
     callback(),
     options.timeoutMs || MAX_CALLBACK_DURATION_MS,
-    'callback',
+    "callback",
   );
   const newEtag = generateETag(data);
 
@@ -339,16 +339,16 @@ export async function cacheInvalidatePrefix(prefix: string): Promise<number> {
   if (isCircuitOpen()) return 0;
 
   const pattern = `${CACHE_PREFIX}:${prefix}:*`;
-  let cursor = '0';
+  let cursor = "0";
   let totalDeleted = 0;
 
   try {
     do {
       const [nextCursor, keys] = await redis.scan(
         cursor,
-        'MATCH',
+        "MATCH",
         pattern,
-        'COUNT',
+        "COUNT",
         SCAN_BATCH_SIZE,
       );
 
@@ -357,11 +357,13 @@ export async function cacheInvalidatePrefix(prefix: string): Promise<number> {
       if (keys.length > 0) {
         // Stream deletes in batches to avoid memory buildup
         const pipeline = redis.pipeline();
-        keys.forEach((k: any) => pipeline.del(k));
+        keys.forEach((k: any) => {
+          pipeline.del(k);
+        });
         await pipeline.exec();
         totalDeleted += keys.length;
       }
-    } while (cursor !== '0');
+    } while (cursor !== "0");
 
     console.info(`[cache] Invalidated prefix "${prefix}": ${totalDeleted} key(s)`);
     recordSuccess();
@@ -373,7 +375,7 @@ export async function cacheInvalidatePrefix(prefix: string): Promise<number> {
 }
 
 export function onCacheEvent(
-  event: 'revalidate:unchanged' | 'revalidate:updated',
+  event: "revalidate:unchanged" | "revalidate:updated",
   handler: (key: string) => void,
 ): void {
   events.on(event, handler);

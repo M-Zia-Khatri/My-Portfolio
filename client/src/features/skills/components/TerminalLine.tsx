@@ -1,5 +1,5 @@
-import { memo } from 'react';
-import type { TerminalLine as TLine } from '../types';
+import { memo } from "react";
+import type { TerminalLine as TLine } from "../types";
 
 interface TerminalLineProps {
   line: TLine;
@@ -18,20 +18,20 @@ const TerminalLine = memo(function TerminalLine({
   color,
 }: TerminalLineProps) {
   return (
-    <div className="flex items-start" style={{ minHeight: '1.6rem', fontFamily: 'inherit' }}>
-      {line.kind === 'blank' ? (
+    <div className="flex items-start" style={{ minHeight: "1.6rem", fontFamily: "inherit" }}>
+      {line.kind === "blank" ? (
         <span className="leading-[1.6rem]">&nbsp;</span>
-      ) : line.kind === 'comment' ? (
+      ) : line.kind === "comment" ? (
         <span
           className="text-[12.5px] leading-[1.6rem] tracking-tight whitespace-pre select-none"
-          style={{ color: 'rgba(255,255,255,0.28)' }}
+          style={{ color: "rgba(255,255,255,0.28)" }}
         >
           {line.text}
         </span>
-      ) : line.kind === 'output' ? (
+      ) : line.kind === "output" ? (
         <span
           className="pl-4 text-[12.5px] leading-[1.6rem] tracking-tight whitespace-pre"
-          style={{ color: 'rgba(255,255,255,0.55)' }}
+          style={{ color: "rgba(255,255,255,0.55)" }}
         >
           {line.text}
         </span>
@@ -40,11 +40,11 @@ const TerminalLine = memo(function TerminalLine({
           <span style={{ color }} className="mr-1.5 font-bold select-none">
             $
           </span>
-          <span style={{ color: '#e2e8f0' }}>{isActive ? (partial ?? '') : line.text}</span>
+          <span style={{ color: "#e2e8f0" }}>{isActive ? (partial ?? "") : line.text}</span>
           {isActive && (
             <span
               className="ml-0.5 inline-block h-3.25 w-0.5 align-middle"
-              style={{ background: color, opacity: cursor ? 1 : 0, transition: 'opacity 0.08s' }}
+              style={{ background: color, opacity: cursor ? 1 : 0, transition: "opacity 0.08s" }}
             />
           )}
         </span>

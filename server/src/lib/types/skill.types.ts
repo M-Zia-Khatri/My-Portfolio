@@ -1,9 +1,9 @@
 // ─── Terminal line union (mirrors the client-side type) ───────────────────────
 export type TerminalLine =
-  | { kind: 'command'; text: string }
-  | { kind: 'output'; text: string }
-  | { kind: 'comment'; text: string }
-  | { kind: 'blank' };
+  | { kind: "command"; text: string }
+  | { kind: "output"; text: string }
+  | { kind: "comment"; text: string }
+  | { kind: "blank" };
 
 // ─── DB row shape (snake_case, raw from Prisma) ───────────────────────────────
 export interface SkillRow {
@@ -13,7 +13,7 @@ export interface SkillRow {
   file_name: string;
   lang: string;
   color: string;
-  mode: 'code' | 'terminal';
+  mode: "code" | "terminal";
   code: string[] | null;
   commands: TerminalLine[] | null;
   created_at: Date;
@@ -28,7 +28,7 @@ export interface SkillResponse {
   fileName: string;
   lang: string;
   color: string;
-  mode: 'code' | 'terminal';
+  mode: "code" | "terminal";
   code: string[] | null;
   commands: TerminalLine[] | null;
   createdAt: string;

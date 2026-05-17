@@ -1,10 +1,12 @@
-import { prisma } from '../lib/prisma.js';
-import {
+import type { Request, Response } from "express";
+import type { Portfolio_item, Prisma } from "../../generated/prisma/client.js";
+import { prisma } from "../lib/prisma.js";
+import type {
   CreatePortfolioDto,
   PortfolioItem,
   UpdatePortfolioDto,
-} from '../lib/types/portfolio.types.js';
-import { generateETag } from '../lib/utills/caching/cache.etag.js';
+} from "../lib/types/portfolio.types.js";
+import { generateETag } from "../lib/utills/caching/cache.etag.js";
 import {
   cacheForget,
   cacheInvalidatePrefix,
@@ -12,19 +14,17 @@ import {
   cacheRemember,
   cacheRememberConditional,
   TTL,
-} from '../lib/utills/caching/cache.js';
-import { deleteFromCloudinary } from '../lib/utills/cloudinary.js';
-import type { Request, Response } from 'express';
-import { Portfolio_item, Prisma } from '../../generated/prisma/client.js';
-import { catchError } from '../lib/utills/catch-error.js';
-import { send } from '../lib/utills/send.js';
+} from "../lib/utills/caching/cache.js";
+import { catchError } from "../lib/utills/catch-error.js";
+import { deleteFromCloudinary } from "../lib/utills/cloudinary.js";
+import { send } from "../lib/utills/send.js";
 
 // ─── Cache Keys ──────────────────────────────────────────────────────────────
 
 const CACHE_KEYS = {
-  all: 'portfolio:list',
+  all: "portfolio:list",
   one: (id: string) => `portfolio:${id}`,
-  prefix: 'portfolio',
+  prefix: "portfolio",
 };
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
@@ -41,17 +41,17 @@ function isValidUrl(value: string): boolean {
 function validateCreate(body: Partial<CreatePortfolioDto>): string | null {
   const { site_name, site_role, site_url, site_image_url, use_tech, description } = body;
 
-  if (!site_name?.trim()) return 'site_name is required';
-  if (!site_role?.trim()) return 'site_role is required';
-  if (!site_url?.trim()) return 'site_url is required';
-  if (!isValidUrl(site_url)) return 'site_url must be a valid URL';
-  if (!site_image_url?.trim()) return 'site_image_url is required';
-  if (!isValidUrl(site_image_url)) return 'site_image_url must be a valid URL';
-  if (!description?.trim()) return 'description is required';
+  if (!site_name?.trim()) return "site_name is required";
+  if (!site_role?.trim()) return "site_role is required";
+  if (!site_url?.trim()) return "site_url is required";
+  if (!isValidUrl(site_url)) return "site_url must be a valid URL";
+  if (!site_image_url?.trim()) return "site_image_url is required";
+  if (!isValidUrl(site_image_url)) return "site_image_url must be a valid URL";
+  if (!description?.trim()) return "description is required";
   if (!Array.isArray(use_tech) || use_tech.length === 0)
-    return 'use_tech must be a non-empty array';
-  if (use_tech.some((t) => typeof t !== 'string' || !t.trim()))
-    return 'use_tech must contain non-empty strings';
+    return "use_tech must be a non-empty array";
+  if (use_tech.some((t) => typeof t !== "string" || !t.trim()))
+    return "use_tech must contain non-empty strings";
 
   return null;
 }
@@ -60,33 +60,33 @@ function validateUpdate(body: UpdatePortfolioDto): string | null {
   const { site_url, site_image_url, use_tech } = body;
 
   if (site_url !== undefined) {
-    if (!site_url.trim()) return 'site_url must not be empty';
-    if (!isValidUrl(site_url)) return 'site_url must be a valid URL';
+    if (!site_url.trim()) return "site_url must not be empty";
+    if (!isValidUrl(site_url)) return "site_url must be a valid URL";
   }
 
   if (site_image_url !== undefined) {
-    if (!site_image_url.trim()) return 'site_image_url must not be empty';
-    if (!isValidUrl(site_image_url)) return 'site_image_url must be a valid URL';
+    if (!site_image_url.trim()) return "site_image_url must not be empty";
+    if (!isValidUrl(site_image_url)) return "site_image_url must be a valid URL";
   }
 
   if (use_tech !== undefined) {
     if (!Array.isArray(use_tech) || use_tech.length === 0)
-      return 'use_tech must be a non-empty array';
-    if (use_tech.some((t) => typeof t !== 'string' || !t.trim()))
-      return 'use_tech must contain non-empty strings';
+      return "use_tech must be a non-empty array";
+    if (use_tech.some((t) => typeof t !== "string" || !t.trim()))
+      return "use_tech must contain non-empty strings";
   }
 
   return null;
 }
 
 function isStringArray(value: Prisma.JsonValue): value is string[] {
-  return Array.isArray(value) && value.every((tech) => typeof tech === 'string');
+  return Array.isArray(value) && value.every((tech) => typeof tech === "string");
 }
 
 function toPortfolioResponse(item: Portfolio_item): PortfolioItem {
   const useTech = item.use_tech;
   if (!isStringArray(useTech)) {
-    throw new Error('Invalid portfolio data: use_tech must be a string array');
+    throw new Error("Invalid portfolio data: use_tech must be a string array");
   }
 
   return {
@@ -106,7 +106,7 @@ function toPortfolioResponse(item: Portfolio_item): PortfolioItem {
 
 export async function getAllPortfolioItems(req: Request, res: Response): Promise<void> {
   try {
-    const clientETag = req.headers['if-none-match'] as string | undefined;
+    const clientETag = req.headers["if-none-match"] as string | undefined;
 
     const result = await cacheRememberConditional(CACHE_KEYS.all, {
       ttl: TTL.ONE_DAY,
@@ -114,12 +114,12 @@ export async function getAllPortfolioItems(req: Request, res: Response): Promise
       ifNoneMatch: clientETag,
       callback: () =>
         prisma.portfolio_item.findMany({
-          orderBy: { created_at: 'desc' },
+          orderBy: { created_at: "desc" },
         }),
     });
 
-    res.setHeader('ETag', result.etag);
-    res.setHeader('Cache-Control', 'private, must-revalidate');
+    res.setHeader("ETag", result.etag);
+    res.setHeader("Cache-Control", "private, must-revalidate");
 
     // FIX: HTTP 304 must have no body — use res.status(304).end()
     if (result.status === 304) {
@@ -130,7 +130,7 @@ export async function getAllPortfolioItems(req: Request, res: Response): Promise
     send(res, {
       success: true,
       status: 200,
-      message: 'Portfolio items retrieved successfully',
+      message: "Portfolio items retrieved successfully",
       data: result.data,
       meta: { total: Array.isArray(result.data) ? result.data.length : 0 },
     });
@@ -144,7 +144,7 @@ export async function getAllPortfolioItems(req: Request, res: Response): Promise
 export async function getPortfolioItemById(req: Request, res: Response): Promise<void> {
   try {
     const id = Array.isArray(req.params.id) ? req.params.id[0] : req.params.id;
-    const clientETag = req.headers['if-none-match'] as string | undefined;
+    const clientETag = req.headers["if-none-match"] as string | undefined;
 
     const result = await cacheRememberConditional<Portfolio_item | null>(CACHE_KEYS.one(id), {
       ttl: TTL.ONE_DAY,
@@ -153,8 +153,8 @@ export async function getPortfolioItemById(req: Request, res: Response): Promise
       callback: () => prisma.portfolio_item.findUnique({ where: { id } }),
     });
 
-    res.setHeader('ETag', result.etag);
-    res.setHeader('Cache-Control', 'private, must-revalidate');
+    res.setHeader("ETag", result.etag);
+    res.setHeader("Cache-Control", "private, must-revalidate");
 
     // FIX: HTTP 304 must have no body
     if (result.status === 304) {
@@ -166,7 +166,7 @@ export async function getPortfolioItemById(req: Request, res: Response): Promise
       return send(res, {
         success: false,
         status: 404,
-        message: 'Portfolio item not found',
+        message: "Portfolio item not found",
         error: { detail: `No item with id "${id}"` },
       });
     }
@@ -174,7 +174,7 @@ export async function getPortfolioItemById(req: Request, res: Response): Promise
     send(res, {
       success: true,
       status: 200,
-      message: 'Portfolio item retrieved successfully',
+      message: "Portfolio item retrieved successfully",
       data: toPortfolioResponse(result.data as Portfolio_item),
     });
   } catch (err) {
@@ -194,7 +194,7 @@ export async function createPortfolioItem(req: Request, res: Response): Promise<
       send(res, {
         success: false,
         status: 400,
-        message: 'Validation error',
+        message: "Validation error",
         error: { detail: validationError },
       });
       return;
@@ -220,11 +220,11 @@ export async function createPortfolioItem(req: Request, res: Response): Promise<
     await cacheInvalidatePrefix(CACHE_KEYS.prefix);
     await cachePut(CACHE_KEYS.one(newItem.id), newItem, TTL.ONE_DAY);
 
-    res.setHeader('ETag', generateETag(newItem));
+    res.setHeader("ETag", generateETag(newItem));
     send(res, {
       success: true,
       status: 201,
-      message: 'Portfolio item created successfully',
+      message: "Portfolio item created successfully",
       data: newItem,
     });
   } catch (err) {
@@ -242,7 +242,7 @@ export async function updatePortfolioItem(req: Request, res: Response): Promise<
     const id = Array.isArray(req.params.id) ? req.params.id[0] : req.params.id;
     const body = req.body as UpdatePortfolioDto;
     // Client sends the standard If-Match header for optimistic locking
-    const clientETag = req.headers['if-match'] as string | undefined;
+    const clientETag = req.headers["if-match"] as string | undefined;
 
     newImage = body.site_image_url;
 
@@ -253,7 +253,7 @@ export async function updatePortfolioItem(req: Request, res: Response): Promise<
       return send(res, {
         success: false,
         status: 428,
-        message: 'If-Match header required for optimistic locking',
+        message: "If-Match header required for optimistic locking",
       });
     }
 
@@ -272,7 +272,7 @@ export async function updatePortfolioItem(req: Request, res: Response): Promise<
       return send(res, {
         success: false,
         status: 404,
-        message: 'Portfolio item not found',
+        message: "Portfolio item not found",
         error: { detail: `No item with id "${id}"` },
       });
     }
@@ -286,7 +286,7 @@ export async function updatePortfolioItem(req: Request, res: Response): Promise<
       return send(res, {
         success: false,
         status: 412,
-        message: 'Resource modified by another request',
+        message: "Resource modified by another request",
         error: { currentETag: cached.etag },
       });
     }
@@ -301,7 +301,7 @@ export async function updatePortfolioItem(req: Request, res: Response): Promise<
       return send(res, {
         success: false,
         status: 400,
-        message: 'Validation error',
+        message: "Validation error",
         error: { detail: validationError },
       });
     }
@@ -337,12 +337,12 @@ export async function updatePortfolioItem(req: Request, res: Response): Promise<
     await cachePut(CACHE_KEYS.one(id), updatedItem, TTL.ONE_DAY);
 
     // ─── Response ─────────────────────────────────────────────────────────────
-    res.setHeader('ETag', generateETag(updatedItem));
+    res.setHeader("ETag", generateETag(updatedItem));
 
     return send(res, {
       success: true,
       status: 200,
-      message: 'Portfolio item updated successfully',
+      message: "Portfolio item updated successfully",
       data: toPortfolioResponse(updatedItem),
     });
   } catch (err: unknown) {
@@ -376,7 +376,7 @@ export async function deletePortfolioItem(req: Request, res: Response): Promise<
       return send(res, {
         success: false,
         status: 404,
-        message: 'Portfolio item not found',
+        message: "Portfolio item not found",
         error: { detail: `No item with id "${id}"` },
       });
     }
@@ -392,7 +392,7 @@ export async function deletePortfolioItem(req: Request, res: Response): Promise<
     send(res, {
       success: true,
       status: 200,
-      message: 'Portfolio item deleted successfully',
+      message: "Portfolio item deleted successfully",
     });
   } catch (err) {
     catchError(res, err);

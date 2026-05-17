@@ -1,13 +1,13 @@
-import ContactCodeCard from '@/features/contact/public/ContactCodeCard';
-import ContactFormCard from '@/features/contact/public/ContactForm';
-import SecComponent from '@/shared/components/SecContainer';
-import { useGsapStagger } from '@/shared/hooks/useGsapAnimations';
-import { Flex } from '@radix-ui/themes';
-import { useRef } from 'react';
-import { useSectionActive } from '../hooks/useSectionActive';
+import { Flex } from "@radix-ui/themes";
+import { useRef } from "react";
+import ContactCodeCard from "@/features/contact/public/ContactCodeCard";
+import ContactFormCard from "@/features/contact/public/ContactForm";
+import SecComponent from "@/shared/components/SecContainer";
+import { useGsapStagger } from "@/shared/hooks/useGsapAnimations";
+import { useSectionActive } from "../hooks/useSectionActive";
 
 export default function ContactSection() {
-  const isSectionActive = useSectionActive('contact');
+  const isSectionActive = useSectionActive("contact");
   const sectionRef = useRef<HTMLDivElement>(null);
 
   useGsapStagger(sectionRef, '[data-gsap="contact-card"]', { y: 24, stagger: 0.12, duration: 0.5 });

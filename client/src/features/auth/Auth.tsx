@@ -1,19 +1,19 @@
-import SEO from '@/shared/components/SEO';
-import { AppNavigation } from '@/shared/constants/navigation.constants';
-import { useCallback, useEffect, useState } from 'react';
-import { useNavigate } from 'react-router';
-import { LoginForm } from './components/LoginForm';
-import { OtpForm } from './components/OtpForm';
-import { useAuth } from './context/AuthContext';
-import { useLogin } from './hooks/useLogin';
-import type { AuthStep } from './types';
+import { useCallback, useEffect, useState } from "react";
+import { useNavigate } from "react-router";
+import SEO from "@/shared/components/SEO";
+import { AppNavigation } from "@/shared/constants/navigation.constants";
+import { LoginForm } from "./components/LoginForm";
+import { OtpForm } from "./components/OtpForm";
+import { useAuth } from "./context/AuthContext";
+import { useLogin } from "./hooks/useLogin";
+import type { AuthStep } from "./types";
 
 export default function Auth() {
   const navigate = useNavigate();
   const { isAuthenticated, isLoading } = useAuth();
 
-  const [step, setStep] = useState<AuthStep>('login');
-  const [email, setEmail] = useState<string>('');
+  const [step, setStep] = useState<AuthStep>("login");
+  const [email, setEmail] = useState<string>("");
 
   // ── Reactive redirect ──────────────────────────────────────────────────────
   // Single source of truth for post-auth navigation. This fires after
@@ -27,7 +27,7 @@ export default function Auth() {
 
   const handleLoginSuccess = useCallback((userEmail: string) => {
     setEmail(userEmail);
-    setStep('otp');
+    setStep("otp");
   }, []);
 
   // FIX: removed navigate("/dashboard") from here — the useEffect above already
@@ -43,7 +43,7 @@ export default function Auth() {
 
   const handleResend = useCallback(async () => {
     try {
-      await login({ email, password: '' });
+      await login({ email, password: "" });
     } catch {
       // The server will reject the empty password but still send a fresh OTP
       // if it's designed to do so on the resend path. Swallow the error here
@@ -59,9 +59,9 @@ export default function Auth() {
     <>
       <SEO title="Admin - Auth" description="This is only for admin Auth. " />
       {/* key prop forces a full remount between steps so form state is clean */}
-      <LoginForm open={step === 'login'} onSuccess={handleLoginSuccess} />
+      <LoginForm open={step === "login"} onSuccess={handleLoginSuccess} />
       <OtpForm
-        open={step === 'otp'}
+        open={step === "otp"}
         email={email}
         onSuccess={handleOtpSuccess}
         onResend={handleResend}

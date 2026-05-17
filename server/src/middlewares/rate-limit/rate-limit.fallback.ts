@@ -1,4 +1,4 @@
-import { FallbackEntry } from './rate-limit.types.js';
+import type { FallbackEntry } from "./rate-limit.types.js";
 
 // In-memory fallback store.
 // Activated only when Redis is unavailable AND failBehavior === "open".

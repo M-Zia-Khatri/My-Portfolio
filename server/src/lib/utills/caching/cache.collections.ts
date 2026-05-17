@@ -1,6 +1,6 @@
 // cache.collections.ts
-import { cacheRememberConditional } from './cache.js';
-import type { CacheOptions, CacheResult } from './cache.types.js';
+import { cacheRememberConditional } from "./cache.js";
+import type { CacheOptions, CacheResult } from "./cache.types.js";
 
 export interface CollectionOptions<T> extends CacheOptions<T> {
   itemKeys: string[]; // Keys of items that compose this collection
@@ -28,7 +28,7 @@ export async function cacheRememberCollection<T>(
     },
   });
 
-  if (result.data && '_metadata' in result.data) {
+  if (result.data && "_metadata" in result.data) {
     const { data, _metadata } = result.data as any;
     return {
       ...result,

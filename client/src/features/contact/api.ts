@@ -1,14 +1,14 @@
-import { api } from '@/shared/api/axios';
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import type { Contact } from './types';
-import type { ContactFormData } from './schema/contact.schema';
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { api } from "@/shared/api/axios";
+import type { ContactFormData } from "./schema/contact.schema";
+import type { Contact } from "./types";
 
 export const contactKeys = {
-  all: ['contacts'] as const,
+  all: ["contacts"] as const,
 };
 
 export const submitContactForm = async (payload: ContactFormData): Promise<Contact> => {
-  const response = await api.post<Contact>('/contact', payload);
+  const response = await api.post<Contact>("/contact", payload);
   return response.data;
 };
 
@@ -16,7 +16,7 @@ export const useContacts = () => {
   return useQuery<Contact[]>({
     queryKey: contactKeys.all,
     queryFn: async () => {
-      const response = await api.get('/contact');
+      const response = await api.get("/contact");
       const data = response.data;
       if (Array.isArray(data)) return data;
       if (data?.data && Array.isArray(data.data)) return data.data;

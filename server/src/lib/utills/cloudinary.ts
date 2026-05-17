@@ -1,5 +1,5 @@
-import { getConfig } from '../../config/env.js';
-import { v2 as cloudinary } from 'cloudinary';
+import { v2 as cloudinary } from "cloudinary";
+import { getConfig } from "../../config/env.js";
 
 const { cloudinary: cloudinaryConfig } = getConfig();
 
@@ -7,36 +7,42 @@ const { cloudinary: cloudinaryConfig } = getConfig();
  * Cloudinary Configuration
  * Uses environment variables for secure setup
  */
+if (!cloudinaryConfig.cloudName || !cloudinaryConfig.apiKey || !cloudinaryConfig.apiSecret) {
+  throw new Error(
+    "Cloudinary configuration is incomplete. Ensure CLOUDINARY_CLOUD_NAME, CLOUDINARY_API_KEY, and CLOUDINARY_API_SECRET are set.",
+  );
+}
+
 cloudinary.config({
-  cloud_name: cloudinaryConfig.cloudName!,
-  api_key: cloudinaryConfig.apiKey!,
-  api_secret: cloudinaryConfig.apiSecret!,
+  cloud_name: cloudinaryConfig.cloudName,
+  api_key: cloudinaryConfig.apiKey,
+  api_secret: cloudinaryConfig.apiSecret,
 });
 
 /**
  * Upload file to Cloudinary
  */
-export const uploadToCloudinary = async (file: string, folder: string = 'uploads') => {
+export const uploadToCloudinary = async (file: string, folder: string = "uploads") => {
   try {
     const result = await cloudinary.uploader.upload(file, {
       folder,
-      resource_type: 'auto', // supports images, videos, etc.
+      resource_type: "auto", // supports images, videos, etc.
     });
 
     return {
       public_id: result.public_id,
       url: result.secure_url,
     };
-  } catch (error) {
-    throw new Error('Cloudinary upload failed');
+  } catch (_error) {
+    throw new Error("Cloudinary upload failed");
   }
 };
 
 export const extractPublicId = (url: string): string | null => {
   try {
-    const parts = url.split('/');
-    const file = parts.slice(-2).join('/'); // folder/filename.ext
-    return file.replace(/\.[^/.]+$/, ''); // remove extension
+    const parts = url.split("/");
+    const file = parts.slice(-2).join("/"); // folder/filename.ext
+    return file.replace(/\.[^/.]+$/, ""); // remove extension
   } catch {
     return null;
   }
@@ -47,13 +53,13 @@ export const extractPublicId = (url: string): string | null => {
  */
 export const deleteFromCloudinary = async (publicId: string | null) => {
   try {
-    if (!publicId) throw new Error('Invalid public id');
+    if (!publicId) throw new Error("Invalid public id");
     publicId = extractPublicId(publicId);
-    if (!publicId) throw new Error('Invalid public id');
+    if (!publicId) throw new Error("Invalid public id");
     const result = await cloudinary.uploader.destroy(publicId);
     return result;
-  } catch (error) {
-    throw new Error('Cloudinary delete failed');
+  } catch (_error) {
+    throw new Error("Cloudinary delete failed");
   }
 };
 

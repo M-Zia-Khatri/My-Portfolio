@@ -1,9 +1,9 @@
-import { api } from '@/shared/api/axios';
-import { setQueryClient, useAuthStore } from '@/shared/store/useAuthStore';
-import { useQueryClient } from '@tanstack/react-query';
-import { useEffect } from 'react';
-import { useMe } from '../hooks/useMe';
-import { useAutoRefresh } from '../utils/useAutoRefresh';
+import { useQueryClient } from "@tanstack/react-query";
+import { useEffect } from "react";
+import { api } from "@/shared/api/axios";
+import { setQueryClient, useAuthStore } from "@/shared/store/useAuthStore";
+import { useMe } from "../hooks/useMe";
+import { useAutoRefresh } from "../utils/useAutoRefresh";
 
 // ─── Logout API ───────────────────────────────────────────────────────────────
 
@@ -13,7 +13,7 @@ import { useAutoRefresh } from '../utils/useAutoRefresh';
  * Always call this BEFORE store.logout() so the cookie is gone first.
  */
 export const logoutApi = async (): Promise<void> => {
-  await api.post('/auth/logout');
+  await api.post("/auth/logout");
 };
 
 // ─── Provider ─────────────────────────────────────────────────────────────────
@@ -62,4 +62,4 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
  * @example
  * const { user, isAuthenticated, logout, hasRole } = useAuth()
  */
-export { useAuthStore as useAuth } from '@/shared/store/useAuthStore';
+export { useAuthStore as useAuth } from "@/shared/store/useAuthStore";

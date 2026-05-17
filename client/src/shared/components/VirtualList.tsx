@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { useMemo, useState } from "react";
 
 type VirtualListProps<T> = {
   items: T[];
@@ -32,13 +32,13 @@ export function VirtualList<T>({
 
   return (
     <div
-      style={{ height, overflowY: 'auto' }}
+      style={{ height, overflowY: "auto" }}
       onScroll={(event) => setScrollTop(event.currentTarget.scrollTop)}
     >
-      <div style={{ height: totalHeight, position: 'relative' }}>
+      <div style={{ height: totalHeight, position: "relative" }}>
         <div
           style={{
-            position: 'absolute',
+            position: "absolute",
             top: startIndex * itemHeight,
             left: 0,
             right: 0,

@@ -1,13 +1,13 @@
-import { Flex, Select } from '@radix-ui/themes';
-import { useCallback, useMemo, useState } from 'react';
-import useGameSet from '../store/GameSetStore';
-import CustomLevelDialog from './CustomLevelDialog';
+import { Flex, Select } from "@radix-ui/themes";
+import { useCallback, useMemo, useState } from "react";
+import useGameSet from "../store/GameSetStore";
+import CustomLevelDialog from "./CustomLevelDialog";
 
 const BUILTIN_PRESETS: Record<string, { max: number; limit: number; time: number }> = {
   easy: { max: 20, limit: 10, time: 180 },
   normal: { max: 20, limit: 7, time: 180 },
   hard: { max: 30, limit: 4, time: 120 },
-  'very-hard': { max: 30, limit: 1, time: 60 },
+  "very-hard": { max: 30, limit: 1, time: 60 },
 };
 
 export default function SelDifficultLevel() {
@@ -24,31 +24,34 @@ export default function SelDifficultLevel() {
     [customLevels, difficultLevel],
   );
 
-  const handleChange = useCallback((val: string) => {
-    // Special sentinel — open dialog instead of selecting
-    if (val === '__add_custom__') {
-      setDialogOpen(true);
-      return;
-    }
+  const handleChange = useCallback(
+    (val: string) => {
+      // Special sentinel — open dialog instead of selecting
+      if (val === "__add_custom__") {
+        setDialogOpen(true);
+        return;
+      }
 
-    if (BUILTIN_PRESETS[val]) {
-      setDifficultLevel(val);
-      const { max, limit, time } = BUILTIN_PRESETS[val];
-      setMaxNumber(max);
-      setGuessLimit(limit);
-      setTimeLimit(time);
-      return;
-    }
+      if (BUILTIN_PRESETS[val]) {
+        setDifficultLevel(val);
+        const { max, limit, time } = BUILTIN_PRESETS[val];
+        setMaxNumber(max);
+        setGuessLimit(limit);
+        setTimeLimit(time);
+        return;
+      }
 
-    // User-created custom level — val is lvl.id
-    const custom = customLevels.find((l) => l.id === val);
-    if (custom) {
-      setDifficultLevel(custom.name); // store readable name, not id
-      setMaxNumber(custom.maxNumber);
-      setGuessLimit(custom.guessLimit);
-      setTimeLimit(custom.totalSeconds);
-    }
-  }, [customLevels, setDifficultLevel, setGuessLimit, setMaxNumber, setTimeLimit]);
+      // User-created custom level — val is lvl.id
+      const custom = customLevels.find((l) => l.id === val);
+      if (custom) {
+        setDifficultLevel(custom.name); // store readable name, not id
+        setMaxNumber(custom.maxNumber);
+        setGuessLimit(custom.guessLimit);
+        setTimeLimit(custom.totalSeconds);
+      }
+    },
+    [customLevels, setDifficultLevel, setGuessLimit, setMaxNumber, setTimeLimit],
+  );
 
   return (
     <Flex align="center" gap="1">

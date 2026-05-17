@@ -42,7 +42,7 @@ export interface CacheMetrics {
   recordHit(key: string, stale: boolean): void;
   recordMiss(key: string): void;
   recordLatency(operation: string, durationMs: number): void;
-  recordCircuitStateChange(state: 'CLOSED' | 'OPEN' | 'HALF_OPEN'): void;
+  recordCircuitStateChange(state: "CLOSED" | "OPEN" | "HALF_OPEN"): void;
   recordCorruption(key: string): void;
   recordBytesSaved(bytes: number): void;
 }

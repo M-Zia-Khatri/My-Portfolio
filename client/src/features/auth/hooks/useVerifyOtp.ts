@@ -1,6 +1,6 @@
-import { api } from '@/shared/api/axios';
-import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { setAccessToken } from '../utils/tokenManager';
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { api } from "@/shared/api/axios";
+import { setAccessToken } from "../utils/tokenManager";
 
 interface VerifyOtpPayload {
   email: string;
@@ -18,7 +18,7 @@ export const useVerifyOtp = () => {
 
   return useMutation<VerifyOtpResponse, Error, VerifyOtpPayload>({
     mutationFn: async (body) => {
-      const res = await api.post('/auth/verify-otp', body);
+      const res = await api.post("/auth/verify-otp", body);
       return res.data.data;
     },
     onSuccess: (data) => {
@@ -27,7 +27,7 @@ export const useVerifyOtp = () => {
 
       // 2. Invalidate useMe so AuthProvider re-fetches GET /auth/me and
       //    syncs the user into the Zustand store → isAuthenticated becomes true
-      queryClient.invalidateQueries({ queryKey: ['me'] });
+      queryClient.invalidateQueries({ queryKey: ["me"] });
     },
   });
 };

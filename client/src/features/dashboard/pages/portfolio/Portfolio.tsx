@@ -1,4 +1,3 @@
-import { cn } from '@/shared/utils/cn';
 import {
   AlertDialog,
   Button,
@@ -10,17 +9,18 @@ import {
   Skeleton,
   Spinner,
   Text,
-} from '@radix-ui/themes';
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { Plus, TriangleAlert } from 'lucide-react';
-import { AnimatePresence, motion } from 'motion/react';
-import { useState } from 'react';
-import { createPortfolio, deletePortfolio, fetchPortfolio, updatePortfolio } from './portfolio.api';
-import type { PortfolioItem } from './portfolio.types';
-import { PortfolioCard } from './PortfolioCard';
-import { PortfolioDialog } from './PortfolioDialog';
+} from "@radix-ui/themes";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { Plus, TriangleAlert } from "lucide-react";
+import { AnimatePresence, motion } from "motion/react";
+import { useState } from "react";
+import { cn } from "@/shared/utils/cn";
+import { PortfolioCard } from "./PortfolioCard";
+import { PortfolioDialog } from "./PortfolioDialog";
+import { createPortfolio, deletePortfolio, fetchPortfolio, updatePortfolio } from "./portfolio.api";
+import type { PortfolioItem } from "./portfolio.types";
 
-const QUERY_KEY = ['portfolio'] as const;
+const QUERY_KEY = ["portfolio"] as const;
 
 // ─── Animation Variants ───────────────────────────────────────────────────────
 
@@ -49,16 +49,16 @@ function CardSkeleton() {
   return (
     <div
       className={cn(
-        'rounded-[var(--radius-4)] overflow-hidden',
-        'border border-[var(--gray-4)] bg-[var(--gray-2)]',
+        "rounded-[var(--radius-4)] overflow-hidden",
+        "border border-[var(--gray-4)] bg-[var(--gray-2)]",
       )}
     >
-      <Skeleton className={cn('h-44 w-full')} />
-      <div className={cn('p-4 flex flex-col gap-2')}>
-        <Skeleton className={cn('h-4 w-3/4')} />
-        <Skeleton className={cn('h-3 w-1/2')} />
-        <Skeleton className={cn('h-3 w-full')} />
-        <Skeleton className={cn('h-3 w-full')} />
+      <Skeleton className={cn("h-44 w-full")} />
+      <div className={cn("p-4 flex flex-col gap-2")}>
+        <Skeleton className={cn("h-4 w-3/4")} />
+        <Skeleton className={cn("h-3 w-1/2")} />
+        <Skeleton className={cn("h-3 w-full")} />
+        <Skeleton className={cn("h-3 w-full")} />
       </div>
     </div>
   );
@@ -72,8 +72,8 @@ export default function Portfolio() {
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editItem, setEditItem] = useState<PortfolioItem | null>(null);
   const [deleteTarget, setDeleteTarget] = useState<string | null>(null);
-  const [filterTech, setFilterTech] = useState<string>('all');
-  const [filterRole, setFilterRole] = useState<string>('all');
+  const [filterTech, setFilterTech] = useState<string>("all");
+  const [filterRole, setFilterRole] = useState<string>("all");
 
   // ─── Query ─────────────────────────────────────────────────────────────────
 
@@ -95,14 +95,14 @@ export default function Portfolio() {
   const allRoles = Array.from(new Set(items.map((item) => item.site_role).filter(Boolean))).sort();
 
   const filtered = items.filter((item) => {
-    const techMatch = filterTech === 'all' || item.use_tech.includes(filterTech);
-    const roleMatch = filterRole === 'all' || item.site_role === filterRole;
+    const techMatch = filterTech === "all" || item.use_tech.includes(filterTech);
+    const roleMatch = filterRole === "all" || item.site_role === filterRole;
     return techMatch && roleMatch;
   });
 
   // ─── Create Mutation ───────────────────────────────────────────────────────
 
-  type CreateVars = { item: Omit<PortfolioItem, 'id'> };
+  type CreateVars = { item: Omit<PortfolioItem, "id"> };
   type CreateCtx = { previous: PortfolioItem[] };
 
   const createMutation = useMutation<PortfolioItem, Error, CreateVars, CreateCtx>({
@@ -126,14 +126,14 @@ export default function Portfolio() {
     // FIX: removed unused `ctx` parameter
     onSuccess: (serverItem) => {
       queryClient.setQueryData<PortfolioItem[]>(QUERY_KEY, (old = []) =>
-        old.map((item) => (item.id.startsWith('optimistic-') ? serverItem : item)),
+        old.map((item) => (item.id.startsWith("optimistic-") ? serverItem : item)),
       );
     },
   });
 
   // ─── Update Mutation ───────────────────────────────────────────────────────
 
-  type UpdateVars = { id: string; payload: Partial<Omit<PortfolioItem, 'id'>> };
+  type UpdateVars = { id: string; payload: Partial<Omit<PortfolioItem, "id">> };
   type UpdateCtx = { previous: PortfolioItem[] };
 
   const updateMutation = useMutation<PortfolioItem, Error, UpdateVars, UpdateCtx>({
@@ -183,7 +183,7 @@ export default function Portfolio() {
 
   // ─── Handlers ──────────────────────────────────────────────────────────────
 
-  async function handleDialogSubmit(data: Omit<PortfolioItem, 'id'>, id?: string) {
+  async function handleDialogSubmit(data: Omit<PortfolioItem, "id">, id?: string) {
     if (id) {
       await updateMutation.mutateAsync({ id, payload: data });
     } else {
@@ -209,24 +209,24 @@ export default function Portfolio() {
   }
 
   function clearFilters() {
-    setFilterTech('all');
-    setFilterRole('all');
+    setFilterTech("all");
+    setFilterRole("all");
   }
 
   // ─── Render ────────────────────────────────────────────────────────────────
 
   return (
-    <div className={cn('min-h-screen bg-[var(--color-background)] p-6 md:p-10')}>
-      <div className={cn('max-w-[var(--container-4)] mx-auto')}>
+    <div className={cn("min-h-screen bg-[var(--color-background)] p-6 md:p-10")}>
+      <div className={cn("max-w-[var(--container-4)] mx-auto")}>
         {/* Header */}
         <motion.div variants={slideDown} initial="hidden" animate="show">
           <Flex align="center" justify="between" mb="6" gap="4" wrap="wrap">
             <div>
-              <Heading size="7" className={cn('text-[var(--gray-12)] font-bold')}>
+              <Heading size="7" className={cn("text-[var(--gray-12)] font-bold")}>
                 Portfolio
               </Heading>
-              <Text size="2" className={cn('text-[var(--gray-10)] mt-1')}>
-                {items.length} {items.length === 1 ? 'project' : 'projects'}
+              <Text size="2" className={cn("text-[var(--gray-10)] mt-1")}>
+                {items.length} {items.length === 1 ? "project" : "projects"}
               </Text>
             </div>
 
@@ -248,7 +248,7 @@ export default function Portfolio() {
             >
               <Flex gap="3" mb="6" wrap="wrap">
                 <Flex align="center" gap="2">
-                  <Text size="1" className={cn('text-[var(--gray-10)]')}>
+                  <Text size="1" className={cn("text-[var(--gray-10)]")}>
                     Tech:
                   </Text>
                   <Select.Root value={filterTech} onValueChange={setFilterTech} size="1">
@@ -265,7 +265,7 @@ export default function Portfolio() {
                 </Flex>
 
                 <Flex align="center" gap="2">
-                  <Text size="1" className={cn('text-[var(--gray-10)]')}>
+                  <Text size="1" className={cn("text-[var(--gray-10)]")}>
                     Role:
                   </Text>
                   <Select.Root value={filterRole} onValueChange={setFilterRole} size="1">
@@ -282,7 +282,7 @@ export default function Portfolio() {
                 </Flex>
 
                 <AnimatePresence>
-                  {(filterTech !== 'all' || filterRole !== 'all') && (
+                  {(filterTech !== "all" || filterRole !== "all") && (
                     <motion.div
                       variants={fadeIn}
                       initial="hidden"
@@ -302,9 +302,9 @@ export default function Portfolio() {
 
         {/* Loading */}
         {isLoading && (
-          <Grid columns={{ initial: '1', sm: '2', md: '3' }} gap="4">
-            {Array.from({ length: 6 }).map((_, i) => (
-              <CardSkeleton key={i} />
+          <Grid columns={{ initial: "1", sm: "2", md: "3" }} gap="4">
+            {["s1", "s2", "s3", "s4", "s5", "s6"].map((id) => (
+              <CardSkeleton key={id} />
             ))}
           </Grid>
         )}
@@ -331,7 +331,7 @@ export default function Portfolio() {
               initial="hidden"
               animate="show"
               exit={{ opacity: 0 }}
-              className={cn('flex flex-col items-center gap-3 py-24')}
+              className={cn("flex flex-col items-center gap-3 py-24")}
             >
               <Text size="4">No portfolio items yet</Text>
               <Button size="2" color="blue" onClick={handleAddNew}>
@@ -349,7 +349,7 @@ export default function Portfolio() {
               initial="hidden"
               animate="show"
               exit={{ opacity: 0 }}
-              className={cn('flex flex-col items-center gap-2 py-20')}
+              className={cn("flex flex-col items-center gap-2 py-20")}
             >
               <Text size="3">No results match your filters.</Text>
               <Button variant="ghost" color="blue" size="2" onClick={clearFilters}>
@@ -365,7 +365,7 @@ export default function Portfolio() {
             variants={gridContainer}
             initial="hidden"
             animate="show"
-            className={cn('grid gap-4', 'grid-cols-1 sm:grid-cols-2 md:grid-cols-3')}
+            className={cn("grid gap-4", "grid-cols-1 sm:grid-cols-2 md:grid-cols-3")}
           >
             {filtered.map((item) => (
               <PortfolioCard
@@ -413,7 +413,7 @@ export default function Portfolio() {
                     <Spinner size="1" /> Deleting…
                   </Flex>
                 ) : (
-                  'Delete'
+                  "Delete"
                 )}
               </Button>
             </AlertDialog.Action>

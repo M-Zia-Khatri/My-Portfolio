@@ -1,23 +1,24 @@
-import { getConfig } from '../../config/env.js';
-import * as IORedis from 'ioredis';
+import * as IORedis from "ioredis";
+import { getConfig } from "../../config/env.js";
+
 const { redis: redisConfig } = getConfig();
 
 const redis = new IORedis.Redis({
-  host: redisConfig.host || 'localhost',
+  host: redisConfig.host || "localhost",
   port: Number(redisConfig.port) || 6379,
 });
 
-redis.on('connect', () => {
-  console.log('🔴 Redis connected');
+redis.on("connect", () => {
+  console.log("🔴 Redis connected");
 });
 
-redis.on('error', (err: Error) => {
-  console.error('Redis error:', err);
+redis.on("error", (err: Error) => {
+  console.error("Redis error:", err);
 });
 
 export { redis };
 
-import { configureCache, setCacheMetrics } from './caching/cache.js';
+import { configureCache, setCacheMetrics } from "./caching/cache.js";
 
 // Configure global settings
 configureCache({

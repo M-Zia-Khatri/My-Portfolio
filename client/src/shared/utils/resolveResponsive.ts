@@ -1,10 +1,10 @@
-export type BreakpointKey = 'mobile' | 'tablet' | 'laptop' | 'desktop';
+export type BreakpointKey = "mobile" | "tablet" | "laptop" | "desktop";
 
 export type ResponsiveValue<T = unknown> = Partial<Record<BreakpointKey, T>> & {
   custom?: Record<number, T>;
 };
 
-export const breakpoints: Record<Exclude<BreakpointKey, 'desktop'>, number> = {
+export const breakpoints: Record<Exclude<BreakpointKey, "desktop">, number> = {
   mobile: 640,
   tablet: 1024,
   laptop: 1280,
@@ -12,11 +12,11 @@ export const breakpoints: Record<Exclude<BreakpointKey, 'desktop'>, number> = {
 
 // Pre-sorted descending at module load — paid once, not per call
 const SORTED_BREAKPOINT_ENTRIES = (
-  Object.entries(breakpoints) as [Exclude<BreakpointKey, 'desktop'>, number][]
+  Object.entries(breakpoints) as [Exclude<BreakpointKey, "desktop">, number][]
 ).sort(([, a], [, b]) => b - a);
 
 function getWidth(): number {
-  return typeof window !== 'undefined' ? window.innerWidth : 0;
+  return typeof window !== "undefined" ? window.innerWidth : 0;
 }
 
 /**
