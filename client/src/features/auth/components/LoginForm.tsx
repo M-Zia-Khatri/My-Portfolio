@@ -95,7 +95,7 @@ export function LoginForm({ open, onSuccess }: LoginFormProps) {
     clearError();
     reset();
     setShowPassword(false);
-  }, [open]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [open]);
 
   // Cleanup auto-hide timer on unmount
   useEffect(() => {

@@ -202,8 +202,7 @@ export const GuessNumProvider: React.FC<Props> = ({ children }) => {
 
   useEffect(() => {
     actionsValue.startGame();
-    // run only on initial mount
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    // Run only on initial mount.
   }, []);
 
   const statusValue = useMemo(

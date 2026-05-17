@@ -3,16 +3,17 @@
   "privcdate": true,
   "version": "1.0.0",
   "description": "This is My Portfolio",
-  "main": ".eslintrc.js",
+  "main": "index.js",
   "type": "module",
   "scripts": {
     "dev": "pnpm --parallel --filter client --filter server dev",
     "build": "pnpm -r build",
-    "lint": "eslint .",
-    "lint:fix": "eslint . --fix",
-    "format": "prettier --write .",
-    "format:check": "prettier --check .",
-    "check": "pnpm lint && pnpm format:check",
+    "lint": "biome check .",
+    "lint:fix": "biome check --write .",
+    "format": "biome format --write .",
+    "format:check": "biome format .",
+    "check": "biome check .",
+    "check:write": "biome check --write .",
     "prepare": "husky install"
   },
   "commitlint": {
@@ -21,12 +22,8 @@
     ]
   },
   "lint-staged": {
-    "*.{js,ts,jsx,tsx}": [
-      "eslint --fix",
-      "prettier --write"
-    ],
-    "*.{json,css,md}": [
-      "prettier --write"
+    "*.{js,jsx,ts,tsx,json,jsonc,css,md,mdx}": [
+      "biome check --write"
     ]
   },
   "repository": {
@@ -41,22 +38,10 @@
   },
   "homepage": "https://github.com/M-Zia-Khatri/My-Portfolio#readme",
   "devDependencies": {
+    "@biomejs/biome": "2.4.15",
     "@commitlint/cli": "^20.5.0",
     "@commitlint/config-conventional": "^20.5.0",
-    "@eslint/compat": "^2.0.3",
-    "@eslint/js": "^10.0.1",
-    "eslint": "^10.1.0",
-    "eslint-plugin-import": "^2.32.0",
-    "eslint-plugin-react": "^7.37.5",
-    "eslint-plugin-react-compiler": "19.1.0-rc.2",
-    "eslint-plugin-react-hooks": "^7.0.1",
-    "globals": "^17.4.0",
     "husky": "^8.0.0",
-    "jiti": "^2.6.1",
-    "lint-staged": "^16.4.0",
-    "prettier": "^3.8.1",
-    "prettier-plugin-organize-imports": "^4.3.0",
-    "prettier-plugin-tailwindcss": "^0.7.2",
-    "typescript-eslint": "^8.57.2"
+    "lint-staged": "^16.4.0"
   }
 }
