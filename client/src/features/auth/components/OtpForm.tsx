@@ -55,7 +55,7 @@ export function OtpForm({ open, email, onSuccess, onResend }: OtpFormProps) {
     if (!open) return;
     clearError();
     reset();
-  }, [open]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [open]);
 
   // ── Handlers
   async function onSubmit(values: OtpFields) {

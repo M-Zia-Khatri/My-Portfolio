@@ -7,9 +7,10 @@
     "dev": "nodemon --exec 'tsx -r dotenv/config src/server.ts' -- --dotenv_config_path=.env.development",
     "build": "tsc",
     "start": "node dist/src/server.js",
-    "lint": "eslint src --ext .ts",
+    "lint": "biome check .",
     "db:migrate": "prisma migrate deploy",
-    "db:seed": "prisma db seed"
+    "db:seed": "prisma db seed",
+    "lint:fix": "biome check --write ."
   },
   "prisma": {
     "seed": "npx tsx prisma/seed.ts"
