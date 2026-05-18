@@ -11,14 +11,15 @@ const SkillsSection = lazy(() => import("./sections/SkillsSection"));
 export type SectionConfig = {
   id: string;
   Component: ComponentType;
+  loaderVariant?: "default" | "compact" | "prominent";
 };
 
 export const sections: SectionConfig[] = [
-  { id: "home", Component: HeroSection },
+  { id: "home", Component: HeroSection, loaderVariant: "prominent" },
   { id: "about", Component: AboutSection },
-  { id: "skills", Component: SkillsSection },
+  { id: "skills", Component: SkillsSection, loaderVariant: "compact" },
   { id: "portfolio", Component: PortfolioSection },
-  { id: "game", Component: GameSection },
+  { id: "game", Component: GameSection, loaderVariant: "compact" },
   { id: "contact", Component: ContactSection },
 ];
 
