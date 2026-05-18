@@ -70,9 +70,7 @@ export default function BgScene() {
       const parts: string[] = new Array(SEGMENTS + 1);
 
       const yValues = new Float32Array(SEGMENTS + 1);
-      for (let s = 0; s <= SEGMENTS; s++) {
-        yValues[s] = (s / SEGMENTS) * h;
-      }
+      for (let s = 0; s <= SEGMENTS; s++) yValues[s] = (s / SEGMENTS) * h;
 
       for (let i = 0; i < count; i++) {
         const path = document.createElementNS(
@@ -90,42 +88,67 @@ export default function BgScene() {
       }
 
       const baseXValues = new Float32Array(count);
-      const linePhasePrimary = new Float32Array(count);
-      const linePhaseSecondary = new Float32Array(count);
+      const phasePrimary = new Float32Array(count);
+      const phaseSecondary = new Float32Array(count);
+      const ampPrimary = new Float32Array(count);
+      const ampSecondary = new Float32Array(count);
+      const speedPrimary = new Float32Array(count);
+      const speedSecondary = new Float32Array(count);
+      const turbulenceAmp = new Float32Array(count);
+      const turbulenceSpeed = new Float32Array(count);
+      const turbulencePhase = new Float32Array(count);
+
       for (let i = 0; i < count; i++) {
         baseXValues[i] = i * 10.5;
-        linePhasePrimary[i] = i * 0.31;
-        linePhaseSecondary[i] = i * 0.17;
+
+        const seedA = Math.sin(i * 12.9898) * 43758.5453;
+        const seedB = Math.sin((i + 13) * 78.233) * 19341.9812;
+        const seedC = Math.sin((i + 29) * 23.193) * 9317.1231;
+
+        const randA = seedA - Math.floor(seedA);
+        const randB = seedB - Math.floor(seedB);
+        const randC = seedC - Math.floor(seedC);
+
+        phasePrimary[i] = i * 0.29 + randA * Math.PI * 2;
+        phaseSecondary[i] = i * 0.19 + randB * Math.PI * 2;
+
+        ampPrimary[i] = 8.5 + randA * 5.5;
+        ampSecondary[i] = 4.5 + randB * 4.25;
+
+        speedPrimary[i] = 1.05 + randA * 0.55;
+        speedSecondary[i] = 0.7 + randB * 0.45;
+
+        turbulenceAmp[i] = 0.9 + randC * 1.8;
+        turbulenceSpeed[i] = 0.45 + randC * 0.45;
+        turbulencePhase[i] = randC * Math.PI * 2;
       }
 
-      const driftAmplitude = 18;
-      const driftFrequency = 0.2;
-      const waveAmpPrimary = 11;
-      const waveAmpSecondary = 6;
-      const waveFreqPrimary = 0.022;
-      const waveFreqSecondary = 0.038;
-      const waveSpeedPrimary = 1.35;
-      const waveSpeedSecondary = 0.95;
-      const mouseRadius = 40;
+      const driftAmplitude = 14;
+      const driftFrequency = 0.13;
+      const waveFreqPrimary = 0.02;
+      const waveFreqSecondary = 0.036;
+      const turbulenceFreq = 0.085;
+      const mouseRadius = 52;
       const mouseRadiusSq = mouseRadius ** 2;
-      const carveStrength = 0.95;
+      const carveStrength = 0.82;
       const pushDist = mouseRadius * carveStrength;
-      const lerpFactor = 0.3;
+      const mouseLerpFactor = 0.22;
 
       const state = { t: 0 };
 
       animation = gsap.to(state, {
         t: Math.PI * 2,
-        duration: 6,
+        duration: 7.5,
         repeat: -1,
         ease: "none",
         onUpdate: () => {
           const lines = linesRef.current;
           const t = state.t;
 
-          // Smooth mouse
-          smoothMouseRef.current.x += (mouseRef.current.x - smoothMouseRef.current.x) * lerpFactor;
-          smoothMouseRef.current.y += (mouseRef.current.y - smoothMouseRef.current.y) * lerpFactor;
+          smoothMouseRef.current.x +=
+            (mouseRef.current.x - smoothMouseRef.current.x) * mouseLerpFactor;
+          smoothMouseRef.current.y +=
+            (mouseRef.current.y - smoothMouseRef.current.y) * mouseLerpFactor;
 
           const mx = smoothMouseRef.current.x;
           const my = smoothMouseRef.current.y;
@@ -133,18 +156,19 @@ export default function BgScene() {
 
           for (let i = 0; i < lines.length; i++) {
             const baseX = baseXValues[i] + Math.sin(t + i * driftFrequency) * driftAmplitude;
-            const phasePrimary = linePhasePrimary[i];
-            const phaseSecondary = linePhaseSecondary[i];
 
             for (let s = 0; s <= SEGMENTS; s++) {
               const y = yValues[s];
-              const flowPrimary = Math.sin(
-                y * waveFreqPrimary + t * waveSpeedPrimary + phasePrimary,
+              const waveA = Math.sin(y * waveFreqPrimary + t * speedPrimary[i] + phasePrimary[i]);
+              const waveB = Math.sin(
+                y * waveFreqSecondary - t * speedSecondary[i] + phaseSecondary[i],
               );
-              const flowSecondary = Math.sin(
-                y * waveFreqSecondary - t * waveSpeedSecondary + phaseSecondary,
+              const micro = Math.sin(
+                y * turbulenceFreq + t * turbulenceSpeed[i] + turbulencePhase[i],
               );
-              let x = baseX + flowPrimary * waveAmpPrimary + flowSecondary * waveAmpSecondary;
+
+              let x =
+                baseX + waveA * ampPrimary[i] + waveB * ampSecondary[i] + micro * turbulenceAmp[i];
 
               if (isActive) {
                 const dx = x - mx;
@@ -156,12 +180,15 @@ export default function BgScene() {
                   const angle = Math.atan2(dy, dx);
                   const blend = 1 - dist / mouseRadius;
                   const smooth = blend * blend * (3 - 2 * blend);
+                  const eased = smooth * smooth;
 
-                  x = mx + Math.cos(angle) * (dist + (pushDist - dist) * smooth);
+                  const targetX = mx + Math.cos(angle) * (dist + (pushDist - dist) * eased);
+                  x += (targetX - x) * 0.72;
                 }
               }
 
-              parts[s] = s === 0 ? `M${~~x} ${~~y}` : `L${~~x} ${~~y}`;
+              parts[s] =
+                s === 0 ? `M${x.toFixed(2)} ${y.toFixed(2)}` : `L${x.toFixed(2)} ${y.toFixed(2)}`;
             }
 
             lines[i].setAttribute("d", parts.join(" "));
