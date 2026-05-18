@@ -1,5 +1,6 @@
 import gsap from "gsap";
 import { useEffect, useRef } from "react";
+import { BG_SCENE_CONFIG } from "./bgScene.config";
 
 type SVGWithCleanup = SVGSVGElement & {
   _cleanup?: () => void;
@@ -9,8 +10,8 @@ export default function BgScene() {
   const svgRef = useRef<SVGWithCleanup | null>(null);
   const linesRef = useRef<SVGPathElement[]>([]);
   const sizeRef = useRef({ w: 0, h: 0 });
-  const mouseRef = useRef({ x: -9999, y: -9999 });
-  const smoothMouseRef = useRef({ x: -9999, y: -9999 });
+  const mouseRef = useRef({ ...BG_SCENE_CONFIG.interaction.inactiveMouse });
+  const smoothMouseRef = useRef({ ...BG_SCENE_CONFIG.interaction.inactiveMouse });
   const rectCacheRef = useRef<DOMRect | null>(null);
   const prevTRef = useRef(0);
   const loopCountRef = useRef(0);
@@ -39,33 +40,24 @@ export default function BgScene() {
 
       svg.setAttribute("viewBox", `0 0 ${w} ${h}`);
 
-      const count = Math.ceil(w / 10);
-      const SEGMENTS = 160;
+      const count = Math.ceil(w / BG_SCENE_CONFIG.layout.lineSpacingDivisor);
+      const SEGMENTS = BG_SCENE_CONFIG.layout.segments;
 
-      const defs = document.createElementNS("http://www.w3.org/2000/svg", "defs");
-      const gradient = document.createElementNS("http://www.w3.org/2000/svg", "linearGradient");
-      gradient.setAttribute("id", "bg-line-stroke-gradient");
-      gradient.setAttribute("x1", "0%");
-      gradient.setAttribute("y1", "0%");
-      gradient.setAttribute("x2", "0%");
-      gradient.setAttribute("y2", "100%");
+      const defs = document.createElementNS(BG_SCENE_CONFIG.svg.namespace, "defs");
+      const gradient = document.createElementNS(BG_SCENE_CONFIG.svg.namespace, "linearGradient");
+      gradient.setAttribute("id", BG_SCENE_CONFIG.svg.gradient.id);
+      gradient.setAttribute("x1", BG_SCENE_CONFIG.svg.gradient.x1);
+      gradient.setAttribute("y1", BG_SCENE_CONFIG.svg.gradient.y1);
+      gradient.setAttribute("x2", BG_SCENE_CONFIG.svg.gradient.x2);
+      gradient.setAttribute("y2", BG_SCENE_CONFIG.svg.gradient.y2);
 
-      const topStop = document.createElementNS("http://www.w3.org/2000/svg", "stop");
-      topStop.setAttribute("offset", "0%");
-      topStop.setAttribute("stop-color", "#76c7eb");
-      topStop.setAttribute("stop-opacity", "1");
-
-      const holdStop = document.createElementNS("http://www.w3.org/2000/svg", "stop");
-      holdStop.setAttribute("offset", "85%");
-      holdStop.setAttribute("stop-color", "#76c7eb");
-      holdStop.setAttribute("stop-opacity", "1");
-
-      const fadeStop = document.createElementNS("http://www.w3.org/2000/svg", "stop");
-      fadeStop.setAttribute("offset", "100%");
-      fadeStop.setAttribute("stop-color", "#76c7eb");
-      fadeStop.setAttribute("stop-opacity", "0");
-
-      gradient.append(topStop, holdStop, fadeStop);
+      BG_SCENE_CONFIG.svg.gradient.stops.forEach((stopConfig) => {
+        const stop = document.createElementNS(BG_SCENE_CONFIG.svg.namespace, "stop");
+        stop.setAttribute("offset", stopConfig.offset);
+        stop.setAttribute("stop-color", stopConfig.color);
+        stop.setAttribute("stop-opacity", stopConfig.opacity);
+        gradient.appendChild(stop);
+      });
       defs.appendChild(gradient);
       svg.appendChild(defs);
 
@@ -78,14 +70,14 @@ export default function BgScene() {
 
       for (let i = 0; i < count; i++) {
         const path = document.createElementNS(
-          "http://www.w3.org/2000/svg",
+          BG_SCENE_CONFIG.svg.namespace,
           "path",
         ) as SVGPathElement;
 
-        path.setAttribute("stroke", "url(#bg-line-stroke-gradient)");
-        path.setAttribute("stroke-width", "1");
-        path.setAttribute("opacity", "0.5");
-        path.setAttribute("fill", "none");
+        path.setAttribute("stroke", `url(#${BG_SCENE_CONFIG.svg.gradient.id})`);
+        path.setAttribute("stroke-width", BG_SCENE_CONFIG.svg.line.strokeWidth);
+        path.setAttribute("opacity", BG_SCENE_CONFIG.svg.line.opacity);
+        path.setAttribute("fill", BG_SCENE_CONFIG.svg.line.fill);
 
         svg.appendChild(path);
         linesRef.current[i] = path;
@@ -95,33 +87,33 @@ export default function BgScene() {
       const linePhasePrimary = new Float32Array(count);
       const linePhaseSecondary = new Float32Array(count);
       for (let i = 0; i < count; i++) {
-        baseXValues[i] = i * 10.5;
-        linePhasePrimary[i] = i * 0.31;
-        linePhaseSecondary[i] = i * 0.17;
+        baseXValues[i] = i * BG_SCENE_CONFIG.layout.baseXStep;
+        linePhasePrimary[i] = i * BG_SCENE_CONFIG.wave.linePhasePrimaryMultiplier;
+        linePhaseSecondary[i] = i * BG_SCENE_CONFIG.wave.linePhaseSecondaryMultiplier;
       }
 
-      const driftAmplitude = 18;
-      const driftFrequency = 0.2;
-      const waveAmpPrimary = 11;
-      const waveAmpSecondary = 6;
-      const waveFreqPrimary = 0.022;
-      const waveFreqSecondary = 0.038;
-      const waveSpeedPrimary = 1.35;
-      const waveSpeedSecondary = 0.95;
-      const mouseRadius = 40;
+      const driftAmplitude = BG_SCENE_CONFIG.wave.driftAmplitude;
+      const driftFrequency = BG_SCENE_CONFIG.wave.driftFrequency;
+      const waveAmpPrimary = BG_SCENE_CONFIG.wave.primary.amplitude;
+      const waveAmpSecondary = BG_SCENE_CONFIG.wave.secondary.amplitude;
+      const waveFreqPrimary = BG_SCENE_CONFIG.wave.primary.frequency;
+      const waveFreqSecondary = BG_SCENE_CONFIG.wave.secondary.frequency;
+      const waveSpeedPrimary = BG_SCENE_CONFIG.wave.primary.speed;
+      const waveSpeedSecondary = BG_SCENE_CONFIG.wave.secondary.speed;
+      const mouseRadius = BG_SCENE_CONFIG.interaction.mouseRadius;
       const mouseRadiusSq = mouseRadius ** 2;
-      const carveStrength = 0.95;
+      const carveStrength = BG_SCENE_CONFIG.interaction.carveStrength;
       const pushDist = mouseRadius * carveStrength;
-      const lerpFactor = 0.3;
+      const lerpFactor = BG_SCENE_CONFIG.interaction.lerpFactor;
 
       const state = { t: 0 };
       prevTRef.current = 0;
       loopCountRef.current = 0;
 
       animation = gsap.to(state, {
-        t: Math.PI * 2,
-        duration: 6,
-        repeat: -1,
+        t: BG_SCENE_CONFIG.animation.cycleRadians,
+        duration: BG_SCENE_CONFIG.animation.durationSeconds,
+        repeat: BG_SCENE_CONFIG.animation.repeat,
         ease: "none",
         onUpdate: () => {
           const lines = linesRef.current;
@@ -129,7 +121,7 @@ export default function BgScene() {
           if (rawT < prevTRef.current) loopCountRef.current += 1;
           prevTRef.current = rawT;
 
-          const t = rawT + loopCountRef.current * Math.PI * 2;
+          const t = rawT + loopCountRef.current * BG_SCENE_CONFIG.animation.cycleRadians;
 
           // Smooth mouse
           smoothMouseRef.current.x += (mouseRef.current.x - smoothMouseRef.current.x) * lerpFactor;
@@ -137,7 +129,7 @@ export default function BgScene() {
 
           const mx = smoothMouseRef.current.x;
           const my = smoothMouseRef.current.y;
-          const isActive = mouseRef.current.x !== -9999;
+          const isActive = mouseRef.current.x !== BG_SCENE_CONFIG.interaction.inactiveMouse.x;
 
           for (let i = 0; i < lines.length; i++) {
             const baseX = baseXValues[i] + Math.sin(t + i * driftFrequency) * driftAmplitude;
@@ -188,7 +180,7 @@ export default function BgScene() {
       };
 
       const handleMouseLeave = () => {
-        mouseRef.current = { x: -9999, y: -9999 };
+        mouseRef.current = { ...BG_SCENE_CONFIG.interaction.inactiveMouse };
       };
 
       let resizeTimer: ReturnType<typeof setTimeout>;
@@ -198,7 +190,7 @@ export default function BgScene() {
         resizeTimer = setTimeout(() => {
           animation?.kill();
           init();
-        }, 200);
+        }, BG_SCENE_CONFIG.layout.resizeDebounceMs);
       };
 
       window.addEventListener("mousemove", handleMouseMove);
