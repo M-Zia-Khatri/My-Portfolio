@@ -12,6 +12,8 @@ export default function BgScene() {
   const mouseRef = useRef({ x: -9999, y: -9999 });
   const smoothMouseRef = useRef({ x: -9999, y: -9999 });
   const rectCacheRef = useRef<DOMRect | null>(null);
+  const prevTRef = useRef(0);
+  const loopCountRef = useRef(0);
 
   useEffect(() => {
     let animation: gsap.core.Tween | null = null;
@@ -113,6 +115,8 @@ export default function BgScene() {
       const lerpFactor = 0.3;
 
       const state = { t: 0 };
+      prevTRef.current = 0;
+      loopCountRef.current = 0;
 
       animation = gsap.to(state, {
         t: Math.PI * 2,
@@ -121,7 +125,11 @@ export default function BgScene() {
         ease: "none",
         onUpdate: () => {
           const lines = linesRef.current;
-          const t = state.t;
+          const rawT = state.t;
+          if (rawT < prevTRef.current) loopCountRef.current += 1;
+          prevTRef.current = rawT;
+
+          const t = rawT + loopCountRef.current * Math.PI * 2;
 
           // Smooth mouse
           smoothMouseRef.current.x += (mouseRef.current.x - smoothMouseRef.current.x) * lerpFactor;
