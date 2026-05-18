@@ -48,6 +48,26 @@ function DeferredSection({
   );
 }
 
+function DefaultSectionLoader() {
+  return (
+    <div className="flex h-full min-h-[inherit] w-full items-center justify-center">
+      <Spinner />
+    </div>
+  );
+}
+
+function getSectionLoader(variant?: "default" | "compact" | "prominent") {
+  if (variant === "compact") {
+    return <Spinner size="1" />;
+  }
+
+  if (variant === "prominent") {
+    return <Spinner size="3" />;
+  }
+
+  return <DefaultSectionLoader />;
+}
+
 export default function Home() {
   return (
     <>
@@ -75,7 +95,7 @@ export default function Home() {
               className={className}
               eager={section.id === "home"}
             >
-              <Suspense fallback={<Spinner />}>
+              <Suspense fallback={getSectionLoader(section.loaderVariant)}>
                 <SectionComponent />
               </Suspense>
             </DeferredSection>
