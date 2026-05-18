@@ -4,6 +4,8 @@ import SEO from "@/shared/components/SEO";
 import { cn } from "@/shared/utils/cn";
 import { sectionClassName, sections } from "./Home.config";
 
+const DefaultSectionLoader = () => <Spinner />;
+
 function DeferredSection({
   id,
   className,
@@ -62,6 +64,7 @@ export default function Home() {
       <div className="mx-auto space-y-6">
         {sections.map((section) => {
           const SectionComponent = section.Component;
+          const SectionLoader = section.Loader ?? DefaultSectionLoader;
           const className = cn(
             section.id === "home"
               ? "mb-5 flex h-[calc(100dvh)] scroll-mt-24 flex-col justify-center"
@@ -75,7 +78,7 @@ export default function Home() {
               className={className}
               eager={section.id === "home"}
             >
-              <Suspense fallback={<Spinner />}>
+              <Suspense fallback={<SectionLoader />}>
                 <SectionComponent />
               </Suspense>
             </DeferredSection>
