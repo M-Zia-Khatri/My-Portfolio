@@ -40,6 +40,33 @@ export default function BgScene() {
       const count = Math.ceil(w / 10);
       const SEGMENTS = 160;
 
+      const defs = document.createElementNS("http://www.w3.org/2000/svg", "defs");
+      const gradient = document.createElementNS("http://www.w3.org/2000/svg", "linearGradient");
+      gradient.setAttribute("id", "bg-line-stroke-gradient");
+      gradient.setAttribute("x1", "0%");
+      gradient.setAttribute("y1", "0%");
+      gradient.setAttribute("x2", "0%");
+      gradient.setAttribute("y2", "100%");
+
+      const topStop = document.createElementNS("http://www.w3.org/2000/svg", "stop");
+      topStop.setAttribute("offset", "0%");
+      topStop.setAttribute("stop-color", "#76c7eb");
+      topStop.setAttribute("stop-opacity", "1");
+
+      const holdStop = document.createElementNS("http://www.w3.org/2000/svg", "stop");
+      holdStop.setAttribute("offset", "85%");
+      holdStop.setAttribute("stop-color", "#76c7eb");
+      holdStop.setAttribute("stop-opacity", "1");
+
+      const fadeStop = document.createElementNS("http://www.w3.org/2000/svg", "stop");
+      fadeStop.setAttribute("offset", "100%");
+      fadeStop.setAttribute("stop-color", "#76c7eb");
+      fadeStop.setAttribute("stop-opacity", "0");
+
+      gradient.append(topStop, holdStop, fadeStop);
+      defs.appendChild(gradient);
+      svg.appendChild(defs);
+
       const parts: string[] = new Array(SEGMENTS + 1);
 
       const yValues = new Float32Array(SEGMENTS + 1);
@@ -53,7 +80,7 @@ export default function BgScene() {
           "path",
         ) as SVGPathElement;
 
-        path.setAttribute("stroke", "#76c7eb");
+        path.setAttribute("stroke", "url(#bg-line-stroke-gradient)");
         path.setAttribute("stroke-width", "1");
         path.setAttribute("opacity", "0.5");
         path.setAttribute("fill", "none");
