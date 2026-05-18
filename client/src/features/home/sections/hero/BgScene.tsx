@@ -90,10 +90,22 @@ export default function BgScene() {
       }
 
       const baseXValues = new Float32Array(count);
-      for (let i = 0; i < count; i++) baseXValues[i] = i * 10.5;
+      const linePhasePrimary = new Float32Array(count);
+      const linePhaseSecondary = new Float32Array(count);
+      for (let i = 0; i < count; i++) {
+        baseXValues[i] = i * 10.5;
+        linePhasePrimary[i] = i * 0.31;
+        linePhaseSecondary[i] = i * 0.17;
+      }
 
-      const amplitude = 20;
-      const frequency = 0.2;
+      const driftAmplitude = 18;
+      const driftFrequency = 0.2;
+      const waveAmpPrimary = 11;
+      const waveAmpSecondary = 6;
+      const waveFreqPrimary = 0.022;
+      const waveFreqSecondary = 0.038;
+      const waveSpeedPrimary = 1.35;
+      const waveSpeedSecondary = 0.95;
       const mouseRadius = 40;
       const mouseRadiusSq = mouseRadius ** 2;
       const carveStrength = 0.95;
@@ -109,7 +121,6 @@ export default function BgScene() {
         ease: "none",
         onUpdate: () => {
           const lines = linesRef.current;
-          const height = sizeRef.current.h;
           const t = state.t;
 
           // Smooth mouse
@@ -121,33 +132,33 @@ export default function BgScene() {
           const isActive = mouseRef.current.x !== -9999;
 
           for (let i = 0; i < lines.length; i++) {
-            const baseX = baseXValues[i] + Math.sin(t + i * frequency) * amplitude;
-
-            const dx0 = baseX - mx;
-            const lineNearMouse = isActive && Math.abs(dx0) < mouseRadius;
-
-            if (!lineNearMouse) {
-              parts[0] = `M${~~baseX} 0`;
-              parts[1] = `L${~~baseX} ${~~height}`;
-              lines[i].setAttribute("d", `${parts[0]} ${parts[1]}`);
-              continue;
-            }
+            const baseX = baseXValues[i] + Math.sin(t + i * driftFrequency) * driftAmplitude;
+            const phasePrimary = linePhasePrimary[i];
+            const phaseSecondary = linePhaseSecondary[i];
 
             for (let s = 0; s <= SEGMENTS; s++) {
               const y = yValues[s];
-              let x = baseX;
+              const flowPrimary = Math.sin(
+                y * waveFreqPrimary + t * waveSpeedPrimary + phasePrimary,
+              );
+              const flowSecondary = Math.sin(
+                y * waveFreqSecondary - t * waveSpeedSecondary + phaseSecondary,
+              );
+              let x = baseX + flowPrimary * waveAmpPrimary + flowSecondary * waveAmpSecondary;
 
-              const dx = baseX - mx;
-              const dy = y - my;
-              const distSq = dx * dx + dy * dy;
+              if (isActive) {
+                const dx = x - mx;
+                const dy = y - my;
+                const distSq = dx * dx + dy * dy;
 
-              if (distSq < mouseRadiusSq) {
-                const dist = Math.sqrt(distSq);
-                const angle = Math.atan2(dy, dx);
-                const blend = 1 - dist / mouseRadius;
-                const smooth = blend * blend * (3 - 2 * blend);
+                if (distSq < mouseRadiusSq) {
+                  const dist = Math.sqrt(distSq);
+                  const angle = Math.atan2(dy, dx);
+                  const blend = 1 - dist / mouseRadius;
+                  const smooth = blend * blend * (3 - 2 * blend);
 
-                x = mx + Math.cos(angle) * (dist + (pushDist - dist) * smooth);
+                  x = mx + Math.cos(angle) * (dist + (pushDist - dist) * smooth);
+                }
               }
 
               parts[s] = s === 0 ? `M${~~x} ${~~y}` : `L${~~x} ${~~y}`;
