@@ -92,37 +92,20 @@ export default function BgScene() {
       const baseXValues = new Float32Array(count);
       const linePhasePrimary = new Float32Array(count);
       const linePhaseSecondary = new Float32Array(count);
-      const linePhaseDrift = new Float32Array(count);
-      const lineWaveMix = new Float32Array(count);
       for (let i = 0; i < count; i++) {
         baseXValues[i] = i * 10.5;
-
-        const seedA = Math.sin(i * 12.9898) * 43758.5453;
-        const seedB = Math.sin((i + 19) * 78.233) * 19341.9812;
-        const seedC = Math.sin((i + 37) * 23.193) * 9317.1231;
-
-        const randA = seedA - Math.floor(seedA);
-        const randB = seedB - Math.floor(seedB);
-        const randC = seedC - Math.floor(seedC);
-
-        linePhasePrimary[i] = i * 0.24 + randA * Math.PI * 2;
-        linePhaseSecondary[i] = i * 0.13 + randB * Math.PI * 2;
-        linePhaseDrift[i] = i * 0.09 + randC * Math.PI * 2;
-        lineWaveMix[i] = 0.8 + randC * 0.4;
+        linePhasePrimary[i] = i * 0.31;
+        linePhaseSecondary[i] = i * 0.17;
       }
 
-      const driftAmplitude = 11;
-      const driftFrequency = 0.08;
-      const waveAmpPrimary = 9.5;
-      const waveAmpSecondary = 4.5;
-      const waveAmpTertiary = 1.8;
-      const waveFreqPrimary = 0.017;
-      const waveFreqSecondary = 0.031;
-      const waveFreqTertiary = 0.062;
-      const waveSpeedPrimary = 0.85;
-      const waveSpeedSecondary = 0.58;
-      const waveSpeedTertiary = 0.33;
-      const fieldCoupling = 0.0048;
+      const driftAmplitude = 18;
+      const driftFrequency = 0.2;
+      const waveAmpPrimary = 11;
+      const waveAmpSecondary = 6;
+      const waveFreqPrimary = 0.022;
+      const waveFreqSecondary = 0.038;
+      const waveSpeedPrimary = 1.35;
+      const waveSpeedSecondary = 0.95;
       const mouseRadius = 40;
       const mouseRadiusSq = mouseRadius ** 2;
       const carveStrength = 0.95;
@@ -132,8 +115,9 @@ export default function BgScene() {
       const state = { t: 0 };
 
       animation = gsap.to(state, {
-        t: 1000000,
-        duration: 1200000,
+        t: Math.PI * 2,
+        duration: 6,
+        repeat: -1,
         ease: "none",
         onUpdate: () => {
           const lines = linesRef.current;
@@ -148,32 +132,19 @@ export default function BgScene() {
           const isActive = mouseRef.current.x !== -9999;
 
           for (let i = 0; i < lines.length; i++) {
-            const localMix = lineWaveMix[i];
-            const baseX =
-              baseXValues[i] +
-              Math.sin(t * 0.42 + linePhaseDrift[i] + i * driftFrequency) *
-                driftAmplitude *
-                localMix;
+            const baseX = baseXValues[i] + Math.sin(t + i * driftFrequency) * driftAmplitude;
             const phasePrimary = linePhasePrimary[i];
             const phaseSecondary = linePhaseSecondary[i];
 
             for (let s = 0; s <= SEGMENTS; s++) {
               const y = yValues[s];
-              const fieldPhase = y * fieldCoupling + i * 0.021;
               const flowPrimary = Math.sin(
-                y * waveFreqPrimary + t * waveSpeedPrimary + phasePrimary + fieldPhase,
+                y * waveFreqPrimary + t * waveSpeedPrimary + phasePrimary,
               );
               const flowSecondary = Math.sin(
-                y * waveFreqSecondary - t * waveSpeedSecondary + phaseSecondary + fieldPhase * 0.7,
+                y * waveFreqSecondary - t * waveSpeedSecondary + phaseSecondary,
               );
-              const flowTertiary = Math.sin(
-                y * waveFreqTertiary + t * waveSpeedTertiary + phasePrimary * 0.35,
-              );
-              let x =
-                baseX +
-                flowPrimary * waveAmpPrimary * localMix +
-                flowSecondary * waveAmpSecondary +
-                flowTertiary * waveAmpTertiary;
+              let x = baseX + flowPrimary * waveAmpPrimary + flowSecondary * waveAmpSecondary;
 
               if (isActive) {
                 const dx = x - mx;
@@ -190,8 +161,7 @@ export default function BgScene() {
                 }
               }
 
-              parts[s] =
-                s === 0 ? `M${x.toFixed(2)} ${y.toFixed(2)}` : `L${x.toFixed(2)} ${y.toFixed(2)}`;
+              parts[s] = s === 0 ? `M${~~x} ${~~y}` : `L${~~x} ${~~y}`;
             }
 
             lines[i].setAttribute("d", parts.join(" "));
