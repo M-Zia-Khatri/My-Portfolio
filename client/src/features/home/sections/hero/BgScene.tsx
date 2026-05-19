@@ -67,7 +67,9 @@ export default function BgScene() {
       svg.setAttribute("viewBox", `0 0 ${w} ${h}`);
 
       const responsiveLayout = getResponsiveLayout(w);
-      const count = Math.ceil(w / responsiveLayout.spacingDivisor);
+      const count =
+        Math.ceil(w / responsiveLayout.spacingDivisor) +
+        BG_SCENE_CONFIG.layout.horizontalOverscanLines;
       const SEGMENTS = responsiveLayout.segments;
 
       const defs = document.createElementNS(BG_SCENE_CONFIG.svg.namespace, "defs");
@@ -114,7 +116,8 @@ export default function BgScene() {
       const linePhasePrimary = new Float32Array(count);
       const linePhaseSecondary = new Float32Array(count);
       for (let i = 0; i < count; i++) {
-        baseXValues[i] = i * BG_SCENE_CONFIG.layout.baseXStep;
+        const halfOverscan = BG_SCENE_CONFIG.layout.horizontalOverscanLines / 2;
+        baseXValues[i] = (i - halfOverscan) * BG_SCENE_CONFIG.layout.baseXStep;
         linePhasePrimary[i] = i * BG_SCENE_CONFIG.wave.linePhasePrimaryMultiplier;
         linePhaseSecondary[i] = i * BG_SCENE_CONFIG.wave.linePhaseSecondaryMultiplier;
       }

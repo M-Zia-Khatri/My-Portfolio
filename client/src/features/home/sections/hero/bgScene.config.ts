@@ -26,6 +26,7 @@ export type BgSceneConfig = {
   };
   layout: {
     baseXStep: number;
+    horizontalOverscanLines: number;
     lineSpacingDivisorDesktop: number;
     lineSpacingDivisorTablet: number;
     lineSpacingDivisorMobile: number;
@@ -84,6 +85,7 @@ export const BG_SCENE_CONFIG: BgSceneConfig = {
   },
   layout: {
     baseXStep: 10.5,
+    horizontalOverscanLines: 4,
     lineSpacingDivisorDesktop: 10,
     lineSpacingDivisorTablet: 12,
     lineSpacingDivisorMobile: 14,
