@@ -1,6 +1,6 @@
 import gsap from "gsap";
 import { useEffect, useRef } from "react";
-import { BG_SCENE_CONFIG } from "./bgScene.config";
+import { BG_SCENE_CONFIG, getResponsiveSceneConfig } from "./bgScene.config";
 
 type SVGWithCleanup = SVGSVGElement & {
   _cleanup?: () => void;
@@ -10,8 +10,8 @@ export default function BgScene() {
   const svgRef = useRef<SVGWithCleanup | null>(null);
   const linesRef = useRef<SVGPathElement[]>([]);
   const sizeRef = useRef({ w: 0, h: 0 });
-  const mouseRef = useRef({ ...BG_SCENE_CONFIG.interaction.inactiveMouse });
-  const smoothMouseRef = useRef({ ...BG_SCENE_CONFIG.interaction.inactiveMouse });
+  const mouseRef = useRef({ ...BG_SCENE_CONFIG.runtime.inactiveMouse });
+  const smoothMouseRef = useRef({ ...BG_SCENE_CONFIG.runtime.inactiveMouse });
   const rectCacheRef = useRef<DOMRect | null>(null);
   const prevTRef = useRef(0);
   const loopCountRef = useRef(0);
@@ -20,25 +20,6 @@ export default function BgScene() {
     let animation: gsap.core.Tween | null = null;
     let resizeTimer: ReturnType<typeof setTimeout>;
     let retryCount = 0;
-
-    const getResponsiveLayout = (width: number) => {
-      if (width <= BG_SCENE_CONFIG.breakpoints.mobileMaxWidth) {
-        return {
-          spacingDivisor: BG_SCENE_CONFIG.layout.lineSpacingDivisorMobile,
-          segments: BG_SCENE_CONFIG.layout.segmentsMobile,
-        };
-      }
-      if (width <= BG_SCENE_CONFIG.breakpoints.tabletMaxWidth) {
-        return {
-          spacingDivisor: BG_SCENE_CONFIG.layout.lineSpacingDivisorTablet,
-          segments: BG_SCENE_CONFIG.layout.segmentsTablet,
-        };
-      }
-      return {
-        spacingDivisor: BG_SCENE_CONFIG.layout.lineSpacingDivisorDesktop,
-        segments: BG_SCENE_CONFIG.layout.segmentsDesktop,
-      };
-    };
 
     const init = () => {
       const svg = svgRef.current;
@@ -49,9 +30,9 @@ export default function BgScene() {
       const h = rect.height;
 
       if (!w || !h) {
-        if (retryCount < BG_SCENE_CONFIG.layout.maxInitRetries) {
+        if (retryCount < BG_SCENE_CONFIG.runtime.maxInitRetries) {
           retryCount += 1;
-          setTimeout(() => requestAnimationFrame(init), BG_SCENE_CONFIG.layout.initRetryDelayMs);
+          setTimeout(() => requestAnimationFrame(init), BG_SCENE_CONFIG.runtime.initRetryDelayMs);
         }
         return;
       }
@@ -66,11 +47,10 @@ export default function BgScene() {
 
       svg.setAttribute("viewBox", `0 0 ${w} ${h}`);
 
-      const responsiveLayout = getResponsiveLayout(w);
+      const scene = getResponsiveSceneConfig(w);
       const count =
-        Math.ceil(w / responsiveLayout.spacingDivisor) +
-        BG_SCENE_CONFIG.layout.horizontalOverscanLines;
-      const SEGMENTS = responsiveLayout.segments;
+        Math.ceil(w / scene.layout.lineSpacingDivisor) + scene.layout.horizontalOverscanLines;
+      const SEGMENTS = scene.layout.segments;
 
       const defs = document.createElementNS(BG_SCENE_CONFIG.svg.namespace, "defs");
       const gradient = document.createElementNS(BG_SCENE_CONFIG.svg.namespace, "linearGradient");
@@ -104,8 +84,8 @@ export default function BgScene() {
         ) as SVGPathElement;
 
         path.setAttribute("stroke", `url(#${BG_SCENE_CONFIG.svg.gradient.id})`);
-        path.setAttribute("stroke-width", BG_SCENE_CONFIG.svg.line.strokeWidth);
-        path.setAttribute("opacity", BG_SCENE_CONFIG.svg.line.opacity);
+        path.setAttribute("stroke-width", scene.stroke.strokeWidth);
+        path.setAttribute("opacity", scene.stroke.opacity);
         path.setAttribute("fill", BG_SCENE_CONFIG.svg.line.fill);
 
         svg.appendChild(path);
@@ -116,25 +96,25 @@ export default function BgScene() {
       const linePhasePrimary = new Float32Array(count);
       const linePhaseSecondary = new Float32Array(count);
       for (let i = 0; i < count; i++) {
-        const halfOverscan = BG_SCENE_CONFIG.layout.horizontalOverscanLines / 2;
-        baseXValues[i] = (i - halfOverscan) * BG_SCENE_CONFIG.layout.baseXStep;
-        linePhasePrimary[i] = i * BG_SCENE_CONFIG.wave.linePhasePrimaryMultiplier;
-        linePhaseSecondary[i] = i * BG_SCENE_CONFIG.wave.linePhaseSecondaryMultiplier;
+        const halfOverscan = scene.layout.horizontalOverscanLines / 2;
+        baseXValues[i] = (i - halfOverscan) * scene.layout.baseXStep;
+        linePhasePrimary[i] = i * scene.wave.linePhasePrimaryMultiplier;
+        linePhaseSecondary[i] = i * scene.wave.linePhaseSecondaryMultiplier;
       }
 
-      const driftAmplitude = BG_SCENE_CONFIG.wave.driftAmplitude;
-      const driftFrequency = BG_SCENE_CONFIG.wave.driftFrequency;
-      const waveAmpPrimary = BG_SCENE_CONFIG.wave.primary.amplitude;
-      const waveAmpSecondary = BG_SCENE_CONFIG.wave.secondary.amplitude;
-      const waveFreqPrimary = BG_SCENE_CONFIG.wave.primary.frequency;
-      const waveFreqSecondary = BG_SCENE_CONFIG.wave.secondary.frequency;
-      const waveSpeedPrimary = BG_SCENE_CONFIG.wave.primary.speed;
-      const waveSpeedSecondary = BG_SCENE_CONFIG.wave.secondary.speed;
-      const mouseRadius = BG_SCENE_CONFIG.interaction.mouseRadius;
+      const driftAmplitude = scene.wave.driftAmplitude;
+      const driftFrequency = scene.wave.driftFrequency;
+      const waveAmpPrimary = scene.wave.primary.amplitude;
+      const waveAmpSecondary = scene.wave.secondary.amplitude;
+      const waveFreqPrimary = scene.wave.primary.frequency;
+      const waveFreqSecondary = scene.wave.secondary.frequency;
+      const waveSpeedPrimary = scene.wave.primary.speed;
+      const waveSpeedSecondary = scene.wave.secondary.speed;
+      const mouseRadius = scene.interaction.mouseRadius;
       const mouseRadiusSq = mouseRadius ** 2;
-      const carveStrength = BG_SCENE_CONFIG.interaction.carveStrength;
+      const carveStrength = scene.interaction.carveStrength;
       const pushDist = mouseRadius * carveStrength;
-      const lerpFactor = BG_SCENE_CONFIG.interaction.lerpFactor;
+      const lerpFactor = scene.interaction.lerpFactor;
 
       const state = { t: 0 };
       prevTRef.current = 0;
@@ -159,7 +139,7 @@ export default function BgScene() {
 
           const mx = smoothMouseRef.current.x;
           const my = smoothMouseRef.current.y;
-          const isActive = mouseRef.current.x !== BG_SCENE_CONFIG.interaction.inactiveMouse.x;
+          const isActive = mouseRef.current.x !== BG_SCENE_CONFIG.runtime.inactiveMouse.x;
 
           for (let i = 0; i < lines.length; i++) {
             const baseX = baseXValues[i] + Math.sin(t + i * driftFrequency) * driftAmplitude;
@@ -210,7 +190,7 @@ export default function BgScene() {
       };
 
       const handleMouseLeave = () => {
-        mouseRef.current = { ...BG_SCENE_CONFIG.interaction.inactiveMouse };
+        mouseRef.current = { ...BG_SCENE_CONFIG.runtime.inactiveMouse };
       };
 
       const handleResize = () => {
@@ -218,7 +198,7 @@ export default function BgScene() {
         resizeTimer = setTimeout(() => {
           animation?.kill();
           init();
-        }, BG_SCENE_CONFIG.layout.resizeDebounceMs);
+        }, BG_SCENE_CONFIG.runtime.resizeDebounceMs);
       };
 
       const handlePointerMove = (e: PointerEvent) => {
@@ -238,7 +218,7 @@ export default function BgScene() {
       };
 
       const handleTouchEnd = () => {
-        mouseRef.current = { ...BG_SCENE_CONFIG.interaction.inactiveMouse };
+        mouseRef.current = { ...BG_SCENE_CONFIG.runtime.inactiveMouse };
       };
 
       const handleOrientationChange = () => handleResize();
