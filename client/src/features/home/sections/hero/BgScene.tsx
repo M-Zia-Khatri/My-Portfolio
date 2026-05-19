@@ -18,6 +18,27 @@ export default function BgScene() {
 
   useEffect(() => {
     let animation: gsap.core.Tween | null = null;
+    let resizeTimer: ReturnType<typeof setTimeout>;
+    let retryCount = 0;
+
+    const getResponsiveLayout = (width: number) => {
+      if (width <= BG_SCENE_CONFIG.breakpoints.mobileMaxWidth) {
+        return {
+          spacingDivisor: BG_SCENE_CONFIG.layout.lineSpacingDivisorMobile,
+          segments: BG_SCENE_CONFIG.layout.segmentsMobile,
+        };
+      }
+      if (width <= BG_SCENE_CONFIG.breakpoints.tabletMaxWidth) {
+        return {
+          spacingDivisor: BG_SCENE_CONFIG.layout.lineSpacingDivisorTablet,
+          segments: BG_SCENE_CONFIG.layout.segmentsTablet,
+        };
+      }
+      return {
+        spacingDivisor: BG_SCENE_CONFIG.layout.lineSpacingDivisorDesktop,
+        segments: BG_SCENE_CONFIG.layout.segmentsDesktop,
+      };
+    };
 
     const init = () => {
       const svg = svgRef.current;
@@ -28,9 +49,14 @@ export default function BgScene() {
       const h = rect.height;
 
       if (!w || !h) {
-        requestAnimationFrame(init);
+        if (retryCount < BG_SCENE_CONFIG.layout.maxInitRetries) {
+          retryCount += 1;
+          setTimeout(() => requestAnimationFrame(init), BG_SCENE_CONFIG.layout.initRetryDelayMs);
+        }
         return;
       }
+
+      retryCount = 0;
 
       sizeRef.current = { w, h };
       rectCacheRef.current = rect;
@@ -40,8 +66,9 @@ export default function BgScene() {
 
       svg.setAttribute("viewBox", `0 0 ${w} ${h}`);
 
-      const count = Math.ceil(w / BG_SCENE_CONFIG.layout.lineSpacingDivisor);
-      const SEGMENTS = BG_SCENE_CONFIG.layout.segments;
+      const responsiveLayout = getResponsiveLayout(w);
+      const count = Math.ceil(w / responsiveLayout.spacingDivisor);
+      const SEGMENTS = responsiveLayout.segments;
 
       const defs = document.createElementNS(BG_SCENE_CONFIG.svg.namespace, "defs");
       const gradient = document.createElementNS(BG_SCENE_CONFIG.svg.namespace, "linearGradient");
@@ -183,8 +210,6 @@ export default function BgScene() {
         mouseRef.current = { ...BG_SCENE_CONFIG.interaction.inactiveMouse };
       };
 
-      let resizeTimer: ReturnType<typeof setTimeout>;
-
       const handleResize = () => {
         clearTimeout(resizeTimer);
         resizeTimer = setTimeout(() => {
@@ -193,14 +218,47 @@ export default function BgScene() {
         }, BG_SCENE_CONFIG.layout.resizeDebounceMs);
       };
 
+      const handlePointerMove = (e: PointerEvent) => {
+        if (e.pointerType === "mouse") handleMouseMove(e as unknown as MouseEvent);
+        else {
+          const r = rectCacheRef.current;
+          if (!r) return;
+          mouseRef.current = { x: e.clientX - r.left, y: e.clientY - r.top };
+        }
+      };
+
+      const handleTouchMove = (e: TouchEvent) => {
+        const r = rectCacheRef.current;
+        if (!r || e.touches.length === 0) return;
+        const touch = e.touches[0];
+        mouseRef.current = { x: touch.clientX - r.left, y: touch.clientY - r.top };
+      };
+
+      const handleTouchEnd = () => {
+        mouseRef.current = { ...BG_SCENE_CONFIG.interaction.inactiveMouse };
+      };
+
+      const handleOrientationChange = () => handleResize();
+
       window.addEventListener("mousemove", handleMouseMove);
       window.addEventListener("mouseleave", handleMouseLeave);
+      window.addEventListener("pointermove", handlePointerMove, { passive: true });
+      window.addEventListener("touchmove", handleTouchMove, { passive: true });
+      window.addEventListener("touchend", handleTouchEnd, { passive: true });
       window.addEventListener("resize", handleResize);
+      window.addEventListener("orientationchange", handleOrientationChange);
+      window.visualViewport?.addEventListener("resize", handleResize);
 
       svg._cleanup = () => {
         window.removeEventListener("mousemove", handleMouseMove);
         window.removeEventListener("mouseleave", handleMouseLeave);
+        window.removeEventListener("pointermove", handlePointerMove);
+        window.removeEventListener("touchmove", handleTouchMove);
+        window.removeEventListener("touchend", handleTouchEnd);
         window.removeEventListener("resize", handleResize);
+        window.removeEventListener("orientationchange", handleOrientationChange);
+        window.visualViewport?.removeEventListener("resize", handleResize);
+        clearTimeout(resizeTimer);
         animation?.kill();
       };
     };
@@ -213,8 +271,8 @@ export default function BgScene() {
   }, []);
 
   return (
-    <div className="absolute inset-0 z-0 h-dvh w-full">
-      <svg ref={svgRef} className="h-full w-full" />
+    <div className="absolute inset-0 z-0 h-full min-h-full w-full">
+      <svg ref={svgRef} className="h-full w-full" preserveAspectRatio="none" />
     </div>
   );
 }

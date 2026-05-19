@@ -25,10 +25,20 @@ export type BgSceneConfig = {
     };
   };
   layout: {
-    lineSpacingDivisor: number;
     baseXStep: number;
-    segments: number;
+    lineSpacingDivisorDesktop: number;
+    lineSpacingDivisorTablet: number;
+    lineSpacingDivisorMobile: number;
+    segmentsDesktop: number;
+    segmentsTablet: number;
+    segmentsMobile: number;
     resizeDebounceMs: number;
+    initRetryDelayMs: number;
+    maxInitRetries: number;
+  };
+  breakpoints: {
+    mobileMaxWidth: number;
+    tabletMaxWidth: number;
   };
   interaction: {
     inactiveMouse: { x: number; y: number };
@@ -73,10 +83,20 @@ export const BG_SCENE_CONFIG: BgSceneConfig = {
     },
   },
   layout: {
-    lineSpacingDivisor: 10,
     baseXStep: 10.5,
-    segments: 160,
+    lineSpacingDivisorDesktop: 10,
+    lineSpacingDivisorTablet: 12,
+    lineSpacingDivisorMobile: 14,
+    segmentsDesktop: 160,
+    segmentsTablet: 120,
+    segmentsMobile: 88,
     resizeDebounceMs: 200,
+    initRetryDelayMs: 80,
+    maxInitRetries: 40,
+  },
+  breakpoints: {
+    mobileMaxWidth: 767,
+    tabletMaxWidth: 1023,
   },
   interaction: {
     inactiveMouse: { x: -9999, y: -9999 },
